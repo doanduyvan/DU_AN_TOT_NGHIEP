@@ -20,6 +20,11 @@
   background-color: var(--color-primary-3);
 }
 
+.overllay1{
+  background-color: rgba(209, 209, 209,0.5);
+  transition: all 0.3s linear;
+}
+
 .swapper{
   @apply max-w-[1440px] mx-auto
 }

@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+  --color-primary-1: #FEFAF0;
+  --color-primary-2: #FFE484;
+  --color-primary-3: #FFFFFF;
+}
+
+.bg-p-1{
+  background-color: var(--color-primary-1);
+}
+
+.bg-p-2{
+  background-color: var(--color-primary-2);
+}
+
+.bg-p-3{
+  background-color: var(--color-primary-3);
+}
+
+.swapper{
+  @apply max-w-[1440px] mx-auto
+}

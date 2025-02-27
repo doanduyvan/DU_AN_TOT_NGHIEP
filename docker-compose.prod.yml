@@ -1,0 +1,8 @@
+services:
+  frontend:
+    build:
+      context: ./frontend/user  # Build từ thư mục gốc
+      dockerfile: Dockerfile  # Dockerfile nằm ở thư mục gốc
+    ports:
+      - "5001:80"
+    restart: always

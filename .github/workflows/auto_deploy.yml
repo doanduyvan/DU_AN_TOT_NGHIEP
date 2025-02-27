@@ -20,8 +20,10 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: | 
             cd /var/www/duantotnghiep
+            git reset --hard HEAD
             git pull origin main
-            docker compose -f docker-compose.prod.yml down
-            docker compose -f docker-compose.prod.yml build --no-cache
-            docker compose -f docker-compose.prod.yml up -d
+            sudo docker compose -f docker-compose.prod.yml down
+            sudo docker system prune -af
+            sudo docker compose -f docker-compose.prod.yml build --no-cache
+            sudo docker compose -f docker-compose.prod.yml up -d
 

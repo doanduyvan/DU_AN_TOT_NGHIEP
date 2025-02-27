@@ -21,7 +21,7 @@ jobs:
           script: | 
             cd /var/www/duantotnghiep
             git reset --hard HEAD
-            git pull origin main
+            git pull origin develop
             sudo docker compose -f docker-compose.prod.yml down
             sudo docker system prune -af
             sudo docker compose -f docker-compose.prod.yml build --no-cache

@@ -1,19 +1,18 @@
 import { NavLink } from "react-router-dom";
-
+import { Test } from "../../pages/test";
 const Menu = ({isOpen, setIsOpen}) => {
 
     let classMenuMobile = `fixed top-0 bottom-0 w-full overllay1 lg:hidden ${isOpen ? 'left-0' : 'left-[-100%]'}`;
-
 
     console.log(isOpen)
     const arrMenu = [
         {
             name: 'Home',
-            link: '/'
+            link: '/',
         },
         {
             name: 'Brand',
-            link: '/brand'
+            link: '/brand',
         },
         {
             name: 'Shop',
@@ -31,7 +30,6 @@ const Menu = ({isOpen, setIsOpen}) => {
     
 
     return(
-
         <>
         <div className="flex space-x-4 hidden lg:flex">
         {arrMenu.map(item=> (
@@ -48,7 +46,6 @@ const Menu = ({isOpen, setIsOpen}) => {
             </NavLink>
         ))}
         </div>
-
         <div 
         className={classMenuMobile}
         >

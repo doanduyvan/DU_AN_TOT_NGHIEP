@@ -12,7 +12,7 @@ jobs:
 
     steps:
 
-      - name: 📤 Deploy to VPS
+      - name: Deploy to VPS
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}

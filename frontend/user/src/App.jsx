@@ -12,7 +12,7 @@ function App() {
 
   console.log(link)
 
-  fetch(link) 
+  fetch(link + '/testapi') 
   .then(res => res.json()) // Phải có dấu () để gọi hàm json()
   .then(res => {
     console.log(res);

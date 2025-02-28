@@ -3,6 +3,7 @@ services:
     build:
       context: ./frontend/user  # Build từ thư mục gốc
       dockerfile: Dockerfile  # Dockerfile nằm ở thư mục gốc
+    container_name: duan2_frontend
     ports:
       - "5001:80"
     restart: always

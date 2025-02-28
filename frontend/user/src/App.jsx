@@ -6,9 +6,13 @@ import Header from './components/header/header'
 
 function App() {
 
-  const [text,setText] = useState('');
+  const [text,setText] = useState('that bai');
 
-  fetch('http://localhost:8001/api/testapi') 
+  const link = import.meta.env.VITE_API_URL;
+
+  console.log(link)
+
+  fetch(link) 
   .then(res => res.json()) // Phải có dấu () để gọi hàm json()
   .then(res => {
     console.log(res);

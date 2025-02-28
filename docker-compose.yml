@@ -1,25 +1,16 @@
 
 services:
-  apache:
-    build: 
-      context: ./apache
-    container_name: apache_server
-    restart: always
-    ports:
-      - "8000:80"
-    volumes:
-      - ./backend:/var/www/html
-    depends_on:
-      - php-fpm
-  php-fpm:
-    build: 
+  backend:
+    build:
       context: ./backend
     container_name: laravel_app
     restart: always
     volumes:
       - ./backend:/var/www/html
+    ports:
+    - "8001:80"
     depends_on:
-      - mysql
+    - mysql
 
   mysql:
     image: mysql:8.0

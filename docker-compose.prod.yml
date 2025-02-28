@@ -11,6 +11,8 @@ services:
       context: ./backend
     container_name: laravel_app
     restart: always
+    volumes:
+      - ./backend:/var/www/html
     ports:
     - "8001:80"
     depends_on:

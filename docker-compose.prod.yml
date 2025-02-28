@@ -3,6 +3,45 @@ services:
     build:
       context: ./frontend/user  # Build từ thư mục gốc
       dockerfile: Dockerfile  # Dockerfile nằm ở thư mục gốc
+    container_name: duan2_fe
     ports:
-      - "5001:80"
+      - "7001:80"
     restart: always
+
+  backend:
+    build:
+      context: ./backend
+    container_name: duan2_be
+    restart: always
+    ports:
+    - "7002:80"
+    depends_on:
+    - mysql
+
+  mysql:
+    image: mysql:8.0
+    container_name: duan2_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: duan2
+    ports:
+      - "7003:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: duan2_admin
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "7004:80"
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:

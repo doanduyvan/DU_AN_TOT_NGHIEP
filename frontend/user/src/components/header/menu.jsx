@@ -1,5 +1,4 @@
 import { NavLink } from "react-router-dom";
-import { Test } from "../../pages/test";
 const Menu = ({isOpen, setIsOpen}) => {
 
     let classMenuMobile = `fixed top-0 bottom-0 w-full overllay1 lg:hidden ${isOpen ? 'left-0' : 'left-[-100%]'}`;

@@ -32,8 +32,11 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage \
     && chmod -R 775 /var/www/html/bootstrap/cache
 
+RUN composer install --no-dev --optimize-autoloader
+
 # Mở cổng 80
 EXPOSE 80
 
 # Chạy Apache
 CMD ["apache2-foreground"]
+

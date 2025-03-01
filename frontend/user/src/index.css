@@ -31,3 +31,6 @@
 .iframe_about{
   @apply w-full h-[250px] md:h-[450px] lg:h-[550px] xl:h-[600px] 2xl:h-[650px]
 }
+body{
+  background-color: var(--color-primary-1);
+}

@@ -5,12 +5,14 @@ import { Brand } from './pages/brand'
 import './App.css'
 import { Home } from './pages/home';
 import { About } from './components/aboutPage/about';
+import { ProductDetail } from './pages/product_detail';
 
 function App() {
 
   const Pages = [
     { path: 'brand', element: < Brand /> },
     { path: 'about', element: < About /> },
+    { path: 'products/1', element: < ProductDetail /> }
   ];
 
   const router = createBrowserRouter([

@@ -1,17 +1,40 @@
-FROM php:8.2-fpm-alpine
+FROM php:7.4-apache
 
-# Cài đặt các dependencies
-RUN apk add --no-cache \
-    zip unzip git curl libpng-dev \
-    && docker-php-ext-install pdo_mysql
+# Cài đặt các extension cần thiết
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    zip \
+    unzip \
+    git \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo pdo_mysql
 
-# Cài Composer
+# Cài đặt Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Sao chép mã nguồn Laravel vào container
-WORKDIR /var/www/html/
+# Cấu hình Apache để hỗ trợ .htaccess
+RUN a2enmod rewrite
+
+# Cấu hình thư mục làm việc
+WORKDIR /var/www/html
+
+#copy file config apache
+
+COPY ./apache-conf/000-default.conf /etc/apache2/sites-available/000-default.conf
+
+# Copy mã nguồn Laravel vào container
 COPY . .
 
-# Cấp quyền cho storage
-RUN chmod -R 777 storage bootstrap/cache
+# Thiết lập quyền
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache
+
+# Mở cổng 80
+EXPOSE 80
+
+# Chạy Apache
+CMD ["apache2-foreground"]
 

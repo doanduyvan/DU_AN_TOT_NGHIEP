@@ -12,7 +12,7 @@ jobs:
 
     steps:
 
-      - name: 📤 Deploy to VPS
+      - name: Deploy to VPS
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -22,8 +22,5 @@ jobs:
             cd /var/www/duantotnghiep
             git reset --hard HEAD
             git pull origin develop
-            sudo docker compose -f docker-compose.prod.yml down
-            sudo docker system prune -af
-            sudo docker compose -f docker-compose.prod.yml build --no-cache
-            sudo docker compose -f docker-compose.prod.yml up -d
+
 

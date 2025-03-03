@@ -43,7 +43,7 @@ export const ProductDetail = () => {
 
                 <div className="md:w-1/2 w-full bg-white p-5 flex flex-col justify-between">
                     <p className="text-3xl md:text-4xl font-semibold text-gray-800 mb-4">
-                        Product Name
+                    Soy pH-Balanced Hydrating Face Wash Jumbo
                     </p>
 
                     <div className="flex flex-col lg:flex-row gap-4">

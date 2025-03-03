@@ -6,6 +6,7 @@ import './App.css'
 import { Home } from './pages/home';
 import { About } from './components/aboutPage/about';
 import { ProductDetail } from './pages/product_detail';
+import { TestAdmin } from './pages/testadmin';
 
 function App() {
 
@@ -13,6 +14,9 @@ function App() {
     { path: 'brand', element: < Brand /> },
     { path: 'about', element: < About /> },
     { path: 'products/1', element: < ProductDetail /> }
+  ];
+  const PagesAdmin = [
+    { path: 'testadmin', element: < TestAdmin /> },
   ];
 
   const router = createBrowserRouter([
@@ -26,7 +30,17 @@ function App() {
         },
         ...Pages,
       ]
-    }
+    },
+    {
+      path: '/admin/',
+      children: [
+        {
+          index: true, element:
+            <Home />
+        },
+        ...PagesAdmin,]
+    },
+
   ]);
 
     return <RouterProvider router={router} />;

@@ -9,6 +9,7 @@ import { ProductDetail } from './pages/product_detail';
 
 function App() {
 
+
   const Pages = [
     { path: 'brand', element: < Brand /> },
     { path: 'about', element: < About /> },

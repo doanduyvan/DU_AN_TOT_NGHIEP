@@ -1,5 +1,4 @@
 import Navbar from "./Nav";
-
 function Header(){
 
     return(
@@ -13,10 +12,6 @@ function Header(){
                 </div>
             </header>
             <div className="h-[100px]"></div>
-
-            <div>
-                hello
-            </div>
         </>
     )
 }
@@ -24,4 +19,3 @@ function Header(){
 export default Header;
 
 
-  

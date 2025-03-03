@@ -1,31 +1,35 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { LayoutOutlet } from './layouts/layout_outlet'
+import { Brand } from './pages/brand'
 import './App.css'
-import Header from './components/header/header'
+import { Home } from './pages/home';
+import { About } from './components/aboutPage/about';
+import { ProductDetail } from './pages/product_detail';
 
 function App() {
 
-  const [text,setText] = useState('that bai');
+  const Pages = [
+    { path: 'brand', element: < Brand /> },
+    { path: 'about', element: < About /> },
+    { path: 'products/1', element: < ProductDetail /> }
+  ];
 
-  const link = import.meta.env.VITE_API_URL;
+  const router = createBrowserRouter([
+    {
+      path: '/',
+      element: <LayoutOutlet />,
+      children: [
+        {
+          index: true, element:
+            <Home />
+        },
+        ...Pages,
+      ]
+    }
+  ]);
 
-  console.log(link)
-
-  fetch(link + '/testapi') 
-  .then(res => res.json()) // Phải có dấu () để gọi hàm json()
-  .then(res => {
-    console.log(res);
-    setText(res.tinnhan);
-  })
-  .catch(error => console.error("Lỗi API:", error));
-
-  return (
-    <>
-    <Header />
-    <div>{text}</div>
-    </>
-  )
+    return <RouterProvider router={router} />;
 }
 
 export default App

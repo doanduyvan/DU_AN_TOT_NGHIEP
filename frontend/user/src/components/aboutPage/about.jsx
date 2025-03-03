@@ -3,19 +3,19 @@ export const About = () => {
         {
             title: "Authentic Beauty Products, Guaranteed",
             textContent: "We work closely with your favorite beauty brands as an authorized retailer to make sure all the products we ship are guaranteed authentic.",
-            image: "../src/assets/images/png/star.png",
+            image: "/images/png/star.png",
             link: "#"
         },
         {
             title: "Expert Tips and Advice",
             textContent: "We give you all the information you need to make intelligent shopping decisions for yourself. We work with top dermatologists, estheticians, hairstylists and makeup artistst.",
-            image: "../src/assets/images/png/comment.png",
+            image: "/images/png/comment.png",
             link: "#"
         },
         {
             title: "Award-Winning Customer Service Team",
             textContent: "Winner of the Bizrate Platinum Circle of Excellence Award for over ten years, our team of highly trained beauty experts are ready to help.",
-            image: "../src/assets/images/png/suport.png",
+            image: "/images/png/suport.png",
             link: "#"
         }
 
@@ -60,7 +60,7 @@ export const About = () => {
                                 </p>
                             </div>
                             <div className="lg:w-1/2 mt-6 lg:mt-0 md:pr-10">
-                                <img src="../src/assets/images/png/about.png" className="w-full border max-h-96 border-gray-700" alt="" />
+                                <img src="/images/png/about.png" className="w-full border max-h-96 border-gray-700" alt="" />
                             </div>
                         </div>
                     </div>

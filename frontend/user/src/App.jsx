@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { LayoutOutlet } from './layouts/layout_outlet'
+import { LayoutOutletUser } from './layouts/layout_outlet'
 import { Brand } from './pages/brand'
 import './App.css'
 import { Home } from './pages/home';
@@ -10,11 +10,14 @@ import { TestAdmin } from './pages/testadmin';
 
 function App() {
 
+
   const Pages = [
     { path: 'brand', element: < Brand /> },
     { path: 'about', element: < About /> },
     { path: 'products/1', element: < ProductDetail /> }
   ];
+
+  
   const PagesAdmin = [
     { path: 'testadmin', element: < TestAdmin /> },
   ];
@@ -22,7 +25,7 @@ function App() {
   const router = createBrowserRouter([
     {
       path: '/',
-      element: <LayoutOutlet />,
+      element: <LayoutOutletUser />,
       children: [
         {
           index: true, element:

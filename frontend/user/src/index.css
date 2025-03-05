@@ -21,8 +21,19 @@
 }
 
 .overllay1{
+  transition: all 0.3s linear;
+}
+
+.overllay2{
   background-color: rgba(209, 209, 209,0.5);
   transition: all 0.3s linear;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.overllay2.active{
+  opacity: 1;
+  visibility: visible;
 }
 
 .swapper{
@@ -33,4 +44,14 @@
 }
 body{
   background-color: var(--color-primary-1);
+}
+
+
+@media (max-width: 568px){
+  .logo-primary{
+    display: none;
+  }
+  .header-nav{
+    justify-content: space-between;
+  }
 }

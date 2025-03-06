@@ -37,7 +37,7 @@ export const ProductDetail = () => {
         <div className="mx-auto flex flex-col md:flex-row md:gap-8 gap-4">
           <div className="md:w-1/2 w-full">
             <img
-              src="/public/images/png/product_detail.png"
+              src="/images/png/product_detail.png"
               className="w-full h-auto"
               alt="Product"
             />

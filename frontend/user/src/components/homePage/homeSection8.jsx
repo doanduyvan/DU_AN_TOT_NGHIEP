@@ -1,10 +1,10 @@
 const images = [
-  "/public/images/home/cp1.png",
-  "/public/images/home/cp2.png",
-  "/public/images/home/cp3.png",
-  "/public/images/home/cp4.png",
-  "/public/images/home/cp5.png",
-  "/public/images/home/cp6.png",
+  "/images/home/cp1.png",
+  "/images/home/cp2.png",
+  "/images/home/cp3.png",
+  "/images/home/cp4.png",
+  "/images/home/cp5.png",
+  "/images/home/cp6.png",
 ];
 
 const HomeSection8 = () => {

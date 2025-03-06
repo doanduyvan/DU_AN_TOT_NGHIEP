@@ -31,25 +31,25 @@ const Banners = () => {
       <div>
         <div style={contentStyle}>
         <a href="https://facebook.com">
-            <img style={styleImg} src="/public/images/home/b1.jpg" alt="" />
+            <img style={styleImg} src="/images/home/b1.jpg" alt="" />
         </a>
         </div>
       </div>
       <div>
         <div style={contentStyle}>
-        <img style={styleImg} src="/public/images/home/b2.png" alt="" />
+        <img style={styleImg} src="/images/home/b2.png" alt="" />
 
         </div>
       </div>
       <div>
         <div style={contentStyle}>
-        <img style={styleImg} src="/public/images/home/b3.png" alt="" />
+        <img style={styleImg} src="/images/home/b3.png" alt="" />
 
         </div>
       </div>
       <div>
         <div style={contentStyle}>
-        <img style={styleImg} src="/public/images/home/b4.jpg" alt="" />
+        <img style={styleImg} src="/images/home/b4.jpg" alt="" />
 
         </div>
       </div>

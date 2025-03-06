@@ -32,7 +32,7 @@ const Item = () => {
   return (
     <div className="border rounded-lg overflow-hidden bg-white shadow-md">
       <img
-        src="/public/images/home/t3.png"
+        src="/images/home/t3.png"
         className="w-full h-56 object-cover"
       />
       <div className="p-4">

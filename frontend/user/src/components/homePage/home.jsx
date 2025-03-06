@@ -31,7 +31,7 @@ const Home = () => {
           {/* Right Image Section */}
           <div className="w-full md:w-1/2 h-56 md:h-auto overflow-hidden bg-stone-200">
             <img
-              src="/public/images/home/img1.png"
+              src="/images/home/img1.png"
               alt="Hand holding a beauty product with wooden cap"
               className="w-full h-full object-cover"
             />
@@ -76,7 +76,7 @@ const Home = () => {
             </div>
             <div className="md:w-1/2 mt-6 md:mt-0 flex justify-center">
               <img
-                src="/public/images/home/t1.png"
+                src="/images/home/t1.png"
                 alt="Beauty Deals"
                 className="w-full aspect-square object-cover max-w-md rounded-lg shadow-lg"
               />

@@ -5,7 +5,7 @@ const ProductCard = () => {
     <div className="max-w-full bg-stone-50 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
       <div className="flex justify-center">
         <img 
-          src="/public/images/home/p1.png" 
+          src="/images/home/p1.png" 
           alt="Soy pH-Balanced Hydrating Face Wash Jumbo" 
           className="w-full aspect-square object-cover"
         />

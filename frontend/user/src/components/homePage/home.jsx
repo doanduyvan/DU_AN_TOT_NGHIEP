@@ -104,7 +104,7 @@ const Home = () => {
             </div>
             <div className="md:w-1/2 mt-6 md:mt-0 flex justify-center">
               <img
-                src="public/images/home/t2.png"
+                src="/images/home/t2.png"
                 alt="Ultimate Rewards"
                 className="w-full max-w-md object-cover aspect-[4/3] shadow-lg"
               />

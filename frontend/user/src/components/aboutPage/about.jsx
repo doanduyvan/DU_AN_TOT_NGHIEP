@@ -23,7 +23,9 @@ export const About = () => {
     },
   ];
   return (
+    
     <div className="mx-auto h-auto">
+      <div className="h-[100px]"></div>
       <div className="ml:p-6 swapper">
         <div className="text-center">
           <p className="text-4xl font-semibold text-gray-800">

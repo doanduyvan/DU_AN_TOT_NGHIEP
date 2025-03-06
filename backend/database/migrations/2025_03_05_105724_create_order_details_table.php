@@ -22,11 +22,11 @@ class CreateOrderDetailsTable extends Migration
 
             // Khóa ngoại
             $table->foreign('order_id')
-                  ->references('id')->on('orders')
-                  ->onDelete('cascade');
+                ->references('id')->on('orders')
+                ->onDelete('cascade');
 
             $table->foreign('product_variant_id')
-                  ->references('id')->on('products_variant');
+                ->references('id')->on('products_variant');
         });
     }
 

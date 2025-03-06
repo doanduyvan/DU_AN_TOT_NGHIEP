@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { LayoutOutlet } from './layouts/layout_outlet'
-import { Brand } from './pages/brand'
+import { UserLayout } from './layouts/user/userlayout'
+import { AdminLayout } from './layouts/admin/adminlayout'
+import { Brand } from './pages/user/brand'
 import './App.css'
-import { Home } from './pages/home';
+import { Home } from './pages/user/home';
 import { About } from './components/aboutPage/about';
-import { ProductDetail } from './pages/product_detail';
-import { TestAdmin } from './pages/testadmin';
+import { ProductDetail } from './pages/user/product_detail';
+import { Categories } from './pages/admin/categories/index';
+import { Create_category } from './pages/admin/categories/create';
+import { Home_Admin } from './pages/admin/home';
 
 function App() {
 
@@ -16,13 +19,14 @@ function App() {
     { path: 'products/1', element: < ProductDetail /> }
   ];
   const PagesAdmin = [
-    { path: 'testadmin', element: < TestAdmin /> },
+    { path: 'categories', element: < Categories /> },
+    { path: 'categories/create', element: < Create_category /> },
   ];
 
   const router = createBrowserRouter([
     {
       path: '/',
-      element: <LayoutOutlet />,
+      element: <UserLayout />,
       children: [
         {
           index: true, element:
@@ -33,10 +37,11 @@ function App() {
     },
     {
       path: '/admin/',
+      element: <AdminLayout />,
       children: [
         {
           index: true, element:
-            <Home />
+            <Home_Admin />
         },
         ...PagesAdmin,]
     },

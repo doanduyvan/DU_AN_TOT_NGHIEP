@@ -1,6 +1,6 @@
 export const AdminFooter = () => {
     return (
-        <div className="p-4 fixed bottom-0 w-full">
+        <div className="p-4 bottom-0 w-full">
             <footer className="bg-white md:flex md:items-center md:justify-between shadow rounded-lg p-4 md:p-6 xl:p-8 lg:ml-64">
                 <ul className="flex items-center flex-wrap mb-6 md:mb-0">
                     <li>

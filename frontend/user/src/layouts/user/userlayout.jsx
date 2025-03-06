@@ -6,6 +6,7 @@ export const UserLayout = () => {
         <div>
             <Header />
             <Outlet />
+            
         </div>
     );
 }

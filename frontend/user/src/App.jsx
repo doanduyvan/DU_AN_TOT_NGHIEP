@@ -9,18 +9,23 @@ import { About } from './components/aboutPage/about';
 import { ProductDetail } from './pages/user/product_detail';
 import { Categories } from './pages/admin/categories/index';
 import { Create_category } from './pages/admin/categories/create';
+import { Update_Category } from './pages/admin/categories/update';
 import { Home_Admin } from './pages/admin/home';
 
 function App() {
+
 
   const Pages = [
     { path: 'brand', element: < Brand /> },
     { path: 'about', element: < About /> },
     { path: 'products/1', element: < ProductDetail /> }
   ];
+
+  
   const PagesAdmin = [
     { path: 'categories', element: < Categories /> },
     { path: 'categories/create', element: < Create_category /> },
+    { path: 'categories/update/:id', element: < Update_Category /> },
   ];
 
   const router = createBrowserRouter([

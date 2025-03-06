@@ -4,9 +4,9 @@ import { UserLayout } from './layouts/user/userlayout'
 import { AdminLayout } from './layouts/admin/adminlayout'
 import { Brand } from './pages/user/brand'
 import './App.css'
-import { Home } from './pages/user/home';
 import { About } from './components/aboutPage/about';
 import { ProductDetail } from './pages/user/product_detail';
+import Home from './components/homePage/home';
 import { Categories } from './pages/admin/categories/index';
 import { Create_category } from './pages/admin/categories/create';
 import { Update_Category } from './pages/admin/categories/update';

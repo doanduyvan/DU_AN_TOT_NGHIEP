@@ -11,7 +11,6 @@ function Header(){
                     </div>
                 </div>
             </header>
-            <div className="h-[100px]"></div>
         </>
     )
 }

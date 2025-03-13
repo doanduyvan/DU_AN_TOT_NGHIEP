@@ -1,4 +1,4 @@
-FROM php:7.4-apache
+FROM php:8.2-apache
 
 # Cài đặt các extension cần thiết
 RUN apt-get update && apt-get install -y \

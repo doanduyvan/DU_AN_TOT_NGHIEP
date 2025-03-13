@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { UserLayout } from './layouts/user/userlayout'
 import { AdminLayout } from './layouts/admin/adminlayout'
@@ -11,14 +10,20 @@ import { Categories } from './pages/admin/categories/index';
 import { Create_category } from './pages/admin/categories/create';
 import { Update_Category } from './pages/admin/categories/update';
 import { Home_Admin } from './pages/admin/home';
+import LoginForm from './components/login/login';
+import RegisterForm from './components/login/register';
+import CartPage from "./components/cartPage/cartPage";
 
 function App() {
 
 
   const Pages = [
+    {path: 'login', element: <LoginForm />},
+    {path: 'register', element: <RegisterForm />},
     { path: 'brand', element: < Brand /> },
     { path: 'about', element: < About /> },
-    { path: 'products/1', element: < ProductDetail /> }
+    { path: 'products/1', element: < ProductDetail /> },
+    { path: 'cart', element: <CartPage />}
   ];
 
   

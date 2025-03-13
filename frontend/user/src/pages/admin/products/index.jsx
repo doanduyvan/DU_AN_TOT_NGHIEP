@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { productService } from "../../../services/api-products";
 import { message, notification } from "antd";
 import { ImageModal } from "../../../components/admin/imgmodal";
+import { Link } from "react-router-dom";
 
 export const Products = () => {
 
@@ -65,7 +66,7 @@ export const Products = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await productService.allProducts();
+                const res = await productService.getAllProducts();
                 if (res) {
                     setProducts(Array.isArray(res) ? res : []);
                     console.log(res);
@@ -114,12 +115,12 @@ export const Products = () => {
                     <h5 className="text-xl font-medium leading-tight text-primary">
                         Quản Lý Sản Phẩm
                     </h5>
-                    <a
-                        href="/admin/products/create"
+                    <Link
+                        to="/admin/products/create"
                         className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
                     >
                         Thêm Sản Phẩm
-                    </a>
+                    </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
                     <div>
@@ -277,15 +278,14 @@ export const Products = () => {
                                     <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
                                 </td>
                                 <td className="px-6 py-4">
-                                    <a
-                                        href={`/admin/products/update/${product.id}`}
+                                    <Link
+                                        to={`/admin/products/update/${product.id}`}
                                         type="button"
                                         data-modal-target="editUserModal"
                                         data-modal-show="editUserModal"
-                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                    >
+                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
                                         Edit
-                                    </a>
+                                    </Link>
                                 </td>
                             </tr>
                         ))}

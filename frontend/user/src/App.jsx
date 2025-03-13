@@ -33,19 +33,17 @@ import CartPage from "./components/cartPage/cartPage";
 
 import { Login } from './pages/auth/login';
 import { Register } from './pages/auth/register';
-import { useAuth } from './contexts/authcontext'; // Import useAuth
 
 
 function App() {
 
 
   const Pages = [
-    {path: 'login', element: <LoginForm />},
-    {path: 'register', element: <RegisterForm />},
+
     { path: 'brand', element: < Brand /> },
     { path: 'about', element: < About /> },
     { path: 'products/1', element: < ProductDetail /> },
-    { path: 'cart', element: <CartPage />}
+    { path: 'cart', element: <CartPage /> }
   ];
 
 
@@ -98,11 +96,27 @@ function App() {
       element: <Register />,
     },
 
-  ]);
+  ],
+    {
+      future: {
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+        v7_fetcherPersist: true,
+        v7_normalizeFormMethod: true,
+        v7_partialHydration: true,
+        v7_skipActionErrorRevalidation: true,
+      },
+    }
+
+  );
 
   return (
     < AuthProvider >
-      <RouterProvider router={router} />
+      <RouterProvider router={router}
+        future={{
+          v7_startTransition: true,
+        }}
+      />
     </AuthProvider>
   )
 }

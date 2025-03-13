@@ -14,9 +14,19 @@ services:
     container_name: duan2_be
     restart: always
     ports:
-    - "7002:80"
+      - "7002:80"
+    volumes:
+      - ./backend:/var/www/html
     depends_on:
-    - mysql
+      - mysql
+    command: >
+      bash -c "mkdir -p /var/www/html/storage &&
+           mkdir -p /var/www/html/bootstrap/cache &&
+           chown -R www-data:www-data /var/www/html &&
+           chmod -R 775 /var/www/html/storage &&
+           chmod -R 775 /var/www/html/bootstrap/cache &&
+           composer install --no-dev --optimize-autoloader &&
+           apache2-foreground"
 
   mysql:
     image: mysql:8.0

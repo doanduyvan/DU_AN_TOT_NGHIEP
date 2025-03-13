@@ -57,5 +57,5 @@ route::post('/products/delete',[ProductsController::class,'destroy']);
 
 
 Route::get('/testapi',function(){
-    return json_encode(['tinnhan' => 'ok roi api hoạt động']);
+    return json_encode(['tinnhan' => 'ok roi api hoạt động 12']);
 });

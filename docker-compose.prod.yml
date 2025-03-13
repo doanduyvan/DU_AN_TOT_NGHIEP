@@ -1,5 +1,6 @@
 services:
   frontend:
+    image: frontend # Sử dụng image đã build
     build:
       context: ./frontend/user  # Build từ thư mục gốc
       dockerfile: Dockerfile  # Dockerfile nằm ở thư mục gốc
@@ -9,6 +10,7 @@ services:
     restart: always
 
   backend:
+    image: backend # Sử dụng image đã build
     build:
       context: ./backend
     container_name: duan2_be

@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 const Navbar = () => {
     const location = useLocation();
-    const [isOpen,setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
     useEffect(() => {
       // Ẩn menu khi vào trang "/login"
       // if (location.pathname === "/login") {

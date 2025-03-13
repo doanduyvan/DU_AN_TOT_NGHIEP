@@ -41,37 +41,73 @@ export const AdminSidebar = () => {
         },
         {
             id: "3",
+            name: "Sản phẩm",
+            link: "/admin/products",
+            svg: <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path fill="currentColor" d="M7 2H3a1 1 0 0 0-1 1v18a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1ZM5 21a2 2 0 1 1 2-2a2 2 0 0 1-2 2Zm2-9H3V3h4Zm-1 7a1 1 0 1 1-1-1a1 1 0 0 1 1 1Zm8-17h-4a1 1 0 0 0-1 1v18a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Zm-2 19a2 2 0 1 1 2-2a2 2 0 0 1-2 2Zm2-9h-4V3h4Zm-1 7a1 1 0 1 1-1-1a1 1 0 0 1 1 1Zm8-17h-4a1 1 0 0 0-1 1v18a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Zm-2 19a2 2 0 1 1 2-2a2 2 0 0 1-2 2Zm2-9h-4V3h4Zm-1 7a1 1 0 1 1-1-1a1 1 0 0 1 1 1Z"/></svg>,
+            sub_menu: [
+                {
+                    id: "3.1",
+                    name: "Thêm",
+                    link: "/admin/products/create"
+                },
+                {
+                    id: "3.2",
+                    name: "Danh sách",
+                    link: "/admin/products/list"
+                },
+            ]
+        },
+        {
+            id: "4",
             name: "Người dùng",
             link: "/admin/users",
             svg: <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 32 32"><path fill="currentColor" d="M16 4a5 5 0 1 1-5 5a5 5 0 0 1 5-5m0-2a7 7 0 1 0 7 7a7 7 0 0 0-7-7zm10 28h-2v-5a5 5 0 0 0-5-5h-6a5 5 0 0 0-5 5v5H6v-5a7 7 0 0 1 7-7h6a7 7 0 0 1 7 7z"/></svg>,
             sub_menu: [
                 {
-                    id: "3.1",
+                    id: "4.1",
                     name: "Thêm",
                     link: "/admin/users/add",
                 },
                 {
-                    id: "3.2",
+                    id: "4.2",
                     name: "Danh sách",
                     link: "/admin/users/list",
                 },
             ]
         },
         {
-            id: "4",
+            id: "5",
             name: "Vai trò",
             link: "/admin/roles",
             svg: <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 32 32"><path fill="currentColor" d="M28.07 21L22 15l6.07-6l1.43 1.41L24.86 15l4.64 4.59L28.07 21zM22 30h-2v-5a5 5 0 0 0-5-5H9a5 5 0 0 0-5 5v5H2v-5a7 7 0 0 1 7-7h6a7 7 0 0 1 7 7zM12 4a5 5 0 1 1-5 5a5 5 0 0 1 5-5m0-2a7 7 0 1 0 7 7a7 7 0 0 0-7-7z"/></svg>,
             sub_menu: [
                 {
-                    id: "3.1",
+                    id: "5.1",
                     name: "Thêm",
-                    link: "/admin/roles/add",
+                    link: "/admin/roles/create",
                 },
                 {
-                    id: "3.2",
+                    id: "5.2",
                     name: "Danh sách",
                     link: "/admin/roles/list",
+                },
+            ]
+        },
+        {
+            id: "6",
+            name: "Quyền hạn",
+            link: "/admin/permissions",
+            svg: <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="4"><path strokeLinejoin="round" d="M20 10H6a2 2 0 0 0-2 2v26a2 2 0 0 0 2 2h36a2 2 0 0 0 2-2v-2.5"/><path d="M10 23h8m-8 8h24"/><circle cx="34" cy="16" r="6" strokeLinejoin="round"/><path strokeLinejoin="round" d="M44 28.419C42.047 24.602 38 22 34 22s-5.993 1.133-8.05 3"/></g></svg>,
+            sub_menu: [
+                {
+                    id: "6.1",
+                    name: "Thêm",
+                    link: "/admin/permissions/create",
+                },
+                {
+                    id: "6.2",
+                    name: "Danh sách",
+                    link: "/admin/permissions/list",
                 },
             ]
         },

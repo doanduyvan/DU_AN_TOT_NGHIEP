@@ -13,16 +13,20 @@ use Illuminate\Support\Str;
 class ProductsController extends Controller
 {
     //
-    public function index($id = null)
+    public function index()
     {
-        if ($id !== null) {
-            $Product = Product::findOrFail($id);
-            return response()->json([
-                'Product' => $Product,
-            ]);
-        }
         $Products = Product::orderBy('id', 'desc')->get();
         return response()->json($Products);
+    }
+
+    public function getProductById($id)
+    {
+        $product = Product::where('id', $id)->first();
+        $product->load('images');
+        $product->load('variants');
+        return response()->json([
+            'product' => $product,
+    ]);
     }
 
     public function create(ProductRequest $productRequest, ProductImageRequest $imageRequest, ProductVariantRequest $variantRequest)

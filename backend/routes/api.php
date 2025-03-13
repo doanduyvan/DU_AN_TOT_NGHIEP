@@ -50,7 +50,8 @@ route::post('/categories/create',[CategoriesController::class,'create']);
 route::post('/categories/delete',[CategoriesController::class,'destroy']);
 route::post('/categories/update/{id}',[CategoriesController::class,'update']);
 
-route::get('/products/{id?}',[ProductsController::class,'index']);
+route::get('/products',[ProductsController::class,'index']);
+route::get('/products/{id}',[ProductsController::class,'getProductById']);
 route::post('/products/create',[ProductsController::class,'create']);
 route::post('/products/delete',[ProductsController::class,'destroy']);
 

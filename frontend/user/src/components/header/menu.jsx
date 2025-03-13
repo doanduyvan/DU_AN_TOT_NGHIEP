@@ -55,6 +55,7 @@ const Menu = ({isOpen, setIsOpen}) => {
             </NavLink>
         ))}
         </div>
+
         <div 
         className={classMenuMobile}
         onClick={closeMenu}
@@ -66,6 +67,13 @@ const Menu = ({isOpen, setIsOpen}) => {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>
                 </button>
+
+                <div>
+                    <NavLink to='/'>
+                        <h2 className="mt-4 text-center font-bold text-2xl">Mes Skin</h2>
+                    </NavLink>
+                </div>
+
                 <div className="flex flex-col gap-4 pt-3">
                     {arrMenu.map(item=> (
                         <NavLink

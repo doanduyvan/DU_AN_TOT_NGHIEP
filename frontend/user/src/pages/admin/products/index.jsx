@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { destroy, callCategories } from "../../../services/api-categories";
+import { productService } from "../../../services/api-products";
 import { message, notification } from "antd";
 import { ImageModal } from "../../../components/admin/imgmodal";
 
-export const Categories = () => {
+export const Products = () => {
+
     const [imageSrc, setImageSrc] = useState(null);
-    const [categories, setCategories] = useState([]);
-    const [selectedCategories, setSelectedCategories] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [selectedProducts, setselectedProducts] = useState([]);
 
     const openModal = (src) => {
         setImageSrc(src);
@@ -15,18 +16,17 @@ export const Categories = () => {
     const closeModal = () => {
         setImageSrc(null);
     };
-
-    const checkCategory = (e, id) => {
-        setSelectedCategories((prevSelectedCategories) => {
+    const checkProduct = (e, id) => {
+        setselectedProducts((prevselectedProducts) => {
             if (e.target.checked) {
-                return [...prevSelectedCategories, id];
+                return [...prevselectedProducts, id];
             } else {
-                return prevSelectedCategories.filter((item) => item !== id);
+                return prevselectedProducts.filter((item) => item !== id);
             }
         });
     };
     const hanDleDelete = async () => {
-        if (selectedCategories.length === 0) {
+        if (selectedProducts.length === 0) {
             notification.warning({
                 message: "Không có danh mục nào được chọn",
                 duration: 3,
@@ -34,12 +34,12 @@ export const Categories = () => {
             return;
         }
         try {
-            const res = await destroy(selectedCategories);
-            console.log(selectedCategories);
+            const res = await productService.destroy(selectedProducts);
+            console.log(selectedProducts);
             if (res?.status === 200) {
-                setCategories((prevCategories) => {
-                    return prevCategories.filter(
-                        (category) => !selectedCategories.includes(category.id)
+                setProducts((prevProducts) => {
+                    return prevProducts.filter(
+                        (product) => !selectedProducts.includes(product.id)
                     );
                 });
                 notification.success({
@@ -65,9 +65,9 @@ export const Categories = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await callCategories();
+                const res = await productService.allProducts();
                 if (res) {
-                    setCategories(Array.isArray(res) ? res : []);
+                    setProducts(Array.isArray(res) ? res : []);
                     console.log(res);
                 } else {
                     notification.error({
@@ -105,20 +105,20 @@ export const Categories = () => {
                         </span>
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Quản Lý Danh Mục
+                        Quản Lý Sản Phẩm
                     </li>
                 </ol>
             </nav>
             <div className="relative overflow-x-auto shadow-md my-4 sm:rounded-lg bg-white">
                 <div className="flex justify-between items-center p-4">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Quản Lý Danh Mục
+                        Quản Lý Sản Phẩm
                     </h5>
                     <a
-                        href="/admin/categories/create"
+                        href="/admin/products/create"
                         className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
                     >
-                        Thêm Danh Mục
+                        Thêm Sản Phẩm
                     </a>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
@@ -149,11 +149,11 @@ export const Categories = () => {
                         </button>
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
-                        {(selectedCategories.length > 0) ?
+                        {(selectedProducts.length > 0) ?
                             <button
                                 onClick={() => {
                                     const confirmed = window.confirm(
-                                        `Bạn có chắc chắn muốn xóa ${selectedCategories.length} Danh Mục này không?`
+                                        `Bạn có chắc chắn muốn xóa ${selectedProducts.length} Danh Mục này không?`
                                     );
                                     if (confirmed) {
                                         hanDleDelete();
@@ -201,13 +201,13 @@ export const Categories = () => {
                             <th scope="col" className="p-4">
                                 <div className="flex items-center">
                                     <input
-                                        checked={selectedCategories.length === categories.length}
+                                        checked={selectedProducts.length === products.length}
                                         onChange={() => {
-                                            if (selectedCategories.length === categories.length) {
-                                                setSelectedCategories([]); // bo chon tat ca
+                                            if (selectedProducts.length === products.length) {
+                                                setselectedProducts([]); // bo chon tat ca
                                             } else {
-                                                setSelectedCategories(
-                                                    categories.map((category) => category.id)
+                                                setselectedProducts(
+                                                    products.map((product) => product.id)
                                                 ); // chon tat ca
                                             }
                                         }}
@@ -232,17 +232,17 @@ export const Categories = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {categories.map((category) => (
+                        {products.map((product) => (
                             <tr
-                                key={category.id}
+                                key={product.id}
                                 className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                             >
                                 <td className="w-4 p-4">
                                     <div className="flex items-center">
                                         <input
                                             id="checkbox-table-search-1"
-                                            onChange={(e) => checkCategory(e, category.id)}
-                                            checked={selectedCategories.includes(category.id)}
+                                            onChange={(e) => checkProduct(e, product.id)}
+                                            checked={selectedProducts.includes(product.id)}
                                             type="checkbox"
                                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                         />
@@ -260,26 +260,25 @@ export const Categories = () => {
                                 >
                                     <div className="ps-3">
                                         <div className="text-base font-semibold">
-                                            {category.category_name}
+                                            {product.product_name}
                                         </div>
                                     </div>
                                 </th>
                                 <td className="px-6 py-4">
                                     <a
-                                    className="underline cursor-pointer"
+                                        className="underline cursor-pointer"
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            openModal(category.img);
+                                            openModal(product.avatar);
                                         }}
                                     >
                                         Hình ảnh
                                     </a>
                                     <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
                                 </td>
-                                
                                 <td className="px-6 py-4">
                                     <a
-                                        href={`/admin/categories/update/${category.id}`}
+                                        href={`/admin/products/update/${product.id}`}
                                         type="button"
                                         data-modal-target="editUserModal"
                                         data-modal-show="editUserModal"

@@ -4,6 +4,8 @@ const instance = axios.create({
   baseURL: baseUrl,
   headers: {
     "Content-Type": "application/json",
+    'Accept': 'application/json',
+    "Content-Type": "multipart/form-data",
   },
   withCredentials: true,
 });
@@ -29,36 +31,10 @@ instance.interceptors.response.use(
   },
   async function (error) {
     const originalRequest = error.config;
-
-    if (error.response) {
-      const { status } = error.response;
-      if ((status === 401 && !originalRequest._retry) || status === 403) {
-        originalRequest._retry = true;
-        try {
-          // Gọi API refresh token
-          // const refreshToken = localStorage.getItem("refreshToken");
-          // if (!refreshToken) throw new Error("No refresh token available");
-          // const refreshTokenResponse = await axios.post(
-          //   `${baseUrl}/auth/refresh`,
-          //   { refresh_token: refreshToken }
-          // );
-          // const { access_token } = refreshTokenResponse.data;
-          // localStorage.setItem("token", access_token);
-          // originalRequest.headers.Authorization = `Bearer ${access_token}`;
-
-          // if (status === 403) {
-          //   window.location.href = "/";
-          // }
-
-          return instance(originalRequest); // Gửi lại request ban đầu
-        } catch (refreshError) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("refreshToken");
-          return Promise.reject(refreshError);
-        }
-      }
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");
+      window.location.href = "/login";
     }
-
     return Promise.reject(error);
   }
 );

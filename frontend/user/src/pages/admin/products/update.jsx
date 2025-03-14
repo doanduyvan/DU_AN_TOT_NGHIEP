@@ -123,7 +123,7 @@ export const Update_Product = () => {
     }, [id]);
 
     const handSubmit = async (e) => {
-            e.preventDefault();
+        e.preventDefault();
         const formData = new FormData(e.target);
         formData.append('description', editorData);
 
@@ -143,8 +143,8 @@ export const Update_Product = () => {
         imageFiles.forEach((file) => {
             formData.append(`images[]`, file);
         });
-        
-        if(imageFiles.length === 0 && existingImages.length === 0) {
+
+        if (imageFiles.length === 0 && existingImages.length === 0) {
             alert('Hình ảnh sản phẩm không được để trống.');
             return;
         }
@@ -357,7 +357,7 @@ export const Update_Product = () => {
                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Size</label>
                         <select
                             name="size"
-                            defaultValue={product.size}
+                            defaultValue={product.size}  // Set default value here
                             className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
                         >
                             <option value="S">S</option>

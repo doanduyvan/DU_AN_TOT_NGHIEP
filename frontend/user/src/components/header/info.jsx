@@ -8,6 +8,8 @@ import { useAuth } from '../../contexts/authcontext';
 const Info = () => {
     const { user } = useUserContext();
     console.log("render info");
+    const { currentUser } = useAuth();
+    console.log(currentUser);
 
     if (user % 2) return <LoggedIn />;
 

@@ -1,35 +1,122 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { CKEditor, useCKEditorCloud } from '@ckeditor/ckeditor5-react';
 import '../App.css';
 
 const LICENSE_KEY =
     'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NjQ4MDYzOTksImp0aSI6IjlkYWY2NjA2LTRlOTUtNGUzNi05OGJiLTA4OTY5NTY4OGM2YSIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiXSwiZmVhdHVyZXMiOlsiRFJVUCIsIkJPWCJdLCJ2YyI6IjFjM2UxNTU3In0.PE8F54iTOGEXBd0843fjJq-93XhEOpASNppI3curVa4gx9xMyfKGF_QDY_iDRM2nD9_PrfRfSZYF-1ko7Wnvbw';
 
-export const Ckeditor5Component = ({ dataEditor ,onChange }) => {
+// Lớp Upload Adapter tùy chỉnh
+class Base64UploadAdapter {
+    constructor(loader) {
+        this.loader = loader;
+    }
+
+    // Bắt đầu quá trình tải lên
+    upload() {
+        return this.loader.file
+            .then(file => new Promise((resolve, reject) => {
+                // Kiểm tra kích thước tập tin (ví dụ: giới hạn 5MB)
+                const maxFileSize = 5 * 1024 * 1024; // 5MB
+                if (file.size > maxFileSize) {
+                    return reject(`Kích thước tập tin quá lớn. Tối đa ${maxFileSize / (1024 * 1024)}MB.`);
+                }
+
+                // Kiểm tra loại tập tin
+                const acceptedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp', 'image/svg+xml'];
+                if (!acceptedTypes.includes(file.type)) {
+                    return reject('Loại tập tin không được hỗ trợ. Chỉ chấp nhận JPG, PNG, GIF, BMP, WEBP và SVG.');
+                }
+
+                // Sử dụng FileReader để đọc tệp dưới dạng URL dữ liệu
+                const reader = new FileReader();
+                
+                reader.onload = function() {
+                    resolve({
+                        default: reader.result
+                    });
+                };
+                
+                reader.onerror = function() {
+                    reject('Không thể đọc tập tin. Vui lòng thử lại.');
+                };
+                
+                reader.onabort = function() {
+                    reject('Việc đọc tập tin đã bị hủy.');
+                };
+                
+                reader.readAsDataURL(file);
+            }));
+    }
+
+    // Hủy quá trình tải lên
+    abort() {
+        // Không cần thực hiện gì trong trường hợp này vì FileReader không hỗ trợ abort
+        console.log('Đã hủy quá trình tải lên.');
+    }
+}
+
+// Hàm tạo plugin tạo một thể hiện mới của adapter
+function Base64UploadAdapterPlugin(editor) {
+    editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+        return new Base64UploadAdapter(loader);
+    };
+}
+
+export const Ckeditor5Component = ({ dataEditor, onChange }) => {
     const [contentData, setContentData] = useState('');
     const editorContainerRef = useRef(null);
     const editorRef = useRef(null);
     const [isLayoutReady, setIsLayoutReady] = useState(false);
+    const [editor, setEditor] = useState(null);
     const cloud = useCKEditorCloud({ version: '44.1.0', translations: ['vi'] });
 
     // Cập nhật contentData khi dataEditor thay đổi
     useEffect(() => {
         if (dataEditor) {
-            setContentData(dataEditor);  // Cập nhật giá trị contentData khi dataEditor thay đổi
+            setContentData(dataEditor);
+            // Nếu editor đã được khởi tạo, cập nhật nội dung trực tiếp
+            if (editor) {
+                editor.setData(dataEditor);
+            }
         }
-    }, [dataEditor]);  // Khi dataEditor thay đổi, cập nhật lại contentData
+    }, [dataEditor, editor]);
 
+    // Xử lý khi editor sẵn sàng
+    const handleEditorReady = useCallback((editor) => {
+        setEditor(editor);
+        
+        // Đăng ký xử lý lỗi tải lên
+        editor.plugins.get('FileRepository').on('uploadError', (evt, { error, fileLoader }) => {
+            console.error('Upload error:', error);
+            // Hiển thị thông báo lỗi cho người dùng (có thể thêm thư viện toast hoặc alert)
+            alert(`Lỗi tải lên: ${error.message || 'Không thể tải lên hình ảnh'}`);
+        });
+    }, []);
+
+    // Xử lý khi nội dung thay đổi
     const handleEditorChange = (event, editor) => {
-        const data = editor.getData();  // Lấy dữ liệu từ CKEditor
-        setContentData(data);  // Cập nhật giá trị vào state
-        if (onChange) onChange(data);  // Gọi lại hàm onChange từ component cha
+        const data = editor.getData();
+        setContentData(data);
+        if (onChange) onChange(data);
     };
 
+    // Thiết lập layout
     useEffect(() => {
         setIsLayoutReady(true);
-
         return () => setIsLayoutReady(false);
     }, []);
+
+    // Làm sạch khi component unmount
+    useEffect(() => {
+        return () => {
+            if (editor) {
+                editor.destroy()
+                    .catch(error => {
+                        console.error('Lỗi khi hủy editor:', error);
+                    });
+            }
+        };
+    }, [editor]);
 
     const { ClassicEditor, editorConfig } = useMemo(() => {
         if (cloud.status !== 'success' || !isLayoutReady) {
@@ -112,10 +199,14 @@ export const Ckeditor5Component = ({ dataEditor ,onChange }) => {
                         'numberedList',
                         'todoList',
                         'outdent',
-                        'indent'
+                        'indent',
+                        '|',
+                        'imageUpload',  // Đảm bảo có mục này trong thanh công cụ
+                        'imageInsertViaUrl'
                     ],
                     shouldNotGroupWhenFull: false
                 },
+                extraPlugins: [Base64UploadAdapterPlugin], // Thêm plugin adapter tùy chỉnh của bạn
                 plugins: [
                     Alignment,
                     AutoImage,
@@ -226,10 +317,12 @@ export const Ckeditor5Component = ({ dataEditor ,onChange }) => {
                         'imageStyle:breakText',
                         '|',
                         'resizeImage'
-                    ]
+                    ],
+                    upload: {
+                        types: ['jpeg', 'png', 'gif', 'bmp', 'webp', 'svg+xml']
+                    }
                 },
-                initialData:
-                    contentData,
+                initialData: contentData,
                 language: 'vi',
                 licenseKey: LICENSE_KEY,
                 link: {
@@ -255,26 +348,41 @@ export const Ckeditor5Component = ({ dataEditor ,onChange }) => {
                 menuBar: {
                     isVisible: true
                 },
-                placeholder: 'Type or paste your content here!',
+                placeholder: 'Nhập hoặc dán nội dung của bạn tại đây!',
                 table: {
                     contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
+                },
+                // Thêm giới hạn kích thước tệp
+                fileUpload: {
+                    maxFileSize: 5 * 1024 * 1024 // 5MB
                 }
             }
         };
-    }, [cloud, isLayoutReady]);
+    }, [cloud, isLayoutReady, contentData]);
+
+    // Hiển thị trạng thái đang tải nếu cloud chưa sẵn sàng
+    if (cloud.status === 'loading') {
+        return <div className="editor-loading">Đang tải trình soạn thảo...</div>;
+    }
+
+    // Hiển thị lỗi nếu có
+    if (cloud.status === 'error') {
+        return <div className="editor-error">Không thể tải trình soạn thảo. Vui lòng thử lại sau.</div>;
+    }
 
     return (
-            <div className="editor-container editor-container_classic-editor" ref={editorContainerRef}>
-                <div className="editor-container__editor">
-                    <div ref={editorRef}>{
-                        ClassicEditor && editorConfig &&
-                        <CKEditor
-                            editor={ClassicEditor}
-                            config={editorConfig}
-                            data={contentData}  // Truyền contentData vào CKEditor
-                            onChange={handleEditorChange}
-                        />}</div>
-                </div>
+        <div className="editor-container editor-container_classic-editor" ref={editorContainerRef}>
+            <div className="editor-container__editor">
+                <div ref={editorRef}>{
+                    ClassicEditor && editorConfig &&
+                    <CKEditor
+                        editor={ClassicEditor}
+                        config={editorConfig}
+                        data={contentData}
+                        onChange={handleEditorChange}
+                        onReady={handleEditorReady}
+                    />}</div>
             </div>
+        </div>
     );
 };

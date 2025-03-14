@@ -7,6 +7,7 @@ import { Ckeditor5Component } from "../../../components/ckeditor";
 export const Update_Product = () => {
     const { id } = useParams();
     const [product, setProduct] = useState({});
+    const [variant, setVariant] = useState({});
     const [avatar, setAvatar] = useState(null);
     const [previewImages, setPreviewImages] = useState([]);
     const [editorData, setEditorData] = useState('');
@@ -62,7 +63,6 @@ export const Update_Product = () => {
 
         // Xóa hình ảnh khỏi state existingImages
         const updatedExistingImages = existingImages.filter((_, i) => i !== index);
-        console.log(updatedExistingImages);
         setExistingImages(updatedExistingImages);
     };
 
@@ -97,8 +97,9 @@ export const Update_Product = () => {
                 if (res) {
                     setProduct(res.product);
                     setAvatar(res.product.avatar);
+                    setVariant(res.variant);
                     setEditorData(res.product.description);
-                    console.log("Product: ", res.product);
+
                     // Nếu sản phẩm có hình ảnh, lưu vào state
                     if (res.product.images && Array.isArray(res.product.images)) {
                         setExistingImages(res.product.images);
@@ -120,16 +121,16 @@ export const Update_Product = () => {
         };
         fetchProductData();
     }, [id]);
+
     const handSubmit = async (e) => {
-        e.preventDefault();
+            e.preventDefault();
         const formData = new FormData(e.target);
         formData.append('description', editorData);
 
         const avatarFile = document.querySelector('input[name="avatar"]').files[0];
-
         // Chỉ yêu cầu avatar khi chưa có avatar cũ
         if (!avatarFile && !avatar) {
-            alert('Vui lòng chọn ảnh đại diện.');
+            alert('Hình đại diện không được để trống.');
             return;
         }
 
@@ -142,7 +143,11 @@ export const Update_Product = () => {
         imageFiles.forEach((file) => {
             formData.append(`images[]`, file);
         });
-
+        
+        if(imageFiles.length === 0 && existingImages.length === 0) {
+            alert('Hình ảnh sản phẩm không được để trống.');
+            return;
+        }
         // Thêm danh sách ID hình ảnh đã xóa
         if (deletedImageIds.length > 0) {
             deletedImageIds.forEach(id => {
@@ -150,12 +155,8 @@ export const Update_Product = () => {
             });
         }
 
-        formData.forEach((value, key) => {
-            console.log(key, value);
-        });
-
         try {
-            const res = await productService.upadte(formData);
+            const res = await productService.update(id, formData);
             if (res?.status === 200) {
                 Notification.success({
                     message: "Cập nhật thành công",
@@ -370,7 +371,7 @@ export const Update_Product = () => {
                         <input
                             type="number"
                             name="price"
-                            defaultValue={product.price}
+                            defaultValue={variant.price}
                             className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
                         />
                     </div>
@@ -379,7 +380,7 @@ export const Update_Product = () => {
                         <input
                             type="number"
                             name="promotional_price"
-                            defaultValue={product.promotional_price}
+                            defaultValue={variant.promotional_price}
                             className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
                         />
                     </div>
@@ -388,7 +389,7 @@ export const Update_Product = () => {
                         <input
                             type="number"
                             name="stock_quantity"
-                            defaultValue={product.stock_quantity}
+                            defaultValue={variant.stock_quantity}
                             className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
                         />
                     </div>

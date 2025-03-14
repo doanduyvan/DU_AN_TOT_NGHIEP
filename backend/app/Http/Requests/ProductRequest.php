@@ -23,12 +23,17 @@ class ProductRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'category_id' => 'required|exists:category,id',
             'product_name' => 'required|string|max:255',
             'description' => 'string',
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ];
+        if (!$this->route('id')) {
+            $rules['avatar'] = 'required|image|max:2048';
+        } else {
+            $rules['avatar'] = 'nullable|image|max:2048';
+        }
+        return $rules;
     }
     public function messages()
     {

@@ -52,6 +52,7 @@ route::post('/categories/update/{id}',[CategoriesController::class,'update']);
 
 route::get('/products',[ProductsController::class,'index']);
 route::get('/products/{id}',[ProductsController::class,'getProductById']);
+route::post('/products/update/{id}',[ProductsController::class,'update']);
 route::post('/products/create',[ProductsController::class,'create']);
 route::post('/products/delete',[ProductsController::class,'destroy']);
 

@@ -53,7 +53,7 @@ export const AdminSidebar = () => {
                 {
                     id: "3.2",
                     name: "Danh sách",
-                    link: "/admin/products/list"
+                    link: "/admin/products"
                 },
             ]
         },

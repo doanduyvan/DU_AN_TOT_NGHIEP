@@ -2,16 +2,13 @@ import { useState } from "react";
 import { useUserContext } from "/src/context/user/userContext";
 import { Dropdown } from "antd";
 import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link, Navigate } from "react-router-dom";
 import { useAuth } from '../../contexts/authcontext';
+import { AuthService } from '../../services/api-auth';
 
 const Info = () => {
-    const { user } = useUserContext();
-    console.log("render info");
     const { currentUser } = useAuth();
-    console.log(currentUser);
-
-    if (user % 2) return <LoggedIn />;
+    if (currentUser) return <LoggedIn />;
 
     return (
         <button className="ml-2 text-gray-700 hover:text-black border p-1 rounded-md">
@@ -40,19 +37,24 @@ export default Info;
 const LoggedIn = () => {
     const [open, setOpen] = useState(false);
     const { currentUser } = useAuth();
-    console.log(currentUser);
-
-    // Sử dụng `items` thay vì `Menu`
+    const handleLogout = async () => {
+        try {
+            await AuthService.logout();
+            Navigate('/login');
+        } catch (error) {
+            console.log(error);
+        }
+    }
     const menuProps = {
         items: [
             {
                 key: "profile",
-                label: <a href="/profile">{(currentUser) ? currentUser.fullname : '' }</a>,
+                label: <Link to="/profile">{(currentUser) ? currentUser.fullname : '' }</Link>,
                 icon: <UserOutlined />,
             },
             {
                 key: "logout",
-                label: <a href="/logout" className="text-red-500">Log out</a>,
+                label: <Link onClick={handleLogout} className="text-red-500">Log out</Link>,
                 icon: <LogoutOutlined />,
             },
         ],

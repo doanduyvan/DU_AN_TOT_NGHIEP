@@ -20,8 +20,15 @@ const apiGet = async (url) => {
 };
 
 const productService = {
-  allProducts: async () => {
+  getAllProducts: async () => {
     return apiGet("/products");
+  },
+
+  getProductById: async (id) => {
+    return apiGet(`/products/${id}`);
+  },
+  categories: async () => {
+    return apiGet("/categories");
   },
   create: async (data) => {
     return apiPost("/products/create", data);
@@ -32,6 +39,5 @@ const productService = {
   destroy: async (ids) => {
     return apiPost("/products/delete", { ids });
   },
-
 };
 export { productService };

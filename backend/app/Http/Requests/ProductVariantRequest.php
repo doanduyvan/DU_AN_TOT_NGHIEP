@@ -26,6 +26,7 @@ class ProductVariantRequest extends FormRequest
         return [
             'size' => 'required|string',
             'price' => 'required|numeric',
+            'promotional_price' => 'numeric',
             'stock_quantity' => 'required|integer',
         ];
     }
@@ -36,6 +37,7 @@ class ProductVariantRequest extends FormRequest
             'size.string' => 'Kích thước phải là chuỗi',
             'price.required' => 'Giá không được để trống',
             'price.numeric' => 'Giá phải là số',
+            'promotional_price.numeric' => 'Giảm giá phải là số',
             'tock_quantity.required' => 'Số lượng không được để trống',
             'stock_quantity.integer' => 'Số lượng phải là số nguyên',
         ];

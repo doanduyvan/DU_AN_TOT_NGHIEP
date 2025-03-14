@@ -23,11 +23,22 @@ class ProductImageRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'images' => 'required|array',
-            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp,',
+        $rules = [
+            'images' => 'nullable|array',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ];
+
+        if (!$this->route('id')) { 
+            $rules['images'] = 'required|array'; 
+            $rules['images.*'] = 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048';  
+        } else {
+            $rules['images'] = 'nullable|array';
+            $rules['images.*'] = 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048';
+        }
+
+        return $rules;
     }
+
     public function messages()
     {
         return [

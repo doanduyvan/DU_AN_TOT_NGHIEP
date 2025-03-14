@@ -13,7 +13,7 @@ class RoleController extends Controller
     protected $super_admin;
     public function __construct()
     {
-        $this->super_admin = ['Super Admin'];
+        $this->super_admin = ['Admin'];
     }
 
     public function index()

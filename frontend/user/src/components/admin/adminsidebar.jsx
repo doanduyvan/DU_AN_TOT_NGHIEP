@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-
+import { Link } from 'react-router-dom';
 export const AdminSidebar = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [dropdownStates, setDropdownStates] = useState({});
@@ -53,7 +53,7 @@ export const AdminSidebar = () => {
                 {
                     id: "3.2",
                     name: "Danh sách",
-                    link: "/admin/products/list"
+                    link: "/admin/products"
                 },
             ]
         },
@@ -89,7 +89,7 @@ export const AdminSidebar = () => {
                 {
                     id: "5.2",
                     name: "Danh sách",
-                    link: "/admin/roles/list",
+                    link: "/admin/roles",
                 },
             ]
         },
@@ -107,7 +107,7 @@ export const AdminSidebar = () => {
                 {
                     id: "6.2",
                     name: "Danh sách",
-                    link: "/admin/permissions/list",
+                    link: "/admin/permissions",
                 },
             ]
         },
@@ -193,10 +193,10 @@ export const AdminSidebar = () => {
                                     Menu.map((item) => (
                                         <li key={item.id}>
                                             <div className='flex justify-around items-center'>
-                                                <a href={item.link} className="text-base text-gray-900 font-normal rounded-lg flex items-center p-2 hover:bg-gray-100 group w-80">
+                                                <Link to={item.link} className="text-base text-gray-900 font-normal rounded-lg flex items-center p-2 hover:bg-gray-100 group w-80">
                                                     {item.svg}
                                                     <span className="ml-3">{item.name}</span>
-                                                </a>
+                                                </Link>
                                                 {item.sub_menu &&
                                                     <span
                                                         onClick={() => toggleArrowDown(item.id)}
@@ -216,9 +216,9 @@ export const AdminSidebar = () => {
                                                         {
                                                             item.sub_menu.map((subItem) => (
                                                                 <li key={subItem.id}>
-                                                                    <a href={subItem.link} className="text-sm text-gray-900 font-normal rounded-lg flex items-center p-2 hover:bg-gray-100 group">
+                                                                    <Link to={subItem.link} className="text-sm text-gray-900 font-normal rounded-lg flex items-center p-2 hover:bg-gray-100 group">
                                                                         <span className="ml-8">{subItem.name}</span>
-                                                                    </a>
+                                                                    </Link>
                                                                 </li>
                                                             ))
                                                         }

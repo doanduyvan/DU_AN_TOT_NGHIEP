@@ -9,20 +9,26 @@ use App\Http\Requests\ProductRequest;
 use App\Http\Requests\ProductImageRequest;
 use App\Http\Requests\ProductVariantRequest;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class ProductsController extends Controller
 {
     //
-    public function index($id = null)
+    public function index()
     {
-        if ($id !== null) {
-            $Product = Product::findOrFail($id);
-            return response()->json([
-                'Product' => $Product,
-            ]);
-        }
         $Products = Product::orderBy('id', 'desc')->get();
         return response()->json($Products);
+    }
+
+    public function getProductById($id)
+    {
+        $product = Product::where('id', $id)->first();
+        $product->load('images');
+        $variant = $product->variants()->first();
+        return response()->json([
+            'product' => $product,
+            'variant' => $variant,
+        ]);
     }
 
     public function create(ProductRequest $productRequest, ProductImageRequest $imageRequest, ProductVariantRequest $variantRequest)
@@ -83,32 +89,60 @@ class ProductsController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(ProductRequest $productRequest, ProductImageRequest $imageRequest, ProductVariantRequest $variantRequest, $id)
     {
-        $validateData = $request->validate([
-            'category_name' => 'required|string',
-            'img' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-        ]);
         try {
-            $category = Product::findOrFail($id);
-            if ($request->hasFile('img')) {
-                if ($category->img) {
-                    $oldImagePath = public_path('storage/' . $category->img);
-                    if (file_exists($oldImagePath)) {
-                        unlink($oldImagePath);
+            $product = Product::findOrFail($id);
+            $validateData = $productRequest->validated();
+            if ($productRequest->hasFile('avatar')) {
+                if ($product->avatar) {
+                    Storage::disk('public')->delete('uploads/products/' . $product->avatar);
+                }
+
+                $path = $productRequest->file('avatar')->storePublicly('uploads/products', 'public');
+                $validateData['avatar'] = $path;
+            }
+            $product->update($validateData);
+
+            // cap nhat hinh anh san pham neu co
+            if ($imageRequest->has('images') || $imageRequest->has('deleted_images')) {
+                // Chỉ xóa những hình đã chọn xóa
+                if ($imageRequest->has('deleted_images')) {
+                    $deletedImageIds = $imageRequest->input('deleted_images');
+                    // Xóa từng hình theo ID đã chọn
+                    foreach ($deletedImageIds as $imageId) {
+                        $image = $product->images()->find($imageId);
+                        if ($image) {
+                            // Xóa file nếu cần
+                            if ($image->img) {
+                                Storage::disk('public')->delete($image->img);
+                            }
+                            // Xóa record trong database
+                            $image->delete();
+                        }
                     }
                 }
-                $path = $request->file('img')->storePublicly('uploads', 'public');
-                $validateData['img'] = $path;
-            } else {
-                $validateData['img'] = $category->img;
+
+                // Lưu các ảnh mới (nếu có)
+                if ($imageRequest->has('images')) {
+                    foreach ($imageRequest->file('images') as $image) {
+                        $imagePath = $image->storePublicly('uploads/products', 'public');
+                        $product->images()->create(['img' => $imagePath]);
+                    }
+                }
             }
-            $category->update($validateData);
+            $variants = $variantRequest->validated();
+            // Xoá các biến thể cũ (nếu có) và tạo mới
+
+            $product->variants()->update($variants);
+
+
+
             return response()->json([
-                'message' => 'Cập nhật danh mục thành công',
+                'message' => 'Cập nhật sản phẩm thành công',
                 'status' => 200,
-                'category' => $category,
-                'image_url' => asset('storage/' . $category->img)
+                'product' => $product,
+                'image_url' => asset('storage/' . $product->avatar)
             ], 200);
         } catch (QueryException $e) {
             return response()->json([

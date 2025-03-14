@@ -5,16 +5,19 @@ import '../App.css';
 const LICENSE_KEY =
     'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NjQ4MDYzOTksImp0aSI6IjlkYWY2NjA2LTRlOTUtNGUzNi05OGJiLTA4OTY5NTY4OGM2YSIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiXSwiZmVhdHVyZXMiOlsiRFJVUCIsIkJPWCJdLCJ2YyI6IjFjM2UxNTU3In0.PE8F54iTOGEXBd0843fjJq-93XhEOpASNppI3curVa4gx9xMyfKGF_QDY_iDRM2nD9_PrfRfSZYF-1ko7Wnvbw';
 
-export const Ckeditor5Component = ({ onChange }) => {
+export const Ckeditor5Component = ({ dataEditor ,onChange }) => {
     const [contentData, setContentData] = useState('');
     const editorContainerRef = useRef(null);
     const editorRef = useRef(null);
     const [isLayoutReady, setIsLayoutReady] = useState(false);
     const cloud = useCKEditorCloud({ version: '44.1.0', translations: ['vi'] });
 
-    // useEffect(() => {
-    //     setContentData("hehe")
-    // }, []);
+    // Cập nhật contentData khi dataEditor thay đổi
+    useEffect(() => {
+        if (dataEditor) {
+            setContentData(dataEditor);  // Cập nhật giá trị contentData khi dataEditor thay đổi
+        }
+    }, [dataEditor]);  // Khi dataEditor thay đổi, cập nhật lại contentData
 
     const handleEditorChange = (event, editor) => {
         const data = editor.getData();  // Lấy dữ liệu từ CKEditor
@@ -268,10 +271,10 @@ export const Ckeditor5Component = ({ onChange }) => {
                         <CKEditor
                             editor={ClassicEditor}
                             config={editorConfig}
-                            data={contentData}
+                            data={contentData}  // Truyền contentData vào CKEditor
                             onChange={handleEditorChange}
                         />}</div>
                 </div>
             </div>
     );
-}
+};

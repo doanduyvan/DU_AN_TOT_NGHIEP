@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { callRoles, destroyRole } from "../../../services/api-roles";
 import { notification as Notification } from "antd";;
-
+import { Link } from "react-router-dom";
 export const Roles = () => {
     const [roles, setRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
@@ -88,12 +88,12 @@ export const Roles = () => {
                     <nav className="rounded-md w-full">
                         <ol className="list-reset flex">
                             <li>
-                                <a
-                                    href="#"
+                                <Link
+                                    to="#"
                                     className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                                 >
                                     Home
-                                </a>
+                                </Link>
                             </li>
                             <li>
                                 <span className="mx-2 text-neutral-500 dark:text-neutral-400">
@@ -109,12 +109,12 @@ export const Roles = () => {
                         <h5 className="text-xl font-medium leading-tight text-primary">
                             Quản Lý Vai Trò
                         </h5>
-                        <a
-                            href="/admin/roles/create"
+                        <Link
+                            to="/admin/roles/create"
                             className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
                         >
                             Thêm Vai Trò
-                        </a>
+                        </Link>
                     </div>
 
                     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -269,15 +269,15 @@ export const Roles = () => {
                                         <td className="px-6 py-4 text-gray-700">{role.guard_name}</td>
                                         <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(role.updated_at).toLocaleDateString('vi-VN')}</td>
                                         <td className="px-6 py-4">
-                                            <a
-                                                href={`/admin/roles/update/${role.id}`}
+                                            <Link
+                                                to={`/admin/roles/update/${role.id}`}
                                                 type="button"
                                                 data-modal-target="editUserModal"
                                                 data-modal-show="editUserModal"
                                                 className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                                             >
                                                 Edit
-                                            </a>
+                                            </Link>
                                         </td>
                                     </tr>
                                 ))}

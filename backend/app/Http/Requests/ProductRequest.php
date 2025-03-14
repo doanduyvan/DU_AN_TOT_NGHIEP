@@ -23,11 +23,17 @@ class ProductRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'category_id' => 'required|exists:category,id',
             'product_name' => 'required|string|max:255',
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'description' => 'string',
         ];
+        if (!$this->route('id')) {
+            $rules['avatar'] = 'required|image|max:2048';
+        } else {
+            $rules['avatar'] = 'nullable|image|max:2048';
+        }
+        return $rules;
     }
     public function messages()
     {
@@ -41,6 +47,7 @@ class ProductRequest extends FormRequest
             'avatar.image' => 'Ảnh đại diện phải là hình ảnh',
             'avatar.mimes' => 'Hình ảnh phải có định dạng jpeg, png, jpg, gif, webp',
             'avatar.max' => 'Hình ảnh không được vượt quá 2MB',
+            'description.string' => 'Mô tả phải là chuỗi',
         ];
     }
 }

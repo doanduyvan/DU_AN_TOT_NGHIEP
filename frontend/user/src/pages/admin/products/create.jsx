@@ -1,5 +1,5 @@
-import { useNavigate } from "react-router-dom";
-import { useState, useRef } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
 import { notification as Notification } from "antd";
 import { productService } from "../../../services/api-products";
 import { Ckeditor5Component } from "../../../components/ckeditor";
@@ -9,6 +9,7 @@ export const Create_Product = () => {
     const [previewImages, setPreviewImages] = useState([]);
     const [editorData, setEditorData] = useState('');
     const [imageFiles, setImageFiles] = useState([]);
+    const [categories, setCategories] = useState([]);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
@@ -51,6 +52,30 @@ export const Create_Product = () => {
         setImageFiles(updatedImageFiles);
     };
 
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const res = await productService.categories();
+                if (res) {
+                    setCategories(Array.isArray(res) ? res : []);
+                    console.log(res);
+                } else {
+                    Notification.error({
+                        message: "Có lỗi xảy ra",
+                        description: res?.message || "Vui lòng thử lại sau",
+                        duration: 5,
+                    });
+                }
+            } catch (error) {
+                Notification.error({
+                    message: "Lỗi trong quá trình gọi api",
+                    description: error.message || "Vui lòng thử lại sau",
+                    duration: 5,
+                });
+            }
+        };
+        fetchData();
+    }, []);
     const handSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -117,12 +142,12 @@ export const Create_Product = () => {
             <nav className="rounded-md w-full">
                 <ol className="list-reset flex">
                     <li>
-                        <a
-                            href="/admin"
+                        <Link
+                            to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
                             Dashboard
-                        </a>
+                        </Link>
                     </li>
                     <li>
                         <span className="mx-2 text-neutral-500 dark:text-neutral-400">
@@ -130,12 +155,12 @@ export const Create_Product = () => {
                         </span>
                     </li>
                     <li>
-                        <a
-                            href="/admin/products"
+                        <Link
+                            to="/admin/products"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
                             Quản Lý Sản Phẩm
-                        </a>
+                        </Link>
                     </li>
                     <li>
                         <span className="mx-2 text-neutral-500 dark:text-neutral-400">
@@ -180,15 +205,19 @@ export const Create_Product = () => {
                             </div>
                         )}
                     </div>
+                    <div className="mb-5">
+                        <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Danh mục</label>
+                        <select name="category_id" id="" className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
+                            {categories.map((category) => (
+                                <option key={category.id} value={category.id}>{category.category_name}</option>
+                            ))}
+                        </select>
+                    </div>
                     <div className="mb-5 w-auto">
                         <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Mô tả sản phẩm</label>
                         <Ckeditor5Component
                             onChange={handleEditorChange}
                         />
-                    </div>
-                    <div className="mb-5">
-                        <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"> Danh mục</label>
-                        <input type="text" id="img" name="category_id" className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" />
                     </div>
                     <div className="mb-5">
                         <label htmlFor="images" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Hình ảnh sản phẩm</label>

@@ -1,6 +1,6 @@
 
 import { message, notification } from "antd";
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { showRole, showPermission, update } from "../../../services/api-roles";
 
@@ -105,12 +105,12 @@ export const Update_Role = () => {
             <nav className="rounded-md w-full my-2">
                 <ol className="list-reset flex">
                     <li>
-                        <a
-                            href="/admin"
+                        <Link
+                            to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
                             Dashboard
-                        </a>
+                        </Link>
                     </li>
                     <li>
                         <span className="mx-2 text-neutral-500 dark:text-neutral-400">
@@ -118,12 +118,12 @@ export const Update_Role = () => {
                         </span>
                     </li>
                     <li>
-                        <a
-                            href="/admin/roles"
+                        <Link
+                            to="/admin/roles"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
                             Quản lý vai trò
-                        </a>
+                        </Link>
                     </li>
                     <li>
                         <span className="mx-2 text-neutral-500 dark:text-neutral-400">

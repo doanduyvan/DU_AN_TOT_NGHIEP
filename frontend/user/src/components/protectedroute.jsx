@@ -2,10 +2,9 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/authcontext';
 
-const ProtectedRoute = ({ children, role }) => {
+const ProtectedRoute = ({ children, role, permission}) => {
     const { currentUser, loading, hasPermission, hasRole } = useAuth();
-
-    if (hasRole(role)) {
+    if (hasRole(role) && !hasPermission(permission)) {
         return <Navigate to="/" />;
     }
 

@@ -63,7 +63,7 @@ body {
 }
 
 .editor-container__editor {
-  height: 400px; 
+  height: 450px; 
 }
 
 .editor-container__editor {
@@ -71,7 +71,7 @@ body {
 }
 
 .editor-container__editor .ck-editor__editable {
-  height: 300px; 
+  height: 400px; 
 }
 .editor-container__editor .ck-editor__editable {
   width: 100%; 

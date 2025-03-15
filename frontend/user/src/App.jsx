@@ -27,19 +27,17 @@ import { Products } from './pages/admin/products/index';
 import { Create_Product } from './pages/admin/products/create';
 import { Update_Product } from './pages/admin/products/update';
 import { Home_Admin } from './pages/admin/home';
-import LoginForm from './components/login/login';
-import RegisterForm from './components/login/register';
+import LoginForm from './components/auth/login';
+import RegisterForm from './components/auth/register';
 import CartPage from "./components/cartPage/cartPage";
+import { Users } from "./pages/admin/users";
 
-import { Login } from './pages/auth/login';
-import { Register } from './pages/auth/register';
 
 
 function App() {
-
-
   const Pages = [
-
+    { path: 'login', element: <LoginForm />,},
+    { path: 'register', element: <RegisterForm />,},
     { path: 'brand', element: < Brand /> },
     { path: 'about', element: < About /> },
     { path: 'products/1', element: < ProductDetail /> },
@@ -55,6 +53,8 @@ function App() {
     { path: 'permissions', element: < Permissions /> },
     { path: 'permissions/create', element: < Create_Permission /> },
     { path: 'permissions/update/:id', element: < Update_Permiss /> },
+
+    { path: 'users/', element: < Users /> },
 
     { path: 'categories', element: < Categories /> },
     { path: 'categories/create', element: < Create_category /> },
@@ -79,7 +79,7 @@ function App() {
     },
     {
       path: '/admin/',
-      element: <ProtectedRoute role={'Users'}><AdminLayout /></ProtectedRoute>,
+      element: <ProtectedRoute role={'Users'} permission={[]}><AdminLayout /></ProtectedRoute>,
       children: [
         {
           index: true, element:
@@ -87,15 +87,6 @@ function App() {
         },
         ...PagesAdmin,]
     },
-    {
-      path: 'login',
-      element: <Login />,
-    },
-    {
-      path: 'register',
-      element: <Register />,
-    },
-
   ],
     {
       future: {

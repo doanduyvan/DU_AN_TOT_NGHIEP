@@ -72,19 +72,9 @@ export const Update_Product = () => {
                 const res = await productService.categories();
                 if (res) {
                     setCategories(Array.isArray(res) ? res : []);
-                } else {
-                    Notification.error({
-                        message: "Có lỗi xảy ra",
-                        description: res?.message || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
-                }
+                } 
             } catch (error) {
-                Notification.error({
-                    message: "Lỗi trong quá trình gọi api",
-                    description: error.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                console.error(error.message)
             }
         };
         fetchCategories();
@@ -104,19 +94,9 @@ export const Update_Product = () => {
                     if (res.product.images && Array.isArray(res.product.images)) {
                         setExistingImages(res.product.images);
                     }
-                } else {
-                    Notification.error({
-                        message: "Có lỗi xảy ra",
-                        description: res?.message || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
                 }
             } catch (error) {
-                Notification.error({
-                    message: "Lỗi trong quá trình gọi api",
-                    description: error.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                console.error(error.message)
             }
         };
         fetchProductData();

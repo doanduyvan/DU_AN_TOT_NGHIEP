@@ -20,17 +20,20 @@ use App\Http\Controllers\UserController;
 |
 */
 
+
+
 Route::resource('roles', RoleController::class)->except(['create', 'show', 'destroy', 'update']);
-Route::post('roles/create', [RoleController::class, 'create']);
 Route::get('roles/permissions', [RoleController::class, 'showPermissions']);
-Route::get('roles/showrole/{id}', [RoleController::class, 'show']);
-Route::post('roles/update/{id}', [RoleController::class, 'update']);
-Route::post('roles/destroy', [RoleController::class, 'destroy']);
+Route::post('roles/create', [RoleController::class, 'create'])->middleware('check.permission:create-role');
+Route::get('roles/showrole/{id}', [RoleController::class, 'show'])->middleware('check.permission:update-role');
+Route::post('roles/update/{id}', [RoleController::class, 'update'])->middleware('check.permission:update-role');
+Route::post('roles/destroy', [RoleController::class, 'destroy'])->middleware('check.permission:delete-role');
 
 Route::get('permissions', [PermissionController::class, 'index']);
-Route::post('permissions/create', [PermissionController::class, 'create']);
-Route::get('permissions/show/{id}', [PermissionController::class, 'show']);
-Route::post('permissions/destroy', [PermissionController::class, 'destroy']);
+Route::post('permissions/create', [PermissionController::class, 'create'])->middleware('check.permission:create-permission');
+Route::get('permissions/show/{id}', [PermissionController::class, 'show'])->middleware('check.permission:update-permission');
+Route::post('permissions/update/{id}', [PermissionController::class, 'update'])->middleware('check.permission:update-permission');
+Route::post('permissions/destroy', [PermissionController::class, 'destroy'])->middleware('check.permission:update-permission');
 
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -43,21 +46,30 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
 
     Route::get('/users', [UserController::class, 'index']);
-    
+});
+route::post('/users/destroy/{id}', [UserController::class, 'destroy'])->middleware('check.permission:delete-customer');
+Route::middleware('check.permission:update-customer')->group(function () {
+    Route::post('/users/updatestatus', [UserController::class, 'updateStatus']);
+    Route::post('/users/update/{id}', [UserController::class, 'updateUser']);
+    Route::get('/users/showroles', [UserController::class, 'showRoles']);
+    route::get('/users/{id}', [UserController::class, 'getUserById']);
 });
 
-route::get('/categories/{id?}',[CategoriesController::class,'index']);
-route::post('/categories/create',[CategoriesController::class,'create']);
-route::post('/categories/delete',[CategoriesController::class,'destroy']);
-route::post('/categories/update/{id}',[CategoriesController::class,'update']);
-
-route::get('/products',[ProductsController::class,'index']);
-route::get('/products/{id}',[ProductsController::class,'getProductById']);
-route::post('/products/update/{id}',[ProductsController::class,'update']);
-route::post('/products/create',[ProductsController::class,'create']);
-route::post('/products/delete',[ProductsController::class,'destroy']);
 
 
-Route::get('/testapi',function(){
+route::get('/categories/{id?}', [CategoriesController::class, 'index']);
+route::post('/categories/create', [CategoriesController::class, 'create'])->middleware('check.permission:create-category');
+route::post('/categories/delete', [CategoriesController::class, 'destroy'])->middleware('check.permission:delete-category');
+route::post('/categories/update/{id}', [CategoriesController::class, 'update'])->middleware('check.permission:update-category');
+
+route::get('/products', [ProductsController::class, 'index']);
+route::post('/products/update/{id}', [ProductsController::class, 'update'])->middleware('check.permission:update-product');
+route::get('/products/{id}', [ProductsController::class, 'getProductById'])->middleware('check.permission:update-product');
+
+route::post('/products/create', [ProductsController::class, 'create'])->middleware('check.permission:create-product');
+route::post('/products/delete', [ProductsController::class, 'destroy'])->middleware('check.permission:delete-product');
+
+
+Route::get('/testapi', function () {
     return json_encode(['tinnhan' => 'ok roi api hoạt động 12']);
 });

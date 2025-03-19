@@ -1,4 +1,4 @@
-import axios from "../utils/axios-customize";
+import axios from "../utils/axios-customize.js";
 const getHeaders = () => ({
     'Content-Type': 'multipart/form-data',
 });

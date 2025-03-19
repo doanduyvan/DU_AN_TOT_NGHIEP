@@ -19,6 +19,13 @@ const LoginForm = () => {
         localStorage.setItem("token", response.token);
         message.success("Đăng nhập thành công");
         window.location.href = '/';
+      } else if (response.status === 401) {
+        console.log("401");
+        Notification.warning({
+          message: "Có lỗi xảy ra",
+          description: response?.message || "Vui lòng thử lại sau",
+          duration: 5,
+        });
       }
     } catch (error) {
       setError(error.response.data.errors);
@@ -42,7 +49,7 @@ const LoginForm = () => {
             {error && <p className="error text-red-500">{error.password}</p>}
             <a href="#" className="text-sm text-blue-500">Forgot Password?</a>
           </div>
-          <Input.Password className="mt-1 text-lg" name="password"/>
+          <Input.Password className="mt-1 text-lg" name="password" />
 
           <button type="submit" className="w-full p-2 rounded-lg mt-6 bg-yellow-400 hover:bg-yellow-500">
             Đăng nhập

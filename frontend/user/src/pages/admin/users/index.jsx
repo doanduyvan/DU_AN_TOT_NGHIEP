@@ -35,14 +35,14 @@ export const Users = () => {
             return;
         }
         try {
-            const res = await destroy(selectedUsers);
-            console.log(selectedUsers);
+            const res = await UsersService.destroy(selectedUsers);
             if (res?.status === 200) {
                 setUser((prevusers) => {
                     return prevusers.filter(
                         (user) => !selectedUsers.includes(user.id)
                     );
                 });
+                setSelectedUsers([]);
                 notification.success({
                     message: "Xóa thành công",
                     description: res?.message || "Vui lòng thử lại sau",
@@ -63,6 +63,7 @@ export const Users = () => {
             });
         }
     };
+    console.log(selectedUsers);
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -87,6 +88,39 @@ export const Users = () => {
         };
         fetchData();
     }, []);
+
+     const handleStatusChange = async (id, status) => {
+            try {
+                const res = await UsersService.upadteStatus({ id, status });
+                if (res?.status === 200) {
+                    setUser((prevUsers) => {
+                        return prevUsers.map((user) => {
+                            if (user.id === id) {
+                                return { ...user, status };
+                            }
+                            return user;
+                        });
+                    });
+                    notification.success({
+                        message: "Cập nhật trạng thái thành công",
+                        description: res?.message || "Vui lòng thử lại sau",
+                        duration: 5,
+                    });
+                } else {
+                    notification.error({
+                        message: "Có lỗi xảy ra",
+                        description: res?.message || "Vui lòng thử lại sau",
+                        duration: 5,
+                    });
+                }
+            } catch (error) {
+                notification.error({
+                    message: "Lỗi trong quá trình gọi api",
+                    description: error.message || "Vui lòng thử lại sau",
+                    duration: 5,
+                });
+            }
+        }
 
     return (
         <div className="pt-20 px-4 lg:ml-64">
@@ -148,7 +182,7 @@ export const Users = () => {
                             <button
                                 onClick={() => {
                                     const confirmed = window.confirm(
-                                        `Bạn có chắc chắn muốn xóa ${selectedUsers.length} Danh Mục này không?`
+                                        `Bạn có chắc chắn muốn xóa ${selectedUsers.length} tài khoản này không?`
                                     );
                                     if (confirmed) {
                                         hanDleDelete();
@@ -208,7 +242,7 @@ export const Users = () => {
                                         }}
                                         id="checkbox-all-search"
                                         type="checkbox"
-                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                        className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                     />
                                     <label htmlFor="checkbox-all-search" className="sr-only">
                                         checkbox
@@ -219,7 +253,7 @@ export const Users = () => {
                                 Tên
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Hình ảnh
+                                Trạng thái
                             </th>
                             <th scope="col" className="px-6 py-3">
                                 Action
@@ -239,7 +273,7 @@ export const Users = () => {
                                             onChange={(e) => checkUser(e, user.id)}
                                             checked={selectedUsers.includes(user.id)}
                                             type="checkbox"
-                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                            className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
                                         />
                                         <label
                                             htmlFor="checkbox-table-search-1"
@@ -264,27 +298,24 @@ export const Users = () => {
                                     </div>
                                 </th>
                                 <td className="px-6 py-4">
-                                    <a
-                                    className="underline cursor-pointer"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            openModal(user.img);
-                                        }}
-                                    >
-                                        Hình ảnh
-                                    </a>
-                                    <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" className="sr-only peer" value={(user.status === 1) ? 0 : 1}
+                                            checked={user.status === 1}
+                                            onChange={(e) => handleStatusChange(user.id, e.target.checked ? 1 : 0)}
+                                        />
+                                        <div className="group peer bg-white rounded-full duration-300 w-16 h-8 ring-2 ring-red-500 after:duration-300 after:bg-red-500 peer-checked:after:bg-green-500 peer-checked:ring-green-500 after:rounded-full after:absolute after:h-6 after:w-6 after:top-1 after:left-1 after:flex after:justify-center after:items-center peer-checked:after:translate-x-8 peer-hover:after:scale-95" />
+                                    </label>
                                 </td>
                                 
                                 <td className="px-6 py-4">
                                     <Link
-                                        to={`/admin/users/update/${user.id}`}   
+                                        to={`/admin/accounts/update/${user.id}`}   
                                         type="button"
                                         data-modal-target="editUserModal"
                                         data-modal-show="editUserModal"
                                         className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                                     >
-                                        Edit
+                                        Cấp vai trò
                                     </Link>
                                 </td>
                             </tr>

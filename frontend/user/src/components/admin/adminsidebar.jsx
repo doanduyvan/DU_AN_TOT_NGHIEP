@@ -1,8 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/authcontext';
 export const AdminSidebar = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [dropdownStates, setDropdownStates] = useState({});
+    const { permissions } = useAuth();
+
     const toggeSidebarMobile = () => {
         setSidebarOpen(!sidebarOpen);
     }
@@ -13,6 +16,7 @@ export const AdminSidebar = () => {
         }
         ));
     }
+
     const Menu = [
         {
             id: "1",
@@ -60,18 +64,18 @@ export const AdminSidebar = () => {
         {
             id: "4",
             name: "Người dùng",
-            link: "/admin/users",
+            link: "/admin/accounts",
             svg: <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 32 32"><path fill="currentColor" d="M16 4a5 5 0 1 1-5 5a5 5 0 0 1 5-5m0-2a7 7 0 1 0 7 7a7 7 0 0 0-7-7zm10 28h-2v-5a5 5 0 0 0-5-5h-6a5 5 0 0 0-5 5v5H6v-5a7 7 0 0 1 7-7h6a7 7 0 0 1 7 7z"/></svg>,
             sub_menu: [
                 {
                     id: "4.1",
                     name: "Thêm",
-                    link: "/admin/users/add",
+                    link: "/admin/accounts",
                 },
                 {
                     id: "4.2",
                     name: "Danh sách",
-                    link: "/admin/users/list",
+                    link: "/admin/accounts",
                 },
             ]
         },

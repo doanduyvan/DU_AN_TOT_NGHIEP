@@ -1,4 +1,4 @@
-import axios from "../utils/axios-customize";
+import axios from "../utils/axios-customize.js";
 
 const apiPost = async (url, data) => {
   const response = await axios.post(url, data);

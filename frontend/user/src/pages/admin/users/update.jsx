@@ -1,23 +1,52 @@
 
 import { message, notification } from "antd";
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { update, showPermission } from "../../../services/api-permissions";
+import { UsersService } from '../../../services/api-users';
+import { useAuth } from '../../../contexts/authcontext';
 
-export const Update_Permission = () => {
+export const Set_User_Role = () => {
     const Navigate = useNavigate();
-    const { id } = useParams('');
-    const [permission, setPermission] = useState({});
+    const { userId } = useParams('');
+    const [user, setUser] = useState({});
+    const [roles, setRole] = useState([]);
+    const [selectRole, setselectRole] = useState([]);
+    const { permissions } = useAuth();
+
+    console.log(permissions);
+    useEffect(() => {
+        if (!permissions.includes("update-customer")) {
+            notification.error({
+                message: "Vui lòng liên hệ admin",
+                description: "Bạn không có quyền thực hiện hành động này",
+                duration: 5,
+            });
+            Navigate('/admin/accounts');
+        }
+    }, [permissions]);
+
     useEffect(() => {
         (async () => {
             try {
-                const res = await showPermission(id);
+                const res = await UsersService.getUserById(userId);
                 console.log(res);
+                setUser(res);
+                setselectRole(res.roles.map((role) => role.id));
+            } catch (error) {
+                console.log(error.message);
+            }
+        })();
+    }, []);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await UsersService.showRoles();
                 if (res.status === 200) {
-                    setPermission(res.permission);
+                    setRole(res.roles);
                 } else {
                     notification.error({
-                        message: "Có lỗi xảy ra",
+                        message: "Có lỗi xảy ra 1",
                         description: res?.message || "Vui lòng thử lại sau",
                         duration: 5,
                     });
@@ -28,22 +57,37 @@ export const Update_Permission = () => {
                     description: error.message || "Vui lòng thử lại sau",
                     duration: 5,
                 });
-                Navigate('/admin/permissions');
             }
         })();
-    }, [id]);
+    }, [userId]);
+
+    const handleRoleChange = (event) => {
+        const userId = parseInt(event.target.value);
+        setselectRole((perv) => {
+            if (perv.includes(userId)) {
+                return perv.filter((id) => id !== userId);
+            }
+            return [...perv, userId];
+        })
+    };
 
     const handSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
+        if (selectRole.length > 0) {
+            selectRole.forEach(userId => {
+                formData.append('roles[]', userId);
+            });
+        }
         try {
-            const res = await update(formData, id);
+            const res = await UsersService.updateUser(formData, userId);
             if (res?.status === 200) {
                 notification.success({
                     message: "Cập nhật thành công",
+                    description: res?.message || "Vui lòng thử lại sau",
                     duration: 5,
                 });
-                Navigate('/admin/permissions');
+                Navigate('/admin/accounts');
             } else {
                 notification.error({
                     message: "Có lỗi xảy ra",
@@ -65,12 +109,12 @@ export const Update_Permission = () => {
             <nav className="rounded-md w-full my-2">
                 <ol className="list-reset flex">
                     <li>
-                        <a
-                            href="/admin"
+                        <Link
+                            to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
                             Dashboard
-                        </a>
+                        </Link>
                     </li>
                     <li>
                         <span className="mx-2 text-neutral-500 dark:text-neutral-400">
@@ -78,12 +122,12 @@ export const Update_Permission = () => {
                         </span>
                     </li>
                     <li>
-                        <a
-                            href="/admin/peemissions"
+                        <Link
+                            to="/admin/accounts"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
-                            Quản lý quyền hạn
-                        </a>
+                            Quản lý người dùng
+                        </Link>
                     </li>
                     <li>
                         <span className="mx-2 text-neutral-500 dark:text-neutral-400">
@@ -91,36 +135,34 @@ export const Update_Permission = () => {
                         </span>
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Cập nhật quyền hạn
+                        Cập nhật người dùng
                     </li>
                 </ol>
             </nav>
             <div className="bg-white shadow rounded-lg mb-4 p-4 sm:p-6 h-full">
                 <div className="flex justify-between items-center my-2">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Cập nhật quyền hạn
+                        Cập nhật người dùng
                     </h5>
                 </div>
                 <form className="mt-5" onSubmit={handSubmit}>
-                    <div className="mb-5 lg:w-1/4">
-                        <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Tên quyền hạn</label>
-                        <input type="name" name="name" defaultValue={permission.name} className="shadow-sm bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" />
-                    </div>
-                    <div className="mb-5 lg:w-1/4">
-                        <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Guard Name</label>
-                        <select name="guard_name" id="" className="shadow-sm bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
-                            {(permission.guard_name === 'web') ? (
-                                <>
-                                    <option value="web">web</option>
-                                    <option value="api">api</option>
-                                </>
+                    <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Cấp vai trò</label>
+                    <div className="grid grid-cols-3 gap-4">
+
+                        {
+                            (roles.length > 0) ? (
+                                roles.map((role) => (
+                                    <div key={role.id} className="flex gap-4 select-none">
+                                        <input type="checkbox" checked={selectRole.includes(role.id)}
+                                            onChange={handleRoleChange}
+                                            className="cursor-pointer" name="roles[]" value={role.id} id={role.id} />
+                                        <label className="cursor-pointer" htmlFor={role.id}>{role.name}</label>
+                                    </div>
+                                ))
                             ) : (
-                                <>
-                                    <option value="api">api</option>
-                                    <option value="web">web</option>
-                                </>
-                            )}
-                        </select>
+                                <div className="text-center">Không có vai trò nào</div>
+                            )
+                        }
                     </div>
                     <button type="submit" className="mt-5 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
                 </form>

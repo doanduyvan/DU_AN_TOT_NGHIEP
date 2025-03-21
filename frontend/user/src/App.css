@@ -179,4 +179,13 @@
   ;
 }
 
-    
+
+/* dành cho trang shop */
+
+.sub-menu-shop-aside{
+  transition: all 0.3s !important;
+}
+
+.shop #sub-menu-shop-input:checked ~ .sub-menu-shop-aside{
+  max-height: 100% !important;
+}

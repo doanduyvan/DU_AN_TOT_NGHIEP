@@ -11,8 +11,5 @@ class Category extends Model
     use HasFactory;
     protected $table = 'category';
     protected $fillable = ['category_name', 'img'];
-    // public function products()
-    // {
-    //     return $this->hasMany(Product::class);
-    // }
+
 }

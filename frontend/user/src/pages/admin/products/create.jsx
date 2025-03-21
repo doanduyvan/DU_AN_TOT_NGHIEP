@@ -12,22 +12,11 @@ export const Create_Product = () => {
     const [imageFiles, setImageFiles] = useState([]);
     const [categories, setCategories] = useState([]);
     const fileInputRef = useRef(null);
-    const { permissions } = useAuth();
     const navigate = useNavigate();
 
     const handleEditorChange = (data) => {
         setEditorData(data);
     };
-
-    useEffect(() => {
-        permissions.includes('create-product') ||
-            Notification.error({
-                message: "Vui lòng liên hệ admin",
-                description: "Bạn không có quyền thực hiện hành động này",
-                duration: 5,
-            });
-        navigate('/admin', { replace: true });
-    }, []);
     
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];

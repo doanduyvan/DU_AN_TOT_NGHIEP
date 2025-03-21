@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }) => {
         error,
         hasPermission,
         hasRole,
-        isAuthenticated: AuthService.isAuthenticated
+        isAuthenticated: AuthService.isAuthenticated(),
     };
 
     return (

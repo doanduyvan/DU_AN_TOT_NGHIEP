@@ -33,6 +33,8 @@ import RegisterForm from './components/auth/register';
 import CartPage from "./components/cartPage/cartPage";
 import { Users } from "./pages/admin/users";
 import { Set_User_Role } from "./pages/admin/users/update";
+import { Orders } from "./pages/admin/orders";
+import { Update_Order } from "./pages/admin/orders/update";
 
 
 
@@ -66,6 +68,9 @@ function App() {
     { path: 'products', element: < Products /> },
     { path: 'products/create', element: < Create_Product /> },
     { path: 'products/update/:id', element: < Update_Product /> },
+
+    { path: 'orders', element: < Orders /> },
+    { path: 'orders/update/:id', element: < Update_Order /> },
   ];
 
   const router = createBrowserRouter([

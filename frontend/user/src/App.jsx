@@ -32,6 +32,7 @@ import RegisterForm from './components/auth/register';
 import CartPage from "./components/cartPage/cartPage";
 import { Users } from "./pages/admin/users";
 import Shop from "./pages/user/shop/shop";
+import Profile from "./pages/user/profile/profile";
 
 
 
@@ -43,7 +44,8 @@ function App() {
     { path: 'about', element: < About /> },
     { path: 'products/1', element: < ProductDetail /> },
     { path: 'cart', element: <CartPage /> },
-    {path: 'shop', element: <Shop />}
+    {path: 'shop', element: <Shop />},
+    { path: 'profile', element: <Profile />}
   ];
 
 

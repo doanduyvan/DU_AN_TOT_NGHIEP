@@ -10,24 +10,24 @@ const Menu = ({isOpen, setIsOpen}) => {
 
     const arrMenu = [
         {
-            name: 'Home',
+            name: 'Trang Chủ',
             link: '/',
         },
         {
-            name: 'Brand',
-            link: '/brand',
-        },
-        {
-            name: 'Shop',
+            name: 'Cửa Hàng',
             link: '/shop'
         },
         {
-            name: 'about',
+            name: 'Tin Tức',
+            link: '/news'
+        },
+        {
+            name: 'Giới Thiệu',
             link: '/about'
         },
         {
-            name: 'Community',
-            link: '/community'
+            name: 'Liên Hệ',
+            link: '/contact'
         }
     ]
     

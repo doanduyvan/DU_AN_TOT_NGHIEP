@@ -33,6 +33,9 @@ import CartPage from "./components/cartPage/cartPage";
 import { Users } from "./pages/admin/users";
 import Shop from "./pages/user/shop/shop";
 import Profile from "./pages/user/profile/profile";
+import News from "./pages/user/news/news";
+import NewsDetail from "./pages/user/news/newsDetail";
+import ContactPage from "./pages/user/contact/contact";
 
 
 
@@ -45,7 +48,10 @@ function App() {
     { path: 'products/1', element: < ProductDetail /> },
     { path: 'cart', element: <CartPage /> },
     {path: 'shop', element: <Shop />},
-    { path: 'profile', element: <Profile />}
+    { path: 'profile', element: <Profile />},
+    { path: 'news', element: <News />},
+    { path: 'news/:id', element: <NewsDetail />}, 
+    { path: 'contact', element: <ContactPage />}
   ];
 
 

@@ -23,6 +23,7 @@ use App\Http\Controllers\OrderController;
 
 Route::get('orders', [OrderController::class, 'index']);
 Route::get('orders/{id}', [OrderController::class, 'getOrderById']);
+Route::post('orders/update/{id}', [OrderController::class, 'update']);
 
 
 

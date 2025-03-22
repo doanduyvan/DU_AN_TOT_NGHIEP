@@ -17,5 +17,8 @@ const OrderService = {
   getOrderById: async (id) => {
     return apiGet(`/orders/${id}`);
   },
+  update: async (id, formData) => {
+    return apiPost(`/orders/update/${id}`, formData);
+  }
 };
 export { OrderService };

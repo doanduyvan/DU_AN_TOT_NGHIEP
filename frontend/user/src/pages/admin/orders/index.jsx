@@ -260,9 +260,8 @@ export const Orders = () => {
                                 </th>
                                 <td className="px-6 py-4">
                                     <div className="text-base font-semibold">
-                                        {order.payment_status === 1 ? "Chưa thanh toán" :
-                                            order.payment_status === 0 ? "Đã hủy" :
-                                                order.payment_status === 2 ? "Đã thanh toán" :
+                                        {order.payment_status === 0 ? "Chưa thanh toán" :
+                                                order.payment_status === 1 ? "Đã thanh toán" :
                                                     "Trạng thái không xác định"
                                         }
                                     </div>
@@ -270,10 +269,11 @@ export const Orders = () => {
                                 <td className="px-6 py-4">
                                     <div className="text-base font-semibold">
                                         {order.status === 1 ? "Chờ xác nhận" :
-                                            order.status === 0 ? "Hủy bỏ" :
+                                            order.status === 0 ? "Đã hủy" :
                                                 order.status === 2 ? "Đã xác nhận" :
                                                     order.status === 3 ? "Đã đóng gói" :
                                                     order.status === 4 ? "Đã giao cho đơn vị vận chuyển" :
+                                                    order.status === 5 ? "Đã hoàn thành" :
                                                         "Trạng thái không xác định"
                                         }
                                     </div>

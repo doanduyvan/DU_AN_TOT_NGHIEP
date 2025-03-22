@@ -35,6 +35,8 @@ import { Users } from "./pages/admin/users";
 import { Set_User_Role } from "./pages/admin/users/update";
 import { Orders } from "./pages/admin/orders";
 import { Update_Order } from "./pages/admin/orders/update";
+import Shop from "./pages/user/shop/shop";
+import Profile from "./pages/user/profile/profile";
 
 
 
@@ -45,7 +47,9 @@ function App() {
     { path: 'brand', element: < Brand /> },
     { path: 'about', element: < About /> },
     { path: 'products/1', element: < ProductDetail /> },
-    { path: 'cart', element: <CartPage /> }
+    { path: 'cart', element: <CartPage /> },
+    {path: 'shop', element: <Shop />},
+    { path: 'profile', element: <Profile />}
   ];
 
 

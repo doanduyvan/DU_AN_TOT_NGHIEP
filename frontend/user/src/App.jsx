@@ -44,7 +44,7 @@ import ContactPage from "./pages/user/contact/contact";
 import { CategoryNews } from "./pages/admin/categorynews";
 import { Create_category_news } from "./pages/admin/categorynews/create";
 import { Update_Category_News } from "./pages/admin/categorynews/update";
-import { News } from "./pages/admin/news";
+import { NewsAdmin } from "./pages/admin/news";
 import { Create_News } from "./pages/admin/news/create";
 
 
@@ -57,7 +57,7 @@ function App() {
     { path: 'products/1', element: < ProductDetail /> },
     { path: 'cart', element: <CartPage /> },
     { path: 'shop', element: <Shop /> },
-    { path: 'profile', element: <Profile /> }
+    { path: 'profile', element: <Profile /> },
     { path: 'shop', element: <Shop /> },
     { path: 'profile', element: <Profile /> },
     { path: 'news', element: <News /> },
@@ -93,7 +93,7 @@ function App() {
     { path: 'categorynews/create', element: < Create_category_news /> },
     { path: 'categorynews/update/:id', element: < Update_Category_News /> },
 
-    { path: 'news', element: < News /> },
+    { path: 'news', element: < NewsAdmin /> },
     { path: 'news/create', element: < Create_News /> },
 
   ];

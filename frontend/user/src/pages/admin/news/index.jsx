@@ -5,7 +5,7 @@ import { ImageModal } from "../../../components/admin/imgmodal";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../contexts/authcontext";
 
-export const News = () => {
+export const NewsAdmin = () => {
 
     const [imageSrc, setImageSrc] = useState(null);
     const [news, setNews] = useState([]);

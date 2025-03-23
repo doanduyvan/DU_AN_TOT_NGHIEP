@@ -37,6 +37,9 @@ import { Orders } from "./pages/admin/orders";
 import { Update_Order } from "./pages/admin/orders/update";
 import Shop from "./pages/user/shop/shop";
 import Profile from "./pages/user/profile/profile";
+import News from "./pages/user/news/news";
+import NewsDetail from "./pages/user/news/newsDetail";
+import ContactPage from "./pages/user/contact/contact";
 
 import { CategoryNews } from "./pages/admin/categorynews";
 import { Create_category_news } from "./pages/admin/categorynews/create";
@@ -47,14 +50,19 @@ import { Create_News } from "./pages/admin/news/create";
 
 function App() {
   const Pages = [
-    { path: 'login', element: <ProtectedRoute><LoginForm /></ProtectedRoute>},
-    { path: 'register', element: <ProtectedRoute><RegisterForm /></ProtectedRoute>},
+    { path: 'login', element: <ProtectedRoute><LoginForm /></ProtectedRoute> },
+    { path: 'register', element: <ProtectedRoute><RegisterForm /></ProtectedRoute> },
     { path: 'brand', element: < Brand /> },
     { path: 'about', element: < About /> },
     { path: 'products/1', element: < ProductDetail /> },
     { path: 'cart', element: <CartPage /> },
-    { path: 'shop', element: <Shop />},
-    { path: 'profile', element: <Profile />}
+    { path: 'shop', element: <Shop /> },
+    { path: 'profile', element: <Profile /> }
+    { path: 'shop', element: <Shop /> },
+    { path: 'profile', element: <Profile /> },
+    { path: 'news', element: <News /> },
+    { path: 'news/:id', element: <NewsDetail /> },
+    { path: 'contact', element: <ContactPage /> }
   ];
 
 

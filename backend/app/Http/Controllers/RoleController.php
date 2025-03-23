@@ -70,28 +70,35 @@ class RoleController extends Controller
         $request->validate([
             'name' => 'required|string|max:255|unique:roles,name,' . $roleId,
             'guard_name' => 'required|string|max:255',
-            'permissions' => 'array',
+            'permissions' => 'nullable|array',
             'permissions.*' => 'exists:permissions,id',
         ]);
+    
         $superAdminRole = Role::where('name', $this->super_admin)->first();
-
+        
         if ($superAdminRole && $roleId == $superAdminRole->id) {
             return response()->json(['message' => 'Thất bại: Không thể cập nhật các vai trò đặc biệt']);
         }
+    
         try {
             $role = Role::findOrFail($roleId);
             $role->update([
                 'name' => $request->name,
                 'guard_name' => $request->guard_name,
             ]);
-            $permissions = Permission::whereIn('id', $request->permissions)
-                ->where('guard_name', $request->guard_name)
-                ->get();
-            $role->syncPermissions($permissions);
+            if ($request->has('permissions') && !empty($request->permissions)) {
+                $permissions = Permission::whereIn('id', $request->permissions)
+                    ->where('guard_name', $request->guard_name)
+                    ->get();
+                $role->syncPermissions($permissions);
+            } else {
+                $role->syncPermissions([]);
+            }
+    
             return response()->json([
                 'status' => 200,
                 'role' => $role,
-                'assigned_permissions' => $permissions,
+                'assigned_permissions' => $request->has('permissions') ? $role->permissions : [],
             ]);
         } catch (\Exception $e) {
             return response()->json([

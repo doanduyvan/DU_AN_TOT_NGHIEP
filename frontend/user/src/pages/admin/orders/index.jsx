@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { OrderService } from "../../../services/api-orders";
 import { notification } from "antd";
+import { Link } from "react-router-dom";
 
 export const Orders = () => {
     const [orders, setCategories] = useState([]);
@@ -292,15 +293,15 @@ export const Orders = () => {
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <a
-                                        href={`/admin/orders/update/${order.id}`}
+                                    <Link
+                                        to={`/admin/orders/update/${order.id}`}
                                         type="button"
                                         data-modal-target="editUserModal"
                                         data-modal-show="editUserModal"
                                         className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                                     >
                                         Edit
-                                    </a>
+                                    </Link>
                                 </td>
                             </tr>
                         ))}

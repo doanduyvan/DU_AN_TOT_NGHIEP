@@ -1,12 +1,16 @@
 import { useState, useEffect, useRef } from "react";
-import { destroy, callCategories } from "../../../services/api-categories";
+import { newsService } from "../../../services/api-news";
 import { message, notification } from "antd";
 import { ImageModal } from "../../../components/admin/imgmodal";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../../contexts/authcontext";
 
-export const Categories = () => {
+export const News = () => {
+
     const [imageSrc, setImageSrc] = useState(null);
-    const [categories, setCategories] = useState([]);
-    const [selectedCategories, setSelectedCategories] = useState([]);
+    const [news, setNews] = useState([]);
+    const [selectedNews, setselectedNews] = useState([]);
+    const { permissions } = useAuth();
 
     const openModal = (src) => {
         setImageSrc(src);
@@ -15,34 +19,33 @@ export const Categories = () => {
     const closeModal = () => {
         setImageSrc(null);
     };
-
-    const checkCategory = (e, id) => {
-        setSelectedCategories((prevSelectedCategories) => {
+    const checkNews = (e, id) => {
+        setselectedNews((prevselectedNews) => {
             if (e.target.checked) {
-                return [...prevSelectedCategories, id];
+                return [...prevselectedNews, id];
             } else {
-                return prevSelectedCategories.filter((item) => item !== id);
+                return prevselectedNews.filter((item) => item !== id);
             }
         });
     };
     const hanDleDelete = async () => {
-        if (selectedCategories.length === 0) {
+        if (selectedNews.length === 0) {
             notification.warning({
-                message: "Không có danh mục nào được chọn",
+                message: "Không có bài viết nào được chọn",
                 duration: 3,
             });
             return;
         }
         try {
-            const res = await destroy(selectedCategories);
-            console.log(selectedCategories);
+            const res = await newsService.destroy(selectedNews);
+            console.log(selectedNews);
             if (res?.status === 200) {
-                setCategories((prevCategories) => {
-                    return prevCategories.filter(
-                        (category) => !selectedCategories.includes(category.id)
+                setNews((prevNews) => {
+                    return prevNews.filter(
+                        (news) => !selectedNews.includes(news.id)
                     );
                 });
-                setSelectedCategories([]);
+                setselectedNews([]);
                 notification.success({
                     message: "Xóa thành công",
                     description: res?.message || "Vui lòng thử lại sau",
@@ -56,9 +59,10 @@ export const Categories = () => {
                 });
             }
         } catch (error) {
+            console.log(error);
             notification.error({
                 message: "Lỗi trong quá trình gọi api",
-                description: error.message || "Vui lòng thử lại sau",
+                description: error.response.data.message || "Vui lòng thử lại sau",
                 duration: 5,
             });
         }
@@ -66,9 +70,9 @@ export const Categories = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await callCategories();
+                const res = await newsService.getAllNews();
                 if (res) {
-                    setCategories(Array.isArray(res) ? res : []);
+                    setNews(Array.isArray(res) ? res : []);
                     console.log(res);
                 } else {
                     notification.error({
@@ -93,12 +97,12 @@ export const Categories = () => {
             <nav className="rounded-md w-full">
                 <ol className="list-reset flex">
                     <li>
-                        <a
-                            href="#"
+                        <Link
+                            to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
                             Home
-                        </a>
+                        </Link>
                     </li>
                     <li>
                         <span className="mx-2 text-neutral-500 dark:text-neutral-400">
@@ -106,21 +110,21 @@ export const Categories = () => {
                         </span>
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Quản Lý Danh Mục
+                        Quản Lý Bài Viết
                     </li>
                 </ol>
             </nav>
             <div className="relative overflow-x-auto shadow-md my-4 sm:rounded-lg bg-white">
                 <div className="flex justify-between items-center p-4">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Quản Lý Danh Mục
+                        Quản Lý Bài Viết
                     </h5>
-                    <a
-                        href="/admin/categories/create"
-                        className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
-                    >
-                        Thêm Danh Mục
-                    </a>
+                        <Link
+                            to="/admin/news/create"
+                            className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
+                        >
+                            Thêm Bài Viết
+                        </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
                     <div>
@@ -150,11 +154,11 @@ export const Categories = () => {
                         </button>
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
-                        {(selectedCategories.length > 0) ?
+                        {(selectedNews.length > 0) ?
                             <button
                                 onClick={() => {
                                     const confirmed = window.confirm(
-                                        `Bạn có chắc chắn muốn xóa ${selectedCategories.length} Danh Mục này không?`
+                                        `Bạn có chắc chắn muốn xóa ${selectedNews.length} Bài Viết này không?`
                                     );
                                     if (confirmed) {
                                         hanDleDelete();
@@ -202,13 +206,13 @@ export const Categories = () => {
                             <th scope="col" className="p-4">
                                 <div className="flex items-center">
                                     <input
-                                        checked={selectedCategories.length === categories.length}
+                                        checked={selectedNews.length === news.length}
                                         onChange={() => {
-                                            if (selectedCategories.length === categories.length) {
-                                                setSelectedCategories([]); // bo chon tat ca
+                                            if (selectedNews.length === news.length) {
+                                                setselectedNews([]); // bo chon tat ca
                                             } else {
-                                                setSelectedCategories(
-                                                    categories.map((category) => category.id)
+                                                setselectedNews(
+                                                    news.map((item) => item.id)
                                                 ); // chon tat ca
                                             }
                                         }}
@@ -222,7 +226,7 @@ export const Categories = () => {
                                 </div>
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Tên
+                                Tiêu đề
                             </th>
                             <th scope="col" className="px-6 py-3">
                                 Hình ảnh
@@ -233,17 +237,17 @@ export const Categories = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {categories.map((category) => (
+                        {news.map((item) => (
                             <tr
-                                key={category.id}
+                                key={item.id}
                                 className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                             >
                                 <td className="w-4 p-4">
                                     <div className="flex items-center">
                                         <input
                                             id="checkbox-table-search-1"
-                                            onChange={(e) => checkCategory(e, category.id)}
-                                            checked={selectedCategories.includes(category.id)}
+                                            onChange={(e) => checkNews(e, item.id)}
+                                            checked={selectedNews.includes(item.id)}
                                             type="checkbox"
                                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                         />
@@ -260,34 +264,32 @@ export const Categories = () => {
                                     className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                 >
                                     <div className="ps-3">
-                                        <div className="text-base font-semibold">
-                                            {category.category_name}
+                                        <div className="text-base font-semibold truncate">
+                                            {item.title}
                                         </div>
                                     </div>
                                 </th>
                                 <td className="px-6 py-4">
                                     <a
-                                    className="underline cursor-pointer"
+                                        className="underline cursor-pointer"
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            openModal(category.img);
+                                            openModal(item.avatar);
                                         }}
                                     >
                                         Hình ảnh
                                     </a>
                                     <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
                                 </td>
-                                
                                 <td className="px-6 py-4">
-                                    <a
-                                        href={`/admin/categories/update/${category.id}`}
+                                    <Link
+                                        to={`/admin/news/update/${item.id}`}
                                         type="button"
                                         data-modal-target="editUserModal"
                                         data-modal-show="editUserModal"
-                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                    >
+                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
                                         Edit
-                                    </a>
+                                    </Link>
                                 </td>
                             </tr>
                         ))}

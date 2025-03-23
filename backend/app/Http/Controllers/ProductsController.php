@@ -96,7 +96,7 @@ class ProductsController extends Controller
             $validateData = $productRequest->validated();
             if ($productRequest->hasFile('avatar')) {
                 if ($product->avatar) {
-                    Storage::disk('public')->delete('uploads/products/' . $product->avatar);
+                    Storage::disk('public')->delete($product->avatar);
                 }
 
                 $path = $productRequest->file('avatar')->storePublicly('uploads/products', 'public');
@@ -146,7 +146,7 @@ class ProductsController extends Controller
             ], 200);
         } catch (QueryException $e) {
             return response()->json([
-                'message' => 'Cập nhật danh mục thất bại: ' . $e->getMessage(),
+                'message' => 'Cập nhật sản phẩm thất bại: ' . $e->getMessage(),
                 'status' => 'error'
             ], 500);
         }

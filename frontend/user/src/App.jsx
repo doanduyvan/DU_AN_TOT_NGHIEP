@@ -38,6 +38,11 @@ import { Update_Order } from "./pages/admin/orders/update";
 import Shop from "./pages/user/shop/shop";
 import Profile from "./pages/user/profile/profile";
 
+import { CategoryNews } from "./pages/admin/categorynews";
+import { Create_category_news } from "./pages/admin/categorynews/create";
+import { Update_Category_News } from "./pages/admin/categorynews/update";
+import { News } from "./pages/admin/news";
+import { Create_News } from "./pages/admin/news/create";
 
 
 function App() {
@@ -48,7 +53,7 @@ function App() {
     { path: 'about', element: < About /> },
     { path: 'products/1', element: < ProductDetail /> },
     { path: 'cart', element: <CartPage /> },
-    {path: 'shop', element: <Shop />},
+    { path: 'shop', element: <Shop />},
     { path: 'profile', element: <Profile />}
   ];
 
@@ -75,6 +80,14 @@ function App() {
 
     { path: 'orders', element: < Orders /> },
     { path: 'orders/update/:id', element: < Update_Order /> },
+
+    { path: 'categorynews', element: < CategoryNews /> },
+    { path: 'categorynews/create', element: < Create_category_news /> },
+    { path: 'categorynews/update/:id', element: < Update_Category_News /> },
+
+    { path: 'news', element: < News /> },
+    { path: 'news/create', element: < Create_News /> },
+
   ];
 
   const router = createBrowserRouter([

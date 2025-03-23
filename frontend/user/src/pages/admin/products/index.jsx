@@ -45,6 +45,7 @@ export const Products = () => {
                         (product) => !selectedProducts.includes(product.id)
                     );
                 });
+                setselectedProducts([]);
                 notification.success({
                     message: "Xóa thành công",
                     description: res?.message || "Vui lòng thử lại sau",
@@ -58,9 +59,10 @@ export const Products = () => {
                 });
             }
         } catch (error) {
+            console.log(error);
             notification.error({
                 message: "Lỗi trong quá trình gọi api",
-                description: error.message || "Vui lòng thử lại sau",
+                description: error.response.data.message || "Vui lòng thử lại sau",
                 duration: 5,
             });
         }

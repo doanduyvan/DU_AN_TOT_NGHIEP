@@ -3,34 +3,35 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Category;
-use Illuminate\Support\Facades\Storage;
+use App\Models\CategoryNews;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Storage;
 
-class CategoriesController extends Controller
+class CategoryNewsController extends Controller
 {
     //
-    public function index($id = null)
+    public function index()
     {
-        if ($id !== null) {
-            $category = Category::findOrFail($id);
-            return response()->json([
-                'category' => $category,
-            ]);
-        }
-        $categories = Category::orderBy('id', 'desc')->get();
+        $categories = CategoryNews::orderBy('id', 'desc')->get();
         return response()->json($categories);
+    }
+    public function getCategoyById($id)
+    {
+        $category = CategoryNews::findOrFail($id);
+        return response()->json([
+            'category' => $category
+        ]);
     }
     public function create(Request $request)
     {
         $validateData = $request->validate([
-            'category_name' => 'required|string',
+            'category_news_name' => 'required|string',
             'img' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
         try {
             $path = $request->file('img')->storePublicly('uploads', 'public');
             $validateData['img'] = $path;
-            $category = Category::create($validateData);
+            $category = CategoryNews::create($validateData);
             return response()->json([
                 'message' => 'Thêm danh mục thành công',
                 'status' => 200,
@@ -50,13 +51,13 @@ class CategoriesController extends Controller
         $ids = $request->ids;
         if (is_array($ids) && !empty($ids)) {
             try {
-                $categories = Category::whereIn('id', $ids)->get();
+                $categories = CategoryNews::whereIn('id', $ids)->get();
                 foreach ($categories as $category) {
                     if ($category->img) {
                         Storage::disk('public')->delete($category->img);
                     }
                 }
-                Category::whereIn('id', $ids)->delete();
+                CategoryNews::whereIn('id', $ids)->delete();
                 return response()->json(['message' => 'Xóa Danh Mục thành công', 'status' => 200], 200);
             } catch (QueryException $e) {
                 if ($e->getCode() == '23000') {
@@ -68,15 +69,15 @@ class CategoriesController extends Controller
             return response()->json(['message' => 'Xóa danh mục thất bại', 'status' => 'error'], 400);
         }
     }
-
+    
     public function update(Request $request, $id)
     {
         $validateData = $request->validate([
-            'category_name' => 'required|string',
+            'category_news_name' => 'required|string',
             'img' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
         try {
-            $category = Category::findOrFail($id);
+            $category = CategoryNews::findOrFail($id);
             if ($request->hasFile('img')) {
                 if ($category->img) {
                     $oldImagePath = public_path('storage/' . $category->img);

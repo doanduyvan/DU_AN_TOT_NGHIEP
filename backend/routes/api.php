@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\CategoryNewsController;
+use App\Http\Controllers\NewsController;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
@@ -67,12 +69,23 @@ route::post('/categories/create', [CategoriesController::class, 'create'])->midd
 route::post('/categories/delete', [CategoriesController::class, 'destroy'])->middleware('check.permission:delete-category');
 route::post('/categories/update/{id}', [CategoriesController::class, 'update'])->middleware('check.permission:update-category');
 
+route::get('/categorynews', [CategoryNewsController::class, 'index']);
+route::get('/categorynews/getbyid/{id}', [CategoryNewsController::class, 'getCategoyById']);
+route::post('/categorynews/create', [CategoryNewsController::class, 'create'])->middleware('check.permission:create-category-news');
+route::post('/categorynews/delete', [CategoryNewsController::class, 'destroy'])->middleware('check.permission:delete-category-news');
+route::post('/categorynews/update/{id}', [CategoryNewsController::class, 'update'])->middleware('check.permission:update-category-news');
+
 route::get('/products', [ProductsController::class, 'index']);
 route::post('/products/update/{id}', [ProductsController::class, 'update'])->middleware('check.permission:update-product');
 route::get('/products/{id}', [ProductsController::class, 'getProductById'])->middleware('check.permission:update-product');
-
 route::post('/products/create', [ProductsController::class, 'create'])->middleware('check.permission:create-product');
 route::post('/products/delete', [ProductsController::class, 'destroy'])->middleware('check.permission:delete-product');
+
+route::get('/news', [NewsController::class, 'index']);
+route::post('/news/update/{id}', [NewsController::class, 'update'])->middleware('check.permission:update-news');
+route::get('/news/{id}', [NewsController::class, 'getNewsById'])->middleware('check.permission:update-news');
+route::post('/news/create', [NewsController::class, 'create'])->middleware('check.permission:create-news');
+route::post('/news/delete', [NewsController::class, 'destroy'])->middleware('check.permission:delete-news');
 
 
 Route::get('/testapi', function () {

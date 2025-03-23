@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { destroy, callCategories } from "../../../services/api-categories";
+import { categoryNewsService } from "../../../services/api-category-news";
 import { message, notification } from "antd";
 import { ImageModal } from "../../../components/admin/imgmodal";
+import { Link } from "react-router-dom";
 
-export const Categories = () => {
+export const CategoryNews = () => {
     const [imageSrc, setImageSrc] = useState(null);
     const [categories, setCategories] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
@@ -34,7 +35,7 @@ export const Categories = () => {
             return;
         }
         try {
-            const res = await destroy(selectedCategories);
+            const res = await categoryNewsService.destroy(selectedCategories);
             console.log(selectedCategories);
             if (res?.status === 200) {
                 setCategories((prevCategories) => {
@@ -66,7 +67,7 @@ export const Categories = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await callCategories();
+                const res = await categoryNewsService.getAllCategories();
                 if (res) {
                     setCategories(Array.isArray(res) ? res : []);
                     console.log(res);
@@ -113,14 +114,14 @@ export const Categories = () => {
             <div className="relative overflow-x-auto shadow-md my-4 sm:rounded-lg bg-white">
                 <div className="flex justify-between items-center p-4">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Quản Lý Danh Mục
+                        Quản Lý Danh Mục Bài Viết
                     </h5>
-                    <a
-                        href="/admin/categories/create"
+                    <Link
+                        to="/admin/categorynews/create"
                         className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
                     >
                         Thêm Danh Mục
-                    </a>
+                    </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
                     <div>
@@ -261,13 +262,13 @@ export const Categories = () => {
                                 >
                                     <div className="ps-3">
                                         <div className="text-base font-semibold">
-                                            {category.category_name}
+                                            {category.category_news_name}
                                         </div>
                                     </div>
                                 </th>
                                 <td className="px-6 py-4">
                                     <a
-                                    className="underline cursor-pointer"
+                                        className="underline cursor-pointer"
                                         onClick={(e) => {
                                             e.preventDefault();
                                             openModal(category.img);
@@ -277,17 +278,17 @@ export const Categories = () => {
                                     </a>
                                     <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
                                 </td>
-                                
+
                                 <td className="px-6 py-4">
-                                    <a
-                                        href={`/admin/categories/update/${category.id}`}
+                                    <Link
+                                        to={`/admin/categorynews/update/${category.id}`}
                                         type="button"
                                         data-modal-target="editUserModal"
                                         data-modal-show="editUserModal"
                                         className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                                     >
                                         Edit
-                                    </a>
+                                    </Link>
                                 </td>
                             </tr>
                         ))}

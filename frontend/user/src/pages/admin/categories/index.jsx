@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { destroy, callCategories } from "../../../services/api-categories";
 import { message, notification } from "antd";
 import { ImageModal } from "../../../components/admin/imgmodal";
+import DeleteConfirmationModal from "../../../components/delete_confirm";
 
 export const Categories = () => {
     const [imageSrc, setImageSrc] = useState(null);
@@ -42,6 +43,7 @@ export const Categories = () => {
                         (category) => !selectedCategories.includes(category.id)
                     );
                 });
+                setSelectedCategories([]);
                 notification.success({
                     message: "Xóa thành công",
                     description: res?.message || "Vui lòng thử lại sau",
@@ -150,21 +152,12 @@ export const Categories = () => {
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
                         {(selectedCategories.length > 0) ?
-                            <button
-                                onClick={() => {
-                                    const confirmed = window.confirm(
-                                        `Bạn có chắc chắn muốn xóa ${selectedCategories.length} Danh Mục này không?`
-                                    );
-                                    if (confirmed) {
-                                        hanDleDelete();
-                                    }
-                                }}
-                                type="button"
-                                className="block rounded px-6 pb-2 mr-4 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-red-600 w-auto"
-                            >
-                                Delete
-                            </button> : null
+                            <DeleteConfirmationModal
+                                data={`Bạn có chắc chắn muốn xóa ${selectedCategories.length} danh mục này không?`}
+                                onDelete={hanDleDelete}
+                            /> : null
                         }
+
                         <label htmlFor="table-search" className="sr-only">
                             Search
                         </label>
@@ -266,7 +259,7 @@ export const Categories = () => {
                                 </th>
                                 <td className="px-6 py-4">
                                     <a
-                                    className="underline cursor-pointer"
+                                        className="underline cursor-pointer"
                                         onClick={(e) => {
                                             e.preventDefault();
                                             openModal(category.img);
@@ -276,7 +269,7 @@ export const Categories = () => {
                                     </a>
                                     <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
                                 </td>
-                                
+
                                 <td className="px-6 py-4">
                                     <a
                                         href={`/admin/categories/update/${category.id}`}

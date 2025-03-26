@@ -22,6 +22,7 @@ export const Update_Product = () => {
         setEditorData(data);
     };
 
+
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -72,19 +73,9 @@ export const Update_Product = () => {
                 const res = await productService.categories();
                 if (res) {
                     setCategories(Array.isArray(res) ? res : []);
-                } else {
-                    Notification.error({
-                        message: "Có lỗi xảy ra",
-                        description: res?.message || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
                 }
             } catch (error) {
-                Notification.error({
-                    message: "Lỗi trong quá trình gọi api",
-                    description: error.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                console.error(error.message)
             }
         };
         fetchCategories();
@@ -104,24 +95,13 @@ export const Update_Product = () => {
                     if (res.product.images && Array.isArray(res.product.images)) {
                         setExistingImages(res.product.images);
                     }
-                } else {
-                    Notification.error({
-                        message: "Có lỗi xảy ra",
-                        description: res?.message || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
                 }
             } catch (error) {
-                Notification.error({
-                    message: "Lỗi trong quá trình gọi api",
-                    description: error.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                console.error(error.message)
             }
         };
         fetchProductData();
     }, [id]);
-
     const handSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -191,6 +171,10 @@ export const Update_Product = () => {
                 });
             }
         }
+    };
+    const handleChange_size = (event) => {
+        const size = { ...variant, size: event.target.value };
+        setVariant(size);
     };
 
     return (
@@ -276,7 +260,7 @@ export const Update_Product = () => {
                         <label htmlFor="category" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Danh mục</label>
                         <select
                             name="category_id"
-                            defaultValue={product.category_id}
+                            value={product.category_id} 
                             className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
                         >
                             {categories.map((category) => (
@@ -288,6 +272,7 @@ export const Update_Product = () => {
                                 </option>
                             ))}
                         </select>
+
                     </div>
                     <div className="mb-5 w-auto">
                         <label htmlFor="description" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Mô tả sản phẩm</label>
@@ -357,7 +342,8 @@ export const Update_Product = () => {
                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Size</label>
                         <select
                             name="size"
-                            defaultValue={product.size}  // Set default value here
+                            value={variant.size}
+                            onChange={handleChange_size}
                             className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
                         >
                             <option value="S">S</option>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\QueryException;
 
 class CategoriesController extends Controller
@@ -49,6 +50,12 @@ class CategoriesController extends Controller
         $ids = $request->ids;
         if (is_array($ids) && !empty($ids)) {
             try {
+                $categories = Category::whereIn('id', $ids)->get();
+                foreach ($categories as $category) {
+                    if ($category->img) {
+                        Storage::disk('public')->delete($category->img);
+                    }
+                }
                 Category::whereIn('id', $ids)->delete();
                 return response()->json(['message' => 'Xóa Danh Mục thành công', 'status' => 200], 200);
             } catch (QueryException $e) {

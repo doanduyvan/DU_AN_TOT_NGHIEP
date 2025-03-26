@@ -1,4 +1,4 @@
-import axios from "../utils/axios-customize";
+import axios from "../utils/axios-customize.js";
 
 const getHeaders = () => ({
     'Content-Type': 'multipart/form-data',
@@ -31,8 +31,8 @@ export const create = async (formData) => {
 export const destroy = async (ids) => {
     return apiPost("/permissions/destroy", { ids });
 };
-export const showPermission = async (ids) => {
-    return apiGet("/permissions", { ids });
+export const showPermission = async (id) => {
+    return apiGet(`/permissions/show/${id}`);
 };
 
 export const update = async (formData, id) => {

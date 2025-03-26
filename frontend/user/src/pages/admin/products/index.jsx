@@ -3,12 +3,15 @@ import { productService } from "../../../services/api-products";
 import { message, notification } from "antd";
 import { ImageModal } from "../../../components/admin/imgmodal";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../../contexts/authcontext";
+import DeleteConfirmationModal from "../../../components/delete_confirm";
 
 export const Products = () => {
 
     const [imageSrc, setImageSrc] = useState(null);
     const [products, setProducts] = useState([]);
     const [selectedProducts, setselectedProducts] = useState([]);
+    const { permissions } = useAuth();
 
     const openModal = (src) => {
         setImageSrc(src);
@@ -43,6 +46,7 @@ export const Products = () => {
                         (product) => !selectedProducts.includes(product.id)
                     );
                 });
+                setselectedProducts([]);
                 notification.success({
                     message: "Xóa thành công",
                     description: res?.message || "Vui lòng thử lại sau",
@@ -56,9 +60,10 @@ export const Products = () => {
                 });
             }
         } catch (error) {
+            console.log(error);
             notification.error({
                 message: "Lỗi trong quá trình gọi api",
-                description: error.message || "Vui lòng thử lại sau",
+                description: error.response.data.message || "Vui lòng thử lại sau",
                 duration: 5,
             });
         }
@@ -115,12 +120,15 @@ export const Products = () => {
                     <h5 className="text-xl font-medium leading-tight text-primary">
                         Quản Lý Sản Phẩm
                     </h5>
-                    <Link
-                        to="/admin/products/create"
-                        className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
-                    >
-                        Thêm Sản Phẩm
-                    </Link>
+                    {
+                        permissions.includes("create-product") &&
+                        <Link
+                            to="/admin/products/create"
+                            className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
+                        >
+                            Thêm Sản Phẩm
+                        </Link>
+                    }
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
                     <div>
@@ -151,20 +159,10 @@ export const Products = () => {
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
                         {(selectedProducts.length > 0) ?
-                            <button
-                                onClick={() => {
-                                    const confirmed = window.confirm(
-                                        `Bạn có chắc chắn muốn xóa ${selectedProducts.length} Danh Mục này không?`
-                                    );
-                                    if (confirmed) {
-                                        hanDleDelete();
-                                    }
-                                }}
-                                type="button"
-                                className="block rounded px-6 pb-2 mr-4 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-red-600 w-auto"
-                            >
-                                Delete
-                            </button> : null
+                            <DeleteConfirmationModal
+                                data={`Bạn có chắc chắn muốn xóa ${selectedProducts.length} sản phẩm này không?`}
+                                onDelete={hanDleDelete}
+                            /> : null
                         }
                         <label htmlFor="table-search" className="sr-only">
                             Search
@@ -227,9 +225,12 @@ export const Products = () => {
                             <th scope="col" className="px-6 py-3">
                                 Hình ảnh
                             </th>
-                            <th scope="col" className="px-6 py-3">
-                                Action
-                            </th>
+                            {
+                                permissions.includes("update-product") &&
+                                <th scope="col" className="px-6 py-3">
+                                    Action
+                                </th>
+                            }
                         </tr>
                     </thead>
                     <tbody>
@@ -277,16 +278,19 @@ export const Products = () => {
                                     </a>
                                     <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
                                 </td>
-                                <td className="px-6 py-4">
-                                    <Link
-                                        to={`/admin/products/update/${product.id}`}
-                                        type="button"
-                                        data-modal-target="editUserModal"
-                                        data-modal-show="editUserModal"
-                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                                        Edit
-                                    </Link>
-                                </td>
+                                {
+                                    permissions.includes("update-product") &&
+                                    <td className="px-6 py-4">
+                                        <Link
+                                            to={`/admin/products/update/${product.id}`}
+                                            type="button"
+                                            data-modal-target="editUserModal"
+                                            data-modal-show="editUserModal"
+                                            className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                                            Edit
+                                        </Link>
+                                    </td>
+                                }
                             </tr>
                         ))}
                     </tbody>

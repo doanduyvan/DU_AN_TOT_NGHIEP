@@ -21,7 +21,7 @@ class PermissionController extends Controller
             'permissions' => Permission::orderBy('id', 'desc')->get(),
         ]);
     }
-    public function update(PermissionRequest $request){
+    public function update(PermissionRequest $request, $id){
         $request->validate([
             'name' => 'required|string|max:255',
             'guard_name' => 'required|string|max:255',
@@ -56,12 +56,13 @@ class PermissionController extends Controller
         ]);
     }
 
-    public function show($roleId)
+    public function show($id)
     {
-        $role = Permission::findOrFail($roleId);
+        $role = Permission::findOrFail($id);
         $role->permissions;
         return response()->json([
             'permission' => $role,
+            'status' => 200,
         ]);
     }
 

@@ -2,20 +2,21 @@ import { useState, useEffect, useRef } from "react";
 import { callRoles, destroyRole } from "../../../services/api-roles";
 import { notification as Notification } from "antd";;
 import { Link } from "react-router-dom";
+import DeleteConfirmationModal from "../../../components/delete_confirm";
 export const Roles = () => {
     const [roles, setRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [filter, setFilter] = useState(""); // lưu trạng thái lọc
 
     const filterdRoles = filter
-    ? roles.filter((role) => role.status === filter)
-    : roles;
+        ? roles.filter((role) => role.status === filter)
+        : roles;
     const checkRoles = (e, id) => {
-        setSelectedRoles((prevSelect)=>{
-            if(e.target.checked){
+        setSelectedRoles((prevSelect) => {
+            if (e.target.checked) {
                 return [...prevSelect, id];
-            }else{
-                return prevSelect.filter((item)=>item !== id);
+            } else {
+                return prevSelect.filter((item) => item !== id);
             }
         })
     }
@@ -144,22 +145,11 @@ export const Roles = () => {
                             </div>
                             <div className="py-1 flex flex-wrap-reverse">
                                 {(selectedRoles.length > 0) ?
-                            <button
-                                onClick={(e) => {
-                                    const confirmed = window.confirm(
-                                        `Bạn có chắc chắn muốn xóa ${selectedRoles.length} bài viết này không?`
-                                    );
-                                    if (confirmed) {
-                                        hanDleDelete(e);
-                                    }
-                                }}
-                                type="button"
-                                className="block rounded px-6 pb-2 mr-4 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-red-600 w-auto"
-                            >
-                                Delete
-                            </button> : null
-                        }
-
+                                    <DeleteConfirmationModal
+                                        data={`Bạn có chắc chắn muốn xóa ${selectedRoles.length} vai trò này không?`}
+                                        onDelete={hanDleDelete}
+                                    /> : null
+                                }
                                 <label htmlFor="table-search" className="sr-only">
                                     Search
                                 </label>

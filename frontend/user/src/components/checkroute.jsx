@@ -2,9 +2,9 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/authcontext';
 
-const ProtectedRoute = ({ children, role, permission}) => {
-    const { currentUser, loading, hasPermission, hasRole } = useAuth();
-    if (hasRole(role) && !hasPermission(permission)) {
+const CheckRoute = ({ children, role, permission}) => {
+    const { currentUser, loading, hasPermission, hasRole} = useAuth();
+    if (hasRole(role) || hasPermission(permission)) {
         return <Navigate to="/" />;
     }
 
@@ -22,4 +22,4 @@ const ProtectedRoute = ({ children, role, permission}) => {
     return children;
 };
 
-export default ProtectedRoute;
+export default CheckRoute;

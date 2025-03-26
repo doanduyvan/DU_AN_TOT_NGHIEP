@@ -1,4 +1,4 @@
-import axios from "../utils/axios-customize";
+import axios from "../utils/axios-customize.js";
 const getHeaders = () => ({
     'Content-Type': 'multipart/form-data',
 });
@@ -30,7 +30,7 @@ export const create_Category = async (data) => {
 };
 
 export const destroy = async (ids) => {
-    return apiPost("/categories/delete", { ids });
+    return apiPost("/categories/destroy", { ids });
 };
 export const update = (id, formData) => {
     return apiPost(`/categories/update/${id}`, formData);

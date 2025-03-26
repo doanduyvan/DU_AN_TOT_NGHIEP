@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Link } from "react";
 import { notification as Notification } from "antd";
 import { create } from "../../../services/api-permissions";
 export const Create_Permission = () => {
@@ -76,7 +76,7 @@ export const Create_Permission = () => {
                 </div>
                 <form className="mt-5" onSubmit={handSubmit}>
                     <div className="mb-5 lg:w-1/4">
-                        <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Tên vai trò</label>
+                        <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Tên quyền</label>
                         <input type="name" name="name" id="name" className="shadow-sm bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"/>
                     </div>
                     <div className="mb-5 lg:w-1/4">

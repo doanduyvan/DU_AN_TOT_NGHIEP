@@ -5,7 +5,8 @@ import { Brand } from './pages/user/brand'
 import './App.css';
 import { AuthProvider } from './contexts/authcontext';
 
-import ProtectedRoute from './components/protectedroute';
+import CheckRoute from './components/checkroute';
+import ProtectedRoute from './components/protectedrouter';
 
 import { About } from './components/aboutPage/about';
 import { ProductDetail } from './pages/user/product_detail';
@@ -17,7 +18,7 @@ import { Update_Role } from './pages/admin/roles/update';
 
 import { Permissions } from './pages/admin/permissions/index';
 import { Create_Permission } from './pages/admin/permissions/create';
-import { Update_Permiss } from './pages/admin/permissions/update';
+import { Update_Permission } from './pages/admin/permissions/update';
 
 import { Categories } from './pages/admin/categories/index';
 import { Create_category } from './pages/admin/categories/create';
@@ -31,27 +32,37 @@ import LoginForm from './components/auth/login';
 import RegisterForm from './components/auth/register';
 import CartPage from "./components/cartPage/cartPage";
 import { Users } from "./pages/admin/users";
+import { Set_User_Role } from "./pages/admin/users/update";
+import { Orders } from "./pages/admin/orders";
+import { Update_Order } from "./pages/admin/orders/update";
 import Shop from "./pages/user/shop/shop";
 import Profile from "./pages/user/profile/profile";
 import News from "./pages/user/news/news";
 import NewsDetail from "./pages/user/news/newsDetail";
 import ContactPage from "./pages/user/contact/contact";
 
+import { CategoryNews } from "./pages/admin/categorynews";
+import { Create_category_news } from "./pages/admin/categorynews/create";
+import { Update_Category_News } from "./pages/admin/categorynews/update";
+import { NewsAdmin } from "./pages/admin/news";
+import { Create_News } from "./pages/admin/news/create";
 
 
 function App() {
   const Pages = [
-    { path: 'login', element: <LoginForm />,},
-    { path: 'register', element: <RegisterForm />,},
+    { path: 'login', element: <ProtectedRoute><LoginForm /></ProtectedRoute> },
+    { path: 'register', element: <ProtectedRoute><RegisterForm /></ProtectedRoute> },
     { path: 'brand', element: < Brand /> },
     { path: 'about', element: < About /> },
     { path: 'products/1', element: < ProductDetail /> },
     { path: 'cart', element: <CartPage /> },
-    {path: 'shop', element: <Shop />},
-    { path: 'profile', element: <Profile />},
-    { path: 'news', element: <News />},
-    { path: 'news/:id', element: <NewsDetail />}, 
-    { path: 'contact', element: <ContactPage />}
+    { path: 'shop', element: <Shop /> },
+    { path: 'profile', element: <Profile /> },
+    { path: 'shop', element: <Shop /> },
+    { path: 'profile', element: <Profile /> },
+    { path: 'news', element: <News /> },
+    { path: 'news/:id', element: <NewsDetail /> },
+    { path: 'contact', element: <ContactPage /> }
   ];
 
 
@@ -62,9 +73,10 @@ function App() {
 
     { path: 'permissions', element: < Permissions /> },
     { path: 'permissions/create', element: < Create_Permission /> },
-    { path: 'permissions/update/:id', element: < Update_Permiss /> },
+    { path: 'permissions/update/:id', element: < Update_Permission /> },
 
-    { path: 'users/', element: < Users /> },
+    { path: 'accounts/', element: < Users /> },
+    { path: 'accounts/update/:userId', element: < Set_User_Role /> },
 
     { path: 'categories', element: < Categories /> },
     { path: 'categories/create', element: < Create_category /> },
@@ -73,6 +85,17 @@ function App() {
     { path: 'products', element: < Products /> },
     { path: 'products/create', element: < Create_Product /> },
     { path: 'products/update/:id', element: < Update_Product /> },
+
+    { path: 'orders', element: < Orders /> },
+    { path: 'orders/update/:id', element: < Update_Order /> },
+
+    { path: 'categorynews', element: < CategoryNews /> },
+    { path: 'categorynews/create', element: < Create_category_news /> },
+    { path: 'categorynews/update/:id', element: < Update_Category_News /> },
+
+    { path: 'news', element: < NewsAdmin /> },
+    { path: 'news/create', element: < Create_News /> },
+
   ];
 
   const router = createBrowserRouter([
@@ -89,7 +112,7 @@ function App() {
     },
     {
       path: '/admin/',
-      element: <ProtectedRoute role={'Users'} permission={[]}><AdminLayout /></ProtectedRoute>,
+      element: <CheckRoute role={'Users'} permission={[]}><AdminLayout /></CheckRoute>,
       children: [
         {
           index: true, element:

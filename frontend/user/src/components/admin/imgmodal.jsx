@@ -9,7 +9,7 @@ export const ImageModal = ({ imageSrc, closeModal }) => {
                 <img
                     src={urlSRC}
                     alt="Modal View"
-                    className="w-full h-auto"
+                    className="w-96 h-auto"
                 />
             </div>
         </div>

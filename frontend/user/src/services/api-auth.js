@@ -1,4 +1,4 @@
-import axios from "../utils/axios-customize";
+import axios from "../utils/axios-customize.js";
 
 const apiPost = async (url, data) => {
   const response = await axios.post(url, data);
@@ -6,13 +6,11 @@ const apiPost = async (url, data) => {
 };
 
 const apiGet = async (url) => {
-    const response = await axios.get(url);
-    return response;
+  const response = await axios.get(url);
+  return response;
 };
 
 const AuthService = {
-
-
   register: async (userData) => {
     return apiPost("/register", userData);
   },
@@ -24,7 +22,7 @@ const AuthService = {
     try {
       const response = await apiPost("/logout");
       localStorage.removeItem("token");
-      window.location.href = '/login';
+      window.location.href = "/login";
       return response;
     } catch (error) {
       localStorage.removeItem("token");
@@ -38,7 +36,10 @@ const AuthService = {
 
   // Kiểm tra xem người dùng đã đăng nhập chưa
   isAuthenticated: () => {
-    return localStorage.getItem("token") !== null;
+    const token = localStorage.getItem("token");
+    if (token && token.trim() !== "") {
+      return true;
+    }
   },
 };
 export { AuthService };

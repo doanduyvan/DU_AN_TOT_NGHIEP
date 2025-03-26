@@ -1,9 +1,11 @@
 import axios from "axios";
+import { message, notification } from "antd";
+
+
 const baseUrl = import.meta.env.VITE_API_URL;
 const instance = axios.create({
   baseURL: baseUrl,
   headers: {
-    "Content-Type": "application/json",
     'Accept': 'application/json',
     "Content-Type": "multipart/form-data",
   },
@@ -22,7 +24,6 @@ instance.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-
 // Add a response interceptor
 //  dữ liệu phản hồi từ server sẽ được xử lý ở đây
 instance.interceptors.response.use(

@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { notification as Notification } from "antd";
 import { productService } from "../../../services/api-products";
 import { Ckeditor5Component } from "../../../components/ckeditor";
+import { useAuth } from "../../../contexts/authcontext";
 
 export const Create_Product = () => {
     const [avatar, setAvatar] = useState(null);
@@ -16,7 +17,7 @@ export const Create_Product = () => {
     const handleEditorChange = (data) => {
         setEditorData(data);
     };
-
+    
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
         if (file) {

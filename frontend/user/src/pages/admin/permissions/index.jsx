@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef} from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { callPermissions, destroy } from "../../../services/api-permissions";
-import { notification as Notification } from "antd";;
+import { notification as Notification } from "antd";import DeleteConfirmationModal from "../../../components/delete_confirm";
+;
 
 export const Permissions = () => {
     const [permissions, setPermission] = useState([]);
@@ -145,22 +146,11 @@ export const Permissions = () => {
                             </div>
                             <div className="py-1 flex flex-wrap-reverse">
                                 {(selectedPermiss.length > 0) ?
-                                    <button
-                                        onClick={(e) => {
-                                            const confirmed = window.confirm(
-                                                `Bạn có chắc chắn muốn xóa ${selectedPermiss.length} bài viết này không?`
-                                            );
-                                            if (confirmed) {
-                                                hanDleDelete(e);
-                                            }
-                                        }}
-                                        type="button"
-                                        className="block rounded px-6 pb-2 mr-4 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-red-600 w-auto"
-                                    >
-                                        Delete
-                                    </button> : null
+                                    <DeleteConfirmationModal
+                                        data={`Bạn có chắc chắn muốn xóa ${selectedPermiss.length} quyền hạn này không?`}
+                                        onDelete={hanDleDelete}
+                                    /> : null
                                 }
-
                                 <label htmlFor="table-search" className="sr-only">
                                     Search
                                 </label>

@@ -156,4 +156,11 @@ class ProductsController extends Controller
     {
         return Str::uuid()->toString(); // Tạo UUID
     }
+    public function searchProduct(Request $request)
+    {
+        $query = $request->input('search_product');
+        $products = Product::where('product_name', 'like', '%' . $query . '%')->get();
+        $products->load('variants');
+        return response()->json($products);
+    }
 }

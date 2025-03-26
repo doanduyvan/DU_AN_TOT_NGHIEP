@@ -2,11 +2,98 @@ import { useState, useEffect, useRef } from "react";
 import { OrderService } from "../../../services/api-orders";
 import { notification } from "antd";
 import { Link } from "react-router-dom";
+import { OrderStatusSelect } from "../../../components/admin/orders/order_status";
+import { PaymentStatusSelect } from "../../../components/admin/orders/payment_status";
+import { ShippingStatusSelect } from "../../../components/admin/orders/shipping_status";
+import DeleteConfirmationModal from "../../../components/delete_confirm";
 
 export const Orders = () => {
-    const [orders, setCategories] = useState([]);
+    const [orders, setOrders] = useState([]);
     const [selectedOrders, setSelectedOrders] = useState([]);
-
+    const handleOrderStatusChange = async (orderId, newStatus) => {
+        try {
+            const res = await OrderService.updateOrderStatus(orderId, newStatus);
+            if (res) {
+                setOrders((orders) =>
+                    orders.map((order) =>
+                        order.id === orderId ? { ...order, status: newStatus } : order
+                    )
+                );
+                notification.success({
+                    message: 'Cập nhật trạng thái thành công!',
+                    duration: 5,
+                });
+            } else {
+                notification.error({
+                    message: 'Có lỗi xảy ra',
+                    description: res?.message || 'Vui lòng thử lại sau',
+                    duration: 5,
+                });
+            }
+        } catch (error) {
+            notification.error({
+                message: 'Lỗi trong quá trình gọi API',
+                description: error.message || 'Vui lòng thử lại sau',
+                duration: 5,
+            });
+        }
+    };
+    const handlePaymentStatusChange = async (orderId, newStatus) => {
+        try {
+            const res = await OrderService.updatePaymentStatus(orderId, newStatus);
+            if (res) {
+                setOrders((orders) =>
+                    orders.map((order) =>
+                        order.id === orderId ? { ...order, payment_status: newStatus } : order
+                    )
+                );
+                notification.success({
+                    message: 'Cập nhật trạng thái thành công!',
+                    duration: 5,
+                });
+            } else {
+                notification.error({
+                    message: 'Có lỗi xảy ra',
+                    description: res?.message || 'Vui lòng thử lại sau',
+                    duration: 5,
+                });
+            }
+        } catch (error) {
+            notification.error({
+                message: 'Lỗi trong quá trình gọi API',
+                description: error.message || 'Vui lòng thử lại sau',
+                duration: 5,
+            });
+        }
+    };
+    const handleShippingStatusChange = async (orderId, newStatus) => {
+        try {
+            const res = await OrderService.updateShippingStatus(orderId, newStatus);
+            if (res) {
+                setOrders((orders) =>
+                    orders.map((order) =>
+                        order.id === orderId ? { ...order, shipping_status: newStatus } : order
+                    )
+                );
+                notification.success({
+                    message: 'Cập nhật trạng thái thành công!',
+                    duration: 5,
+                });
+            } else {
+                notification.error({
+                    message: 'Có lỗi xảy ra',
+                    description: res?.message || 'Vui lòng thử lại sau',
+                    duration: 5,
+                });
+            }
+        } catch (error) {
+            notification.error({
+                message: 'Lỗi trong quá trình gọi API',
+                description: error.message || 'Vui lòng thử lại sau',
+                duration: 5,
+            });
+        }
+    };
 
     const checkOrder = (e, id) => {
         setSelectedOrders((prevselectedOrders) => {
@@ -17,6 +104,7 @@ export const Orders = () => {
             }
         });
     };
+    console.log(selectedOrders);
     const hanDleDelete = async () => {
         if (selectedOrders.length === 0) {
             notification.warning({
@@ -26,12 +114,12 @@ export const Orders = () => {
             return;
         }
         try {
-            const res = await destroy(selectedOrders);
+            const res = await OrderService.destroy(selectedOrders);
             console.log(selectedOrders);
             if (res?.status === 200) {
-                setCategories((prevCategories) => {
-                    return prevCategories.filter(
-                        (category) => !selectedOrders.includes(category.id)
+                setOrders((prevOrders) => {
+                    return prevOrders.filter(
+                        (order) => !selectedOrders.includes(order.id)
                     );
                 });
                 notification.success({
@@ -59,7 +147,7 @@ export const Orders = () => {
             try {
                 const res = await OrderService.getAllOrder();
                 if (res) {
-                    setCategories(Array.isArray(res) ? res : []);
+                    setOrders(Array.isArray(res) ? res : []);
                     console.log(res);
                 } else {
                     notification.error({
@@ -136,20 +224,10 @@ export const Orders = () => {
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
                         {(selectedOrders.length > 0) ?
-                            <button
-                                onClick={() => {
-                                    const confirmed = window.confirm(
-                                        `Bạn có chắc chắn muốn xóa ${selectedOrders.length} Danh Mục này không?`
-                                    );
-                                    if (confirmed) {
-                                        hanDleDelete();
-                                    }
-                                }}
-                                type="button"
-                                className="block rounded px-6 pb-2 mr-4 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-red-600 w-auto"
-                            >
-                                Delete
-                            </button> : null
+                            <DeleteConfirmationModal
+                                data={`Bạn có chắc chắn muốn xóa ${selectedOrders.length} đơn hàng này không?`}
+                                onDelete={hanDleDelete}
+                            /> : null
                         }
                         <label htmlFor="table-search" className="sr-only">
                             Search
@@ -216,6 +294,9 @@ export const Orders = () => {
                                 Trạng thái đơn hàng
                             </th>
                             <th scope="col" className="px-6 py-3">
+                                Trạng thái vận chuyển
+                            </th>
+                            <th scope="col" className="px-6 py-3">
                                 Ngày đặt
                             </th>
                             <th scope="col" className="px-6 py-3">
@@ -253,31 +334,20 @@ export const Orders = () => {
                                     scope="row"
                                     className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                 >
-                                    <div className="ps-3">
+                                    <div className="px-6 py-4">
                                         <div className="text-base font-semibold">
                                             {order.fullname}
                                         </div>
                                     </div>
                                 </th>
                                 <td className="px-6 py-4">
-                                    <div className="text-base font-semibold">
-                                        {order.payment_status === 0 ? "Chưa thanh toán" :
-                                                order.payment_status === 1 ? "Đã thanh toán" :
-                                                    "Trạng thái không xác định"
-                                        }
-                                    </div>
+                                    <PaymentStatusSelect order={order} onChange={handlePaymentStatusChange} />
                                 </td>
                                 <td className="px-6 py-4">
-                                    <div className="text-base font-semibold">
-                                        {order.status === 1 ? "Chờ xác nhận" :
-                                            order.status === 0 ? "Đã hủy" :
-                                                order.status === 2 ? "Đã xác nhận" :
-                                                    order.status === 3 ? "Đã đóng gói" :
-                                                    order.status === 4 ? "Đã giao cho đơn vị vận chuyển" :
-                                                    order.status === 5 ? "Đã hoàn thành" :
-                                                        "Trạng thái không xác định"
-                                        }
-                                    </div>
+                                    <OrderStatusSelect order={order} onChange={handleOrderStatusChange} />
+                                </td>
+                                <td className="px-6 py-4">
+                                    <ShippingStatusSelect order={order} onChange={handleShippingStatusChange} />
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="text-base font-semibold">

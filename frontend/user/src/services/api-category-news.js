@@ -34,7 +34,7 @@ const categoryNewsService = {
             return apiPost(`/categorynews/update/${id}`, data);
         },
         destroy: async (ids) => {
-            return apiPost("/categorynews/delete", { ids });
+            return apiPost("/categorynews/destroy", { ids });
         },
 };
 export { categoryNewsService };

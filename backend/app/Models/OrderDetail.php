@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OrderDetail extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+    protected $dates = ['deleted_at'];
     protected $table = 'order_details';
     protected $fillable = ['order_id', 'product_variant_id', 'quantity', 'price'];
 
@@ -19,4 +21,5 @@ class OrderDetail extends Model
     {
         return $this->belongsTo(ProductVariant::class, 'product_variant_id');
     }
+    public $timestamps = false;
 }

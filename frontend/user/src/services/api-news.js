@@ -37,7 +37,7 @@ const newsService = {
     return apiPost(`/news/update/${id}`, data);
   },
   destroy: async (ids) => {
-    return apiPost("/news/delete", { ids });
+    return apiPost("/news/destroy", { ids });
   },
 };
 export { newsService };

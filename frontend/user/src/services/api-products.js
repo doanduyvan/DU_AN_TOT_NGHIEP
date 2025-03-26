@@ -37,7 +37,7 @@ const productService = {
     return apiPost(`/products/update/${id}`, data);
   },
   destroy: async (ids) => {
-    return apiPost("/products/delete", { ids });
+    return apiPost("/products/destroy", { ids });
   },
 };
 export { productService };

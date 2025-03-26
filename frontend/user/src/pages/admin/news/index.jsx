@@ -4,6 +4,7 @@ import { message, notification } from "antd";
 import { ImageModal } from "../../../components/admin/imgmodal";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../contexts/authcontext";
+import DeleteConfirmationModal from "../../../components/delete_confirm";
 
 export const NewsAdmin = () => {
 
@@ -155,20 +156,10 @@ export const NewsAdmin = () => {
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
                         {(selectedNews.length > 0) ?
-                            <button
-                                onClick={() => {
-                                    const confirmed = window.confirm(
-                                        `Bạn có chắc chắn muốn xóa ${selectedNews.length} Bài Viết này không?`
-                                    );
-                                    if (confirmed) {
-                                        hanDleDelete();
-                                    }
-                                }}
-                                type="button"
-                                className="block rounded px-6 pb-2 mr-4 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-red-600 w-auto"
-                            >
-                                Delete
-                            </button> : null
+                            <DeleteConfirmationModal
+                                data={`Bạn có chắc chắn muốn xóa ${selectedNews.length} bài viết này không?`}
+                                onDelete={hanDleDelete}
+                            /> : null
                         }
                         <label htmlFor="table-search" className="sr-only">
                             Search

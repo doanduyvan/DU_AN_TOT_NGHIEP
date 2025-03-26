@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { UsersService } from "../../../services/api-users";
 import { message, notification } from "antd";
 import { ImageModal } from "../../../components/admin/imgmodal";
+import DeleteConfirmationModal from "../../../components/delete_confirm";
 
 export const Users = () => {
     const [imageSrc, setImageSrc] = useState(null);
@@ -89,38 +90,38 @@ export const Users = () => {
         fetchData();
     }, []);
 
-     const handleStatusChange = async (id, status) => {
-            try {
-                const res = await UsersService.upadteStatus({ id, status });
-                if (res?.status === 200) {
-                    setUser((prevUsers) => {
-                        return prevUsers.map((user) => {
-                            if (user.id === id) {
-                                return { ...user, status };
-                            }
-                            return user;
-                        });
+    const handleStatusChange = async (id, status) => {
+        try {
+            const res = await UsersService.upadteStatus({ id, status });
+            if (res?.status === 200) {
+                setUser((prevUsers) => {
+                    return prevUsers.map((user) => {
+                        if (user.id === id) {
+                            return { ...user, status };
+                        }
+                        return user;
                     });
-                    notification.success({
-                        message: "Cập nhật trạng thái thành công",
-                        description: res?.message || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
-                } else {
-                    notification.error({
-                        message: "Có lỗi xảy ra",
-                        description: res?.message || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
-                }
-            } catch (error) {
+                });
+                notification.success({
+                    message: "Cập nhật trạng thái thành công",
+                    description: res?.message || "Vui lòng thử lại sau",
+                    duration: 5,
+                });
+            } else {
                 notification.error({
-                    message: "Lỗi trong quá trình gọi api",
-                    description: error.message || "Vui lòng thử lại sau",
+                    message: "Có lỗi xảy ra",
+                    description: res?.message || "Vui lòng thử lại sau",
                     duration: 5,
                 });
             }
+        } catch (error) {
+            notification.error({
+                message: "Lỗi trong quá trình gọi api",
+                description: error.message || "Vui lòng thử lại sau",
+                duration: 5,
+            });
         }
+    }
 
     return (
         <div className="pt-20 px-4 lg:ml-64">
@@ -179,20 +180,10 @@ export const Users = () => {
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
                         {(selectedUsers.length > 0) ?
-                            <button
-                                onClick={() => {
-                                    const confirmed = window.confirm(
-                                        `Bạn có chắc chắn muốn xóa ${selectedUsers.length} tài khoản này không?`
-                                    );
-                                    if (confirmed) {
-                                        hanDleDelete();
-                                    }
-                                }}
-                                type="button"
-                                className="block rounded px-6 pb-2 mr-4 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-red-600 w-auto"
-                            >
-                                Delete
-                            </button> : null
+                            <DeleteConfirmationModal
+                                data={`Bạn có chắc chắn muốn xóa ${selectedUsers.length} người dùng này không?`}
+                                onDelete={hanDleDelete}
+                            /> : null
                         }
                         <label htmlFor="table-search" className="sr-only">
                             Search
@@ -287,7 +278,7 @@ export const Users = () => {
                                     scope="row"
                                     className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                 >
-                                    <img className="w-12 h-12 rounded-full"  alt="" />
+                                    <img className="w-12 h-12 rounded-full" alt="" />
                                     <div className="ps-3">
                                         <div className="text-base font-semibold">
                                             {user.fullname}
@@ -298,7 +289,7 @@ export const Users = () => {
                                     </div>
                                 </th>
                                 <td className="px-6 py-4">
-                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <label className="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" className="sr-only peer" value={(user.status === 1) ? 0 : 1}
                                             checked={user.status === 1}
                                             onChange={(e) => handleStatusChange(user.id, e.target.checked ? 1 : 0)}
@@ -306,10 +297,10 @@ export const Users = () => {
                                         <div className="group peer bg-white rounded-full duration-300 w-16 h-8 ring-2 ring-red-500 after:duration-300 after:bg-red-500 peer-checked:after:bg-green-500 peer-checked:ring-green-500 after:rounded-full after:absolute after:h-6 after:w-6 after:top-1 after:left-1 after:flex after:justify-center after:items-center peer-checked:after:translate-x-8 peer-hover:after:scale-95" />
                                     </label>
                                 </td>
-                                
+
                                 <td className="px-6 py-4">
                                     <Link
-                                        to={`/admin/accounts/update/${user.id}`}   
+                                        to={`/admin/accounts/update/${user.id}`}
                                         type="button"
                                         data-modal-target="editUserModal"
                                         data-modal-show="editUserModal"

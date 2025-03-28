@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { callRoles, destroyRole } from "../../../services/api-roles";
-import { notification as Notification } from "antd";;
+import { AntNotification } from "../../../components/notification";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
 export const Roles = () => {
@@ -20,13 +20,9 @@ export const Roles = () => {
             }
         })
     }
-    const hanDleDelete = async (event) => {
-        event.preventDefault();
+    const hanDleDelete = async () => {
         if (selectedRoles.length === 0) {
-            Notification.warning({
-                message: "Không có vai trò nào được chọn",
-                duration: 3,
-            });
+            AntNotification.showNotification("Chưa có vai trò nào được chọn", "Vui lòng chọn ít nhất một vai trò để xóa", "error");
             return;
         }
         try {
@@ -37,24 +33,13 @@ export const Roles = () => {
                         (role) => !selectedRoles.includes(role.id)
                     );
                 });
-                Notification.success({
-                    message: "Xóa thành công",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                setSelectedRoles([]); 
+                AntNotification.showNotification("Xóa thành công", res.message, "success");
             } else {
-                Notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Xóa thất bại", res.message, "error");
             }
         } catch (error) {
-            Notification.error({
-                message: "Lỗi trong quá trình gọi api",
-                description: error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại",
-                duration: 5,
-            });
+            AntNotification.handleError(error);
         }
     }
 
@@ -63,20 +48,12 @@ export const Roles = () => {
             try {
                 const res = await callRoles();
                 if (res) {
-                    setRoles(res.roles); // Lưu dữ liệu từ API vào state
+                    setRoles(res.roles); 
                 } else {
-                    Notification.error({
-                        message: "Có lỗi xảy ra",
-                        description: res?.message || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
+                    AntNotification.showNotification("Lỗi", "Không thể tải dữ liệu", "error");
                 }
             } catch (error) {
-                Notification.error({
-                    message: "Lỗi trong quá trình gọi api",
-                    description: error.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.handleError(error);
             }
         };
         fetchData();

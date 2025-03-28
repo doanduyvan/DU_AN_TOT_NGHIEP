@@ -124,9 +124,13 @@ class OrderController extends Controller
                 ->where('product_variant_id', $productVariantId)
                 ->first();
             if ($orderDetail) {
-                $orderDetail->quantity += 1;
-                $orderDetail->price = $finalPrice;
-                $orderDetail->save();
+                // $orderDetail->quantity += 1;
+                // $orderDetail->price = $finalPrice;
+                // $orderDetail->save();            
+                return response()->json([
+                    'message' => 'Đơn hàng đã tồn tại',
+                    'status' => 'error'
+                ]);
             } else {
                 $orderDetail = OrderDetail::create([
                     'order_id' => $orderId,

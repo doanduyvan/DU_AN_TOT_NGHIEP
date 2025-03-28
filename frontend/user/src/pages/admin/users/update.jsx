@@ -1,5 +1,5 @@
 
-import { message, notification } from "antd";
+import { AntNotification } from '../../../components/notification';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { UsersService } from '../../../services/api-users';
@@ -16,11 +16,7 @@ export const Set_User_Role = () => {
     console.log(permissions);
     useEffect(() => {
         if (!permissions.includes("update-customer")) {
-            notification.error({
-                message: "Vui lòng liên hệ admin",
-                description: "Bạn không có quyền thực hiện hành động này",
-                duration: 5,
-            });
+            AntNotification.showNotification("Bạn không có quyền truy cập", "Vui lòng liên hệ quản trị viên", "error");
             Navigate('/admin/accounts');
         }
     }, [permissions]);
@@ -45,18 +41,12 @@ export const Set_User_Role = () => {
                 if (res.status === 200) {
                     setRole(res.roles);
                 } else {
-                    notification.error({
-                        message: "Có lỗi xảy ra 1",
-                        description: res?.message || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
+                    AntNotification.showNotification("Có lỗi xảy ra", res.message, "error");
+                    Navigate('/admin/accounts');
                 }
             } catch (error) {
-                notification.error({
-                    message: "Trang không tồn tại",
-                    description: error.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.handleError(error);
+                Navigate('/admin/accounts');
             }
         })();
     }, [userId]);
@@ -82,25 +72,13 @@ export const Set_User_Role = () => {
         try {
             const res = await UsersService.updateUser(formData, userId);
             if (res?.status === 200) {
-                notification.success({
-                    message: "Cập nhật thành công",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Cập nhật thành công", res.message, "success");
                 Navigate('/admin/accounts');
             } else {
-                notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Cập nhật thất bại", res.message, "error");
             }
         } catch (error) {
-            notification.error({
-                message: "Lỗi trong quá trình gọi api",
-                description: error.message || "Vui lòng thử lại sau",
-                duration: 5,
-            });
+           AntNotification.handleError(error);
         }
     };
     return (

@@ -1,5 +1,5 @@
 
-import { message, notification } from "antd";
+import { AntNotification } from '../../../components/notification';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { update, showPermission } from "../../../services/api-permissions";
@@ -16,18 +16,10 @@ export const Update_Permission = () => {
                 if (res.status === 200) {
                     setPermission(res.permission);
                 } else {
-                    notification.error({
-                        message: "Có lỗi xảy ra",
-                        description: res?.message || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
+                    AntNotification.showNotification("Lỗi", "Không thể lấy danh sách quyền hạn", "error");
                 }
             } catch (error) {
-                notification.error({
-                    message: "Trang không tồn tại",
-                    description: error.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.handleError(error);
                 Navigate('/admin/permissions');
             }
         })();
@@ -39,24 +31,17 @@ export const Update_Permission = () => {
         try {
             const res = await update(formData, id);
             if (res?.status === 200) {
-                notification.success({
-                    message: "Cập nhật thành công",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Cập nhật quyền hạn thành công", res?.message, "success");
                 Navigate('/admin/permissions');
             } else {
-                notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Cập nhật quyền hạn thất bại", res?.message, "error");
             }
         } catch (error) {
-            notification.error({
-                message: "Lỗi trong quá trình gọi api",
-                description: error.message || "Vui lòng thử lại sau",
-                duration: 5,
-            });
+            if (error?.response?.status === 422) {
+                AntNotification.showNotification("Cập nhật quyền hạn thất bại", error?.response?.data?.message, "error");
+            } else {
+                AntNotification.handleError(error);
+            }
         }
     };
     return (

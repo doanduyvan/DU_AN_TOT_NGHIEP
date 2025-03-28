@@ -48,5 +48,8 @@ const OrderService = {
   destroy: async (ids) => {
     return apiPost(`/orders/destroy`,  { ids });
   },
+  create: async (formData) => {
+    return apiPost(`/orders/create`,  formData);
+  },
 };
 export { OrderService };

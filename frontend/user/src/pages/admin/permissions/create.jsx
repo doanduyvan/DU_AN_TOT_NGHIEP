@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, Link } from "react";
-import { notification as Notification } from "antd";
+import { AntNotification } from "../../../components/notification";
 import { create } from "../../../services/api-permissions";
 export const Create_Permission = () => {
     const navigate = useNavigate();
@@ -10,25 +10,17 @@ export const Create_Permission = () => {
         try {
             const res = await create(formData);
             if (res?.status === 200) {
-                Notification.success({
-                    message: "Thêm thành công",
-                    description: res?.message || "Thêm dữ liệu thành công",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Thêm quyền hạn thành công", res?.message, "success");
                 navigate("/admin/permissions");
             } else {
-                Notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Thêm quyền hạn thất bại", res?.message, "error");
             }
         } catch (error) {
-            Notification.error({
-                message: "Có lỗi xảy ra",
-                description: error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại",
-                duration: 5,
-            });
+            if (error?.response?.status === 422) {
+                AntNotification.showNotification("Thêm quyền hạn thất bại", error?.response?.data?.message, "error");
+            } else {
+                AntNotification.handleError(error);
+            }
         }
         
     }

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { categoryNewsService } from "../../../services/api-category-news";
-import { message, notification } from "antd";
+import { AntNotification } from "../../../components/notification";
 import { ImageModal } from "../../../components/admin/imgmodal";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
@@ -29,10 +29,11 @@ export const CategoryNews = () => {
     };
     const hanDleDelete = async () => {
         if (selectedCategories.length === 0) {
-            notification.warning({
-                message: "Không có danh mục nào được chọn",
-                duration: 3,
-            });
+            AntNotification.showNotification(
+                "Chưa có danh mục nào được chọn",
+                "Vui lòng chọn ít nhất một danh mục để xóa",
+                "error"
+            );
             return;
         }
         try {
@@ -45,24 +46,20 @@ export const CategoryNews = () => {
                     );
                 });
                 setSelectedCategories([]);
-                notification.success({
-                    message: "Xóa thành công",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification(
+                    "Xóa danh mục bài viết thành công",
+                    res?.message,
+                    "success"
+                );
             } else {
-                notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification(
+                    "Xóa danh mục bài viết thất bại",
+                    res?.message,
+                    "error"
+                );
             }
         } catch (error) {
-            notification.error({
-                message: "Lỗi trong quá trình gọi api",
-                description: error.message || "Vui lòng thử lại sau",
-                duration: 5,
-            });
+            AntNotification.handleError(error);
         }
     };
     useEffect(() => {
@@ -73,18 +70,14 @@ export const CategoryNews = () => {
                     setCategories(Array.isArray(res) ? res : []);
                     console.log(res);
                 } else {
-                    notification.error({
-                        message: "Có lỗi xảy ra",
-                        description: res?.message || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
+                    AntNotification.showNotification(
+                        "Lỗi trong quá trình gọi api",
+                        res?.message,
+                        "error"
+                    );
                 }
             } catch (error) {
-                notification.error({
-                    message: "Lỗi trong quá trình gọi api",
-                    description: error.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.handleError(error);
             }
         };
         fetchData();

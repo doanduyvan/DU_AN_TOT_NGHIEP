@@ -11,13 +11,17 @@ export const Create_Product = () => {
     const [editorData, setEditorData] = useState('');
     const [imageFiles, setImageFiles] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [variants, setVariants] = useState([
+        { size: '', price: '', promotional_price: '', sku: '', stock_quantity: '' }
+    ]);
+
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
     const handleEditorChange = (data) => {
         setEditorData(data);
     };
-    
+
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -79,9 +83,18 @@ export const Create_Product = () => {
     }, []);
     const handSubmit = async (e) => {
         e.preventDefault();
-        const formData = new FormData(e.target);
+        const formData = new FormData();
+
+        // Lấy dữ liệu từ form
+        const productName = e.target.product_name.value;
+        const categoryId = e.target.category_id.value;
+
+        // Append các dữ liệu từ form
+        formData.append('product_name', productName);
+        formData.append('category_id', categoryId);
         formData.append('description', editorData);
 
+        // Lấy ảnh đại diện từ input avatar
         const avatarFile = document.querySelector('input[name="avatar"]').files[0];
 
         if (!avatarFile || imageFiles.length === 0) {
@@ -91,14 +104,25 @@ export const Create_Product = () => {
 
         formData.append('avatar', avatarFile);
 
-        // Thêm tất cả các file hình ảnh vào FormData
-        imageFiles.forEach((file, index) => {
+        // Thêm tất cả các file hình ảnh vào FormData (không lặp lại)
+        imageFiles.forEach((file) => {
             formData.append(`images[]`, file);
         });
 
-        formData.forEach((value, key) => {
-            console.log(key, value);
+
+        // Thêm các biến thể (variants) vào FormData (không lặp lại các trường trong phần chung)
+        variants.forEach((variant, index) => {
+            
+            formData.append(`variants[${index}][size]`, variant.size);
+            formData.append(`variants[${index}][price]`, variant.price);
+            formData.append(`variants[${index}][promotional_price]`, variant.promotional_price);
+            formData.append(`variants[${index}][sku]`, variant.sku);
+            formData.append(`variants[${index}][stock_quantity]`, variant.stock_quantity);
         });
+
+        // formData.forEach((value, key) => {
+        //     console.log(key, value);
+        // });
 
         try {
             const res = await productService.create(formData);
@@ -138,6 +162,25 @@ export const Create_Product = () => {
         }
     };
 
+console.log(variants);
+
+    // biến thể
+    // hàm xử lý biến thể
+    const handleVariantChange = (index, e) => {
+        const { name, value } = e.target;
+        const newVariants = [...variants];
+        newVariants[index][name] = value;
+        setVariants(newVariants);
+    };
+    const addVariant = () => {
+        setVariants([...variants, { size: '', price: '', promotional_price: '', sku: '', stock_quantity: '' }]);
+    }
+    const removeVariant = (index) => {
+        if (variants.length <= 1) return;
+        const newVariants = [...variants];
+        newVariants.splice(index, 1);
+        setVariants(newVariants);
+    };
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <nav className="rounded-md w-full">
@@ -254,28 +297,101 @@ export const Create_Product = () => {
                             ))}
                         </div>
                     </div>
+                    {/* biến thể (size) */}
                     <div className="mb-5">
-                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Size</label>
-                        <select name="size" className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
-                            <option value="S">S</option>
-                            <option value="M">M</option>
-                            <option value="L">L</option>
-                            <option value="XL">XL</option>
-                        </select>
-                    </div>
-                    <div className="mb-5">
-                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Giá</label>
-                        <input type="number" id="img" name="price" className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" />
-                    </div>
-                    <div className="mb-5">
-                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Giảm giá</label>
-                        <input type="number" id="img" name="promotional_price" className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" />
-                    </div>
-                    <div className="mb-5">
-                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Số lượng tồn kho</label>
-                        <input type="number" id="img" name="stock_quantity" className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" />
-                    </div>
+                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
+                            Biến thể (Size)
+                        </label>
 
+                        {variants.map((variant, index) => (
+                            <div key={index} className="grid grid-cols-5 gap-4 mb-3 items-end">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Size</label>
+                                    <select
+                                        name="size"
+                                        value={variant.size}
+                                        onChange={(e) => handleVariantChange(index, e)}
+                                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        required
+                                    >
+                                        <option value="">Chọn size</option>
+                                        <option value="S">S</option>
+                                        <option value="M">M</option>
+                                        <option value="L">L</option>
+                                        <option value="XL">XL</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Mã sản phẩm</label>
+                                    <input
+                                        type="text"
+                                        name="sku"
+                                        placeholder="Mã sản phẩm"
+                                        value={variant.sku}
+                                        onChange={(e) => handleVariantChange(index, e)}
+                                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Giá gốc</label>
+                                    <input
+                                        type="number"
+                                        name="price"
+                                        
+                                        placeholder="Giá gốc"
+                                        value={variant.price}
+                                        onChange={(e) => handleVariantChange(index, e)}
+                                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Giá KM</label>
+                                    <input
+                                        type="number"
+                                        name="promotional_price"
+                                        placeholder="Giá khuyến mãi"
+                                        value={variant.promotional_price}
+                                        onChange={(e) => handleVariantChange(index, e)}
+                                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Số lượng</label>
+                                    <input
+                                        type="number"
+                                        name="stock_quantity"
+                                        placeholder="Số lượng"
+                                        value={variant.stock_quantity}
+                                        onChange={(e) => handleVariantChange(index, e)}
+                                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <button
+                                        type="button"
+                                        onClick={() => removeVariant(index)}
+                                        className="text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-2 text-center"
+                                        disabled={variants.length <= 1}
+                                    >
+                                        Xóa
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+
+                        <button
+                            type="button"
+                            onClick={addVariant}
+                            className="text-white bg-green-500 hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3 py-2 text-center mt-2"
+                        >
+                            Thêm biến thể
+                        </button>
+                    </div>
                     <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
                 </form>
             </div>

@@ -8,8 +8,10 @@ use Illuminate\Database\QueryException;
 use App\Http\Requests\ProductRequest;
 use App\Http\Requests\ProductImageRequest;
 use App\Http\Requests\ProductVariantRequest;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use App\Models\ProductVariant;
+
+
 
 class ProductsController extends Controller
 {
@@ -24,7 +26,7 @@ class ProductsController extends Controller
     {
         $product = Product::where('id', $id)->first();
         $product->load('images');
-        $variant = $product->variants()->first();
+        $variant = $product->variants()->get();
         return response()->json([
             'product' => $product,
             'variant' => $variant,
@@ -52,10 +54,26 @@ class ProductsController extends Controller
                     $Product->images()->create(['img' => $imagePath]);
                 }
             }
-
             $variants = $variantRequest->validated();
-            $variants['sku'] = $this->generateUniqueSKU();
-            $Product->variants()->create($variants);
+            if (!is_array($variants) || empty($variants)) {
+                throw new \Exception('Dữ liệu biến thể không hợp lệ');
+            }
+            foreach ($variants as $variantList) {
+                foreach ($variantList as $variant) {
+                    $existingVariant = ProductVariant::where('product_id', $Product->id)
+                        ->where('size', $variant['size'])
+                        ->first();
+
+                    if ($existingVariant) {
+                        return response()->json([
+                            'message' => "Size {$variant['size']} đã có vui lòng chọn size khác",
+                            'existing_variant' => $existingVariant
+                        ], 400);
+                    }
+
+                    $Product->variants()->create($variant);
+                }
+            }
 
             return response()->json([
                 'message' => 'Thêm sản phẩm thành công',
@@ -132,11 +150,55 @@ class ProductsController extends Controller
                 }
             }
             $variants = $variantRequest->validated();
-            // Xoá các biến thể cũ (nếu có) và tạo mới
+            if (!is_array($variants) || empty($variants)) {
+                throw new \Exception('Dữ liệu biến thể không hợp lệ');
+            }
 
-            $product->variants()->update($variants);
+            if ($variantRequest->has('deleted_variants')) {
+                $deletedVariants = $variantRequest->input('deleted_variants');
+                foreach ($deletedVariants as $variantId) {
+                    $variant = $product->variants()->find($variantId);
+                    if ($variant) {
+                        $variant->delete();
+                    }
+                }
+            }
+            foreach ($variants as $variantList) {
+                foreach ($variantList as $variant) {
+                    $existingVariant = $product->variants()->where('product_id', $product->id)
+                        ->where('size', $variant['size'])
+                        ->where('id', '!=', $variant['id'] ?? null)  // Bỏ qua id của biến thể đang cập nhật
+                        ->first();
 
+                    $existingVariantSku = $product->variants()->where('product_id', $product->id)
+                        ->where('sku', $variant['sku'])
+                        ->where('id', '!=', $variant['id'] ?? null)
+                        ->first();
 
+                    if ($existingVariant) {
+                        return response()->json([
+                            'message' => "Size {$variant['size']} đã có, vui lòng chọn size khác",
+                            'existing_variant' => $existingVariant
+                        ], 400);
+                    }
+
+                    if ($existingVariantSku) {
+                        return response()->json([
+                            'message' => "Mã sản phẩm: {$variant['sku']} đã tồn tại. Vui lòng chọn mã sản phẩm khác",
+                            'existing_variant' => $existingVariantSku
+                        ], 400);
+                    }
+
+                    if (isset($variant['id'])) {
+                        $existingVariant = $product->variants()->find($variant['id']);
+                        if ($existingVariant) {
+                            $existingVariant->update($variant);
+                        }
+                    } else {
+                        $product->variants()->create($variant);
+                    }
+                }
+            }
 
             return response()->json([
                 'message' => 'Cập nhật sản phẩm thành công',
@@ -152,14 +214,12 @@ class ProductsController extends Controller
         }
     }
 
-    public function generateUniqueSKU()
-    {
-        return Str::uuid()->toString(); // Tạo UUID
-    }
     public function searchProduct(Request $request)
     {
         $query = $request->input('search_product');
-        $products = Product::where('product_name', 'like', '%' . $query . '%')->get();
+        $products = Product::whereHas('variants', function ($queryBuilder) use ($query) {
+            $queryBuilder->where('sku', 'like', '%' . $query . '%');
+        })->get();
         $products->load('variants');
         return response()->json($products);
     }

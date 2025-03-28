@@ -95,7 +95,6 @@ export const Update_Order = () => {
             });
         }
     };
-    console.log(tempQuantities);
     const handleShippingStatusChange = async (orderId, newStatus) => {
         try {
             const res = await OrderService.updateShippingStatus(orderId, newStatus);
@@ -124,7 +123,6 @@ export const Update_Order = () => {
     };
 
     // console.log(order);
-    // console.log(orderDetails);
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
     };
@@ -138,6 +136,7 @@ export const Update_Order = () => {
         }
         try {
             const res = await OrderService.searchProduct(data);
+            console.log(res);
             setIsResultVisible(true);
             setSearch_Products(res);
         } catch (error) {
@@ -165,12 +164,14 @@ export const Update_Order = () => {
         };
     }, []);
 
-    const handleProductSelect = async (product) => {
-        const selectedVariant = product.variants[0];
+    const handleProductSelect = async (varianId) => {
+
+        const selectedVariant = varianId;
+
         const data = {
             order_id: order.id,
             quantity: 1,
-            product_variant_id: selectedVariant.id,
+            product_variant_id: selectedVariant,
         }
         try {
             const res = await OrderService.updateOrderDetail(data);
@@ -200,7 +201,7 @@ export const Update_Order = () => {
                 duration: 5,
             });
         }
-        // setIsResultVisible(false);
+        setIsResultVisible(false);
     };
     const hanDleDelete = async (variantId) => {
         try {
@@ -267,7 +268,7 @@ export const Update_Order = () => {
             };
             const res = await OrderService.uodateOrderQuantities(data);
             setOrderId(res.order);
-            
+
             if (res?.status === 200) {
                 notification.success({
                     message: "Cập nhật thành công",
@@ -285,8 +286,14 @@ export const Update_Order = () => {
             console.error('Update quantities failed', error);
         }
     };
-    
-    console.log(orderDetails);
+
+    search_products.map((product) => {
+        product.variants.map((variant) => {
+            console.log(variant.size);
+        }
+        );
+    }
+    );
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <nav className="rounded-md w-full">
@@ -423,23 +430,25 @@ export const Update_Order = () => {
                                     <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden transform transition-all duration-200 origin-top max-h-64 overflow-y-auto">
                                         <ul className="divide-y divide-gray-100">
                                             {search_products.map((product) => (
-                                                <li
-                                                    key={product.id}
-                                                    className="flex items-center w-full justify-between gap-2 p-3 hover:bg-gray-50 transition-colors duration-200 cursor-pointer "
-                                                >
-                                                    <div className="w-full flex flex-col gap-2">
-                                                        <h3 className="text-gray-800 text-lg font-medium truncate" style={{ width: 400 }}>{product.product_name}</h3>
-                                                        <p className="text-gray-500 text-sm mt-1">Mã SP: #{product.id}</p>
-                                                    </div>
-                                                    <button
-                                                        className="mt-1 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
-                                                        onClick={(e) => {
-                                                            handleProductSelect(product);
-                                                        }}
+                                                product.variants.map((variant) => (
+                                                    <li
+                                                        key={variant.id}
+                                                        className="flex items-center w-full justify-between gap-2 p-3 hover:bg-gray-50 transition-colors duration-200 cursor-pointer "
                                                     >
-                                                        Thêm
-                                                    </button>
-                                                </li>
+                                                        <div className="w-full flex flex-col gap-2">
+                                                            <h3 className="text-gray-800 text-lg font-medium truncate" style={{ width: 400 }}>{product.product_name}</h3>
+                                                            <p className="text-gray-600 text-sm mt-1">Mã SP: {variant.sku} - Size: {variant.size}</p>
+                                                        </div>
+                                                        <button
+                                                            className="mt-1 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
+                                                            onClick={(e) => {
+                                                                handleProductSelect(variant.id);
+                                                            }}
+                                                        >
+                                                            Thêm
+                                                        </button>
+                                                    </li>
+                                                ))
                                             ))}
                                         </ul>
                                         <div className="bg-gray-50 p-2 text-center border-t border-gray-100">
@@ -470,6 +479,7 @@ export const Update_Order = () => {
                             {
                                 (orderDetails.length > 0) ? (
                                     orderDetails.map((product, index) => (
+
                                         <tr key={index}
                                             className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200">
                                             <td className="px-6 py-2">

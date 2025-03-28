@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ProductRequest extends FormRequest
 {
@@ -23,16 +24,25 @@ class ProductRequest extends FormRequest
      */
     public function rules()
     {
+        $productId = $this->route('id');
+
         $rules = [
             'category_id' => 'required|exists:category,id',
-            'product_name' => 'required|string|max:255',
-            'description' => 'string',
+            'product_name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('products')->ignore($productId),
+            ],
+            'description' => 'nullable|string',
         ];
-        if (!$this->route('id')) {
+
+        $rules['avatar'] = 'nullable|image|max:2048'; 
+
+        if (!$this->has('avatar') && $this->route('id') === null) {
             $rules['avatar'] = 'required|image|max:2048';
-        } else {
-            $rules['avatar'] = 'nullable|image|max:2048';
         }
+
         return $rules;
     }
     public function messages()
@@ -43,6 +53,7 @@ class ProductRequest extends FormRequest
             'product_name.required' => 'Tên sản phẩm không được để trống',
             'product_name.string' => 'Tên sản phẩm phải là chuỗi',
             'product_name.max' => 'Tên sản phẩm không được vượt quá 255 ký tự',
+            'product_name.unique' => 'Tên sản phẩm đã tồn tại',
             'avatar.required' => 'Ảnh đại diện không được để trống',
             'avatar.image' => 'Ảnh đại diện phải là hình ảnh',
             'avatar.mimes' => 'Hình ảnh phải có định dạng jpeg, png, jpg, gif, webp',

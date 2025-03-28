@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { UsersService } from "../../../services/api-users";
-import { message, notification } from "antd";
+import { AntNotification } from "../../../components/notification";
 import { ImageModal } from "../../../components/admin/imgmodal";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
 
@@ -29,10 +29,11 @@ export const Users = () => {
     };
     const hanDleDelete = async () => {
         if (selectedUsers.length === 0) {
-            notification.warning({
-                message: "Không có Người dùng nào được chọn",
-                duration: 3,
-            });
+            AntNotification.showNotification(
+                "Chưa có người dùng nào được chọn",
+                "Vui lòng chọn ít nhất một người dùng",
+                "error"
+            );
             return;
         }
         try {
@@ -44,24 +45,20 @@ export const Users = () => {
                     );
                 });
                 setSelectedUsers([]);
-                notification.success({
-                    message: "Xóa thành công",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification(
+                    "Xóa thành công",
+                    res?.message,
+                    "success"
+                );
             } else {
-                notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
             }
         } catch (error) {
-            notification.error({
-                message: "Lỗi trong quá trình gọi api",
-                description: error.message || "Vui lòng thử lại sau",
-                duration: 5,
-            });
+            AntNotification.handleError(error);
         }
     };
     console.log(selectedUsers);
@@ -73,18 +70,14 @@ export const Users = () => {
                     setUser(Array.isArray(res) ? res : []);
                     console.log(res);
                 } else {
-                    notification.error({
-                        message: "Có lỗi xảy ra",
-                        description: res?.message || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
+                    AntNotification.showNotification(
+                        "Có lỗi xảy ra",
+                        res?.message || "Vui lòng thử lại sau",
+                        "error"
+                    );
                 }
             } catch (error) {
-                notification.error({
-                    message: "Lỗi trong quá trình gọi api",
-                    description: error.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.handleError(error);
             }
         };
         fetchData();
@@ -102,24 +95,20 @@ export const Users = () => {
                         return user;
                     });
                 });
-                notification.success({
-                    message: "Cập nhật trạng thái thành công",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification(
+                    "Cập nhật thành công",
+                    res?.message,
+                    "success"
+                );
             } else {
-                notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
             }
         } catch (error) {
-            notification.error({
-                message: "Lỗi trong quá trình gọi api",
-                description: error.message || "Vui lòng thử lại sau",
-                duration: 5,
-            });
+            AntNotification.handleError(error);
         }
     }
 

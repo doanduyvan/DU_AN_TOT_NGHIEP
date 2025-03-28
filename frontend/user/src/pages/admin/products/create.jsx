@@ -1,6 +1,6 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
-import { notification as Notification } from "antd";
+import { AntNotification } from "../../../components/notification";
 import { productService } from "../../../services/api-products";
 import { Ckeditor5Component } from "../../../components/ckeditor";
 import { useAuth } from "../../../contexts/authcontext";
@@ -65,18 +65,10 @@ export const Create_Product = () => {
                     setCategories(Array.isArray(res) ? res : []);
                     console.log(res);
                 } else {
-                    Notification.error({
-                        message: "Có lỗi xảy ra",
-                        description: res?.message || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
+                    AntNotification.showNotification("Lỗi", "Không thể lấy danh sách danh mục sản phẩm", "error");
                 }
             } catch (error) {
-                Notification.error({
-                    message: "Lỗi trong quá trình gọi api",
-                    description: error.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.handleError(error);
             }
         };
         fetchData();
@@ -112,7 +104,7 @@ export const Create_Product = () => {
 
         // Thêm các biến thể (variants) vào FormData (không lặp lại các trường trong phần chung)
         variants.forEach((variant, index) => {
-            
+
             formData.append(`variants[${index}][size]`, variant.size);
             formData.append(`variants[${index}][price]`, variant.price);
             formData.append(`variants[${index}][promotional_price]`, variant.promotional_price);
@@ -127,42 +119,17 @@ export const Create_Product = () => {
         try {
             const res = await productService.create(formData);
             if (res?.status === 200) {
-                Notification.success({
-                    message: "Thêm thành công",
-                    description: res?.message || "Thêm sản phẩm thành công",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Thêm sản phẩm thành công", res?.message, "success");
                 navigate("/admin/products");
             } else {
-                Notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Thêm sản phẩm thất bại", res?.message, "error");
             }
         } catch (error) {
-            if (error.response && error.response.data.errors) {
-                const errors = error.response.data.errors;
-                let errorMessage = "";
-                for (let field in errors) {
-                    errorMessage = `${errors[field].join(', ')}\n`;
-                    Notification.error({
-                        message: "Lỗi trong quá trình gọi API",
-                        description: errorMessage || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
-                }
-            } else {
-                Notification.error({
-                    message: "Lỗi trong quá trình gọi API",
-                    description: error.response?.data?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
-            }
+            AntNotification.handleError(error);
         }
     };
 
-console.log(variants);
+    console.log(variants);
 
     // biến thể
     // hàm xử lý biến thể
@@ -337,7 +304,7 @@ console.log(variants);
                                     <input
                                         type="number"
                                         name="price"
-                                        
+
                                         placeholder="Giá gốc"
                                         value={variant.price}
                                         onChange={(e) => handleVariantChange(index, e)}

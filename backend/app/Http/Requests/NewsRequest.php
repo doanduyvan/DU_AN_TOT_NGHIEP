@@ -27,7 +27,7 @@ class NewsRequest extends FormRequest
             'category_news_id' => 'required|exists:category_news,id',
             'title' => 'required|string|max:255',
             'content' => 'string',
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'avatar' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ];
         return $rules;
     }
@@ -39,7 +39,7 @@ class NewsRequest extends FormRequest
             'title.required' => 'Tiêu đề không được để trống',
             'title.string' => 'Tiêu đề phải là chuỗi',
             'title.max' => 'Tiêu đề không được vượt quá 255 ký tự',
-            'avatar.required' => 'Hình ảnh không được để trống',
+            'avatar' => 'Hình ảnh không được để trống',
             'avatar.image' => 'Hình ảnh phải là hình ảnh',
             'avatar.mimes' => 'Hình ảnh phải có định dạng jpeg, png, jpg, gif, webp',
             'avatar.max' => 'Hình ảnh không được vượt quá 2MB',

@@ -1,39 +1,18 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { AntNotification } from "../../../components/notification";
-import { newsService } from "../../../services/api-news";
-import { Ckeditor5Component } from "../../../components/ckeditor";
+import { OrderService } from "../../../services/api-orders";
 import { useAuth } from "../../../contexts/authcontext";
 
-export const Create_News = () => {
-    const [avatar, setAvatar] = useState(null);
-    const [editorData, setEditorData] = useState('');
+export const Create_Order = () => {
     const [categories, setCategories] = useState([]);
     const navigate = useNavigate();
-
-    const handleEditorChange = (data) => {
-        setEditorData(data);
-    };
-
-    const handleAvatarChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setAvatar(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await newsService.categoryNews();
+                const res = await OrderService.categoryNews();
                 if (res) {
                     setCategories(Array.isArray(res) ? res : []);
-                    console.log(res);
                 } else {
                     AntNotification.showNotification("Lỗi", "Không thể lấy danh sách danh mục bài viết", "error");
                 }
@@ -47,22 +26,18 @@ export const Create_News = () => {
         e.preventDefault();
         const formData = new FormData(e.target);
         formData.append('content', editorData);
-        const avatarFile = document.querySelector('input[name="avatar"]').files[0];
-        if (!avatarFile) {
-            alert('Vui lòng chọn hình ảnh');
-            return;
-        }
+       
         formData.forEach((value, key) => {
             console.log(key, value);
         });
 
         try {
-            const res = await newsService.create(formData);
+            const res = await OrderService.create(formData);
             if (res?.status === 200) {
-                AntNotification.showNotification("Thêm bài viết thành công", res?.message, "success");
-                navigate("/admin/news");
+                AntNotification.showNotification("Thêm đơn hàng thành công", res?.message, "success");
+                navigate("/admin/orders");
             } else {
-                AntNotification.showNotification("Thêm bài viết thất bại", res?.message, "error");
+                AntNotification.showNotification("Thêm đơn hàng thất bại", res?.message, "error");
             }
         } catch (error) {
             AntNotification.handleError(error);
@@ -140,17 +115,11 @@ export const Create_News = () => {
                     <div className="mb-5">
                         <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Danh mục bài viết</label>
                         <select name="category_news_id" id="" className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
-                            <option value="">Chọn danh mục</option>
+                        <option value="">Chọn danh mục</option>
                             {categories.map((category) => (
                                 <option key={category.id} value={category.id}>{category.category_news_name}</option>
                             ))}
                         </select>
-                    </div>
-                    <div className="mb-5 w-auto">
-                        <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Nội dung bài viết</label>
-                        <Ckeditor5Component
-                            onChange={handleEditorChange}
-                        />
                     </div>
                     <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
                 </form>

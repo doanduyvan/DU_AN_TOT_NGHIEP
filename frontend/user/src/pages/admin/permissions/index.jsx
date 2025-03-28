@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { callPermissions, destroy } from "../../../services/api-permissions";
-import { notification as Notification } from "antd";import DeleteConfirmationModal from "../../../components/delete_confirm";
-;
+import { AntNotification } from "../../../components/notification";
+import DeleteConfirmationModal from "../../../components/delete_confirm";
+
 
 export const Permissions = () => {
     const [permissions, setPermission] = useState([]);
@@ -21,13 +22,10 @@ export const Permissions = () => {
             }
         })
     }
-    const hanDleDelete = async (event) => {
-        event.preventDefault();
+
+    const hanDleDelete = async () => {
         if (selectedPermiss.length === 0) {
-            Notification.warning({
-                message: "Không có quyền nào được chọn",
-                duration: 3,
-            });
+            AntNotification.showNotification("Chưa có quyền hạn nào được chọn", "Vui lòng chọn quyền hạn để xóa", "error");
             return;
         }
         try {
@@ -38,24 +36,17 @@ export const Permissions = () => {
                         (permiss) => !selectedPermiss.includes(permiss.id)
                     );
                 });
-                Notification.success({
-                    message: "Xóa thành công",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                setselectedPermiss([]);
+                AntNotification.showNotification("Xóa quyền hạn thành công", res.message, "success");
             } else {
-                Notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Xóa quyền hạn thất bại", res.message, "error");
             }
         } catch (error) {
-            Notification.error({
-                message: "Lỗi trong quá trình gọi api",
-                description: error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại",
-                duration: 5,
-            });
+            if (error?.response?.status === 422) {
+                AntNotification.showNotification("Xóa quyền hạn thất bại", error?.response?.data?.message, "error");
+            } else {
+                AntNotification.handleError(error);
+            }
         }
     }
 
@@ -66,18 +57,10 @@ export const Permissions = () => {
                 if (res) {
                     setPermission(res.permissions);
                 } else {
-                    Notification.error({
-                        message: "Có lỗi xảy ra",
-                        description: res?.message || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
+                    AntNotification.showNotification("Lỗi", "Không thể lấy danh sách quyền hạn", "error");
                 }
             } catch (error) {
-                Notification.error({
-                    message: "Lỗi trong quá trình gọi api",
-                    description: error.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.handleError(error);
             }
         };
         fetchData();

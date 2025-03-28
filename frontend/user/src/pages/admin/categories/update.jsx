@@ -1,5 +1,5 @@
 import { update, callCategories } from "../../../services/api-categories";
-import { message, notification as Notification } from "antd";
+import { AntNotification } from "../../../components/notification";
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 export const Update_Category = () => {
@@ -20,25 +20,14 @@ export const Update_Category = () => {
         try {
             const res = await update(id, formData);
             if (res?.status === 200) {
-                Notification.success({
-                    message: "Cập nhật thành công",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Cập nhật thành công",res?.message || "Cập nhật danh mục thành công", "success"
+                );
                 Navigate('/admin/categories');
             } else {
-                Notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Có lỗi xảy ra", res?.message || "Vui lòng thử lại sau", "error");
             }
         } catch (error) {
-            Notification.error({
-                message: "Lỗi trong quá trình gọi api",
-                description: error.message || "Vui lòng thử lại sau",
-                duration: 5,
-            });
+            AntNotification.handleError(error);
         }
     };
     return (

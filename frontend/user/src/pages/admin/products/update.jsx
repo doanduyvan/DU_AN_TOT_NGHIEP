@@ -1,6 +1,6 @@
 import { useNavigate, Link, useParams } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
-import { notification as Notification } from "antd";
+import { AntNotification } from "../../../components/notification";
 import { productService } from "../../../services/api-products";
 import { Ckeditor5Component } from "../../../components/ckeditor";
 
@@ -161,38 +161,13 @@ export const Update_Product = () => {
         try {
             const res = await productService.update(id, formData);
             if (res?.status === 200) {
-                Notification.success({
-                    message: "Cập nhật thành công",
-                    description: res?.message || "Cập nhật sản phẩm thành công",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Cập nhật sản phẩm thành công", res.message, "success");
                 navigate("/admin/products");
             } else {
-                Notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Cập nhật sản phẩm thất bại", res.message, "error");
             }
         } catch (error) {
-            if (error.response && error.response.data.errors) {
-                const errors = error.response.data.errors;
-                let errorMessage = "";
-                for (let field in errors) {
-                    errorMessage = `${errors[field].join(', ')}\n`;
-                    Notification.error({
-                        message: "Lỗi trong quá trình gọi API",
-                        description: errorMessage || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
-                }
-            } else {
-                Notification.error({
-                    message: "Lỗi trong quá trình gọi API",
-                    description: error.response?.data?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
-            }
+            AntNotification.handleError(error);
         }
     };
 
@@ -298,6 +273,7 @@ export const Update_Product = () => {
                         <select
                             name="category_id"
                             value={product.category_id}
+                            onChange={(e) => setProduct({ ...product, category_id: e.target.value })}
                             className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
                         >
                             {categories.map((category) => (

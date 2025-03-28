@@ -10,6 +10,7 @@ use App\Http\Requests\ProductImageRequest;
 use App\Http\Requests\ProductVariantRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Models\ProductVariant;
+use Illuminate\Support\Facades\DB;
 
 
 
@@ -109,9 +110,12 @@ class ProductsController extends Controller
 
     public function update(ProductRequest $productRequest, ProductImageRequest $imageRequest, ProductVariantRequest $variantRequest, $id)
     {
+        DB::beginTransaction();
         try {
             $product = Product::findOrFail($id);
             $validateData = $productRequest->validated();
+
+            // Xử lý avatar (nếu có)
             if ($productRequest->hasFile('avatar')) {
                 if ($product->avatar) {
                     Storage::disk('public')->delete($product->avatar);
@@ -122,26 +126,22 @@ class ProductsController extends Controller
             }
             $product->update($validateData);
 
-            // cap nhat hinh anh san pham neu co
+            // Cập nhật hình ảnh sản phẩm
             if ($imageRequest->has('images') || $imageRequest->has('deleted_images')) {
-                // Chỉ xóa những hình đã chọn xóa
+                // Xóa các hình ảnh đã chọn xóa
                 if ($imageRequest->has('deleted_images')) {
                     $deletedImageIds = $imageRequest->input('deleted_images');
-                    // Xóa từng hình theo ID đã chọn
                     foreach ($deletedImageIds as $imageId) {
                         $image = $product->images()->find($imageId);
                         if ($image) {
-                            // Xóa file nếu cần
                             if ($image->img) {
                                 Storage::disk('public')->delete($image->img);
                             }
-                            // Xóa record trong database
                             $image->delete();
                         }
                     }
                 }
-
-                // Lưu các ảnh mới (nếu có)
+                // Lưu các hình ảnh mới (nếu có)
                 if ($imageRequest->has('images')) {
                     foreach ($imageRequest->file('images') as $image) {
                         $imagePath = $image->storePublicly('uploads/products', 'public');
@@ -149,6 +149,7 @@ class ProductsController extends Controller
                     }
                 }
             }
+            // Kiểm tra và xử lý biến thể sản phẩm
             $variants = $variantRequest->validated();
             if (!is_array($variants) || empty($variants)) {
                 throw new \Exception('Dữ liệu biến thể không hợp lệ');
@@ -159,10 +160,21 @@ class ProductsController extends Controller
                 foreach ($deletedVariants as $variantId) {
                     $variant = $product->variants()->find($variantId);
                     if ($variant) {
-                        $variant->delete();
+                        try {
+                            $variant->delete();
+                        } catch (QueryException $e) {
+                            if ($e->getCode() == 23000) {
+                                DB::rollBack();
+                                return response()->json(['message' => 'Không thể xóa vì biến thể này đã được sử dụng trong đơn hàng.'], 400);
+                            }
+                            DB::rollBack();
+                            return response()->json(['message' => 'Đã có lỗi xảy ra, vui lòng thử lại.'], 500);
+                        }
                     }
                 }
             }
+
+            // Xử lý thêm mới hoặc cập nhật biến thể
             foreach ($variants as $variantList) {
                 foreach ($variantList as $variant) {
                     $existingVariant = $product->variants()->where('product_id', $product->id)
@@ -175,7 +187,9 @@ class ProductsController extends Controller
                         ->where('id', '!=', $variant['id'] ?? null)
                         ->first();
 
+                    // Kiểm tra nếu size hoặc mã sản phẩm đã tồn tại
                     if ($existingVariant) {
+                        DB::rollBack();
                         return response()->json([
                             'message' => "Size {$variant['size']} đã có, vui lòng chọn size khác",
                             'existing_variant' => $existingVariant
@@ -183,12 +197,14 @@ class ProductsController extends Controller
                     }
 
                     if ($existingVariantSku) {
+                        DB::rollBack();
                         return response()->json([
                             'message' => "Mã sản phẩm: {$variant['sku']} đã tồn tại. Vui lòng chọn mã sản phẩm khác",
                             'existing_variant' => $existingVariantSku
                         ], 400);
                     }
 
+                    // Cập nhật hoặc thêm mới biến thể
                     if (isset($variant['id'])) {
                         $existingVariant = $product->variants()->find($variant['id']);
                         if ($existingVariant) {
@@ -199,20 +215,22 @@ class ProductsController extends Controller
                     }
                 }
             }
-
+            DB::commit();
             return response()->json([
                 'message' => 'Cập nhật sản phẩm thành công',
                 'status' => 200,
                 'product' => $product,
                 'image_url' => asset('storage/' . $product->avatar)
             ], 200);
-        } catch (QueryException $e) {
+        } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'message' => 'Cập nhật sản phẩm thất bại: ' . $e->getMessage(),
                 'status' => 'error'
             ], 500);
         }
     }
+
 
     public function searchProduct(Request $request)
     {

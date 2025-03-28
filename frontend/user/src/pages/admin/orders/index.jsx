@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { OrderService } from "../../../services/api-orders";
-import { notification } from "antd";
+import { AntNotification } from "../../../components/notification";
 import { Link } from "react-router-dom";
 import { OrderStatusSelect } from "../../../components/admin/orders/order_status";
 import { PaymentStatusSelect } from "../../../components/admin/orders/payment_status";
@@ -19,23 +19,20 @@ export const Orders = () => {
                         order.id === orderId ? { ...order, status: newStatus } : order
                     )
                 );
-                notification.success({
-                    message: 'Cập nhật trạng thái thành công!',
-                    duration: 5,
-                });
+                AntNotification.showNotification(
+                    "Cập nhật trạng thái thành công!",
+                    res?.message || "Vui lòng thử lại sau",
+                    "success"
+                );
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res?.message || 'Vui lòng thử lại sau',
-                    duration: 5,
-                });
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
             }
         } catch (error) {
-            notification.error({
-                message: 'Lỗi trong quá trình gọi API',
-                description: error.message || 'Vui lòng thử lại sau',
-                duration: 5,
-            });
+            AntNotification.handleError(error);
         }
     };
     const handlePaymentStatusChange = async (orderId, newStatus) => {
@@ -47,23 +44,20 @@ export const Orders = () => {
                         order.id === orderId ? { ...order, payment_status: newStatus } : order
                     )
                 );
-                notification.success({
-                    message: 'Cập nhật trạng thái thành công!',
-                    duration: 5,
-                });
+                AntNotification.showNotification(
+                    "Cập nhật trạng thái thành công!",
+                    res?.message,
+                    "success"
+                );
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res?.message || 'Vui lòng thử lại sau',
-                    duration: 5,
-                });
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
             }
         } catch (error) {
-            notification.error({
-                message: 'Lỗi trong quá trình gọi API',
-                description: error.message || 'Vui lòng thử lại sau',
-                duration: 5,
-            });
+            AntNotification.handleError(error);
         }
     };
     const handleShippingStatusChange = async (orderId, newStatus) => {
@@ -75,23 +69,20 @@ export const Orders = () => {
                         order.id === orderId ? { ...order, shipping_status: newStatus } : order
                     )
                 );
-                notification.success({
-                    message: 'Cập nhật trạng thái thành công!',
-                    duration: 5,
-                });
+                AntNotification.showNotification(
+                    "Cập nhật trạng thái thành công!",
+                    res?.message,
+                    "success"
+                );
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res?.message || 'Vui lòng thử lại sau',
-                    duration: 5,
-                });
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message,
+                    "error"
+                );
             }
         } catch (error) {
-            notification.error({
-                message: 'Lỗi trong quá trình gọi API',
-                description: error.message || 'Vui lòng thử lại sau',
-                duration: 5,
-            });
+            AntNotification.handleError(error);
         }
     };
 
@@ -107,39 +98,35 @@ export const Orders = () => {
     console.log(selectedOrders);
     const hanDleDelete = async () => {
         if (selectedOrders.length === 0) {
-            notification.warning({
-                message: "Không có danh mục nào được chọn",
-                duration: 3,
-            });
+            AntNotification.showNotification(
+                "Chưa có đơn hàng nào được chọn",
+                "Vui lòng chọn ít nhất một đơn hàng để xóa",
+                "warning"
+            );
             return;
         }
         try {
             const res = await OrderService.destroy(selectedOrders);
-            console.log(selectedOrders);
             if (res?.status === 200) {
                 setOrders((prevOrders) => {
                     return prevOrders.filter(
                         (order) => !selectedOrders.includes(order.id)
                     );
                 });
-                notification.success({
-                    message: "Xóa thành công",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification(
+                    "Xóa đơn hàng thành công",
+                    res?.message,
+                    "success"
+                );
             } else {
-                notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
             }
         } catch (error) {
-            notification.error({
-                message: "Lỗi trong quá trình gọi api",
-                description: error.message || "Vui lòng thử lại sau",
-                duration: 5,
-            });
+            AntNotification.handleError(error);
         }
     };
     useEffect(() => {
@@ -150,18 +137,14 @@ export const Orders = () => {
                     setOrders(Array.isArray(res) ? res : []);
                     console.log(res);
                 } else {
-                    notification.error({
-                        message: "Có lỗi xảy ra",
-                        description: res?.message || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
+                    AntNotification.showNotification(
+                        "Lỗi",
+                        "Không thể lấy danh sách đơn hàng",
+                        "error"
+                    );
                 }
             } catch (error) {
-                notification.error({
-                    message: "Lỗi trong quá trình gọi api",
-                    description: error.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.handleError(error);
             }
         };
         fetchData();
@@ -193,7 +176,10 @@ export const Orders = () => {
                     <h5 className="text-xl font-medium leading-tight text-primary">
                         Quản Lý Đơn Hàng
                     </h5>
-
+                    <Link to="/admin/orders/create"
+                        className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto">
+                            Thêm đơn hàng
+                    </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
                     <div>

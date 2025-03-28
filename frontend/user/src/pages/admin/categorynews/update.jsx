@@ -1,5 +1,5 @@
 import { categoryNewsService } from "../../../services/api-category-news";
-import { message, notification as Notification } from "antd";
+import { AntNotification } from "../../../components/notification";
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 export const Update_Category_News = () => {
@@ -20,25 +20,13 @@ export const Update_Category_News = () => {
         try {
             const res = await categoryNewsService.update(id, formData);
             if (res?.status === 200) {
-                Notification.success({
-                    message: "Cập nhật thành công",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Cập nhật thành công", res.message, "success");
                 Navigate('/admin/categorynews');
             } else {
-                Notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Cập nhật thất bại", "Vui lòng thử lại sau", "error");
             }
         } catch (error) {
-            Notification.error({
-                message: "Lỗi trong quá trình gọi api",
-                description: error.message || "Vui lòng thử lại sau",
-                duration: 5,
-            });
+           AntNotification.handleError(error);
         }
     };
     return (

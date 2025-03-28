@@ -27,14 +27,19 @@ import { Update_Category } from './pages/admin/categories/update';
 import { Products } from './pages/admin/products/index';
 import { Create_Product } from './pages/admin/products/create';
 import { Update_Product } from './pages/admin/products/update';
+
 import { Home_Admin } from './pages/admin/home';
+
 import LoginForm from './components/auth/login';
 import RegisterForm from './components/auth/register';
 import CartPage from "./components/cartPage/cartPage";
 import { Users } from "./pages/admin/users";
 import { Set_User_Role } from "./pages/admin/users/update";
+
 import { Orders } from "./pages/admin/orders";
 import { Update_Order } from "./pages/admin/orders/update";
+import { Create_Order } from "./pages/admin/orders/create";
+
 import Shop from "./pages/user/shop/shop";
 import Profile from "./pages/user/profile/profile";
 import News from "./pages/user/news/news";
@@ -44,8 +49,10 @@ import ContactPage from "./pages/user/contact/contact";
 import { CategoryNews } from "./pages/admin/categorynews";
 import { Create_category_news } from "./pages/admin/categorynews/create";
 import { Update_Category_News } from "./pages/admin/categorynews/update";
+
 import { NewsAdmin } from "./pages/admin/news";
 import { Create_News } from "./pages/admin/news/create";
+import { Update_News } from "./pages/admin/news/update";
 
 
 function App() {
@@ -88,6 +95,7 @@ function App() {
 
     { path: 'orders', element: < Orders /> },
     { path: 'orders/update/:id', element: < Update_Order /> },
+    { path: 'orders/create', element: < Create_Order /> },
 
     { path: 'categorynews', element: < CategoryNews /> },
     { path: 'categorynews/create', element: < Create_category_news /> },
@@ -95,6 +103,7 @@ function App() {
 
     { path: 'news', element: < NewsAdmin /> },
     { path: 'news/create', element: < Create_News /> },
+    { path: 'news/update/:id', element: < Update_News /> },
 
   ];
 

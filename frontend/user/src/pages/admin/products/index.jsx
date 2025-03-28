@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { productService } from "../../../services/api-products";
-import { message, notification } from "antd";
+import { AntNotification } from "../../../components/notification";
 import { ImageModal } from "../../../components/admin/imgmodal";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../contexts/authcontext";
@@ -31,10 +31,7 @@ export const Products = () => {
     };
     const hanDleDelete = async () => {
         if (selectedProducts.length === 0) {
-            notification.warning({
-                message: "Không có danh mục nào được chọn",
-                duration: 3,
-            });
+            AntNotification.showNotification("Lỗi", "Không có sản phẩm nào được chọn", "error");
             return;
         }
         try {
@@ -47,25 +44,12 @@ export const Products = () => {
                     );
                 });
                 setselectedProducts([]);
-                notification.success({
-                    message: "Xóa thành công",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Xóa sản phẩm thành công", res?.message, "success");
             } else {
-                notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Xóa sản phẩm thất bại", res?.message, "error");
             }
         } catch (error) {
-            console.log(error);
-            notification.error({
-                message: "Lỗi trong quá trình gọi api",
-                description: error.response.data.message || "Vui lòng thử lại sau",
-                duration: 5,
-            });
+            AntNotification.handleError(error);
         }
     };
     useEffect(() => {
@@ -76,18 +60,10 @@ export const Products = () => {
                     setProducts(Array.isArray(res) ? res : []);
                     console.log(res);
                 } else {
-                    notification.error({
-                        message: "Có lỗi xảy ra",
-                        description: res?.message || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
+                    AntNotification.showNotification("Lỗi", "Không thể lấy danh sách sản phẩm", "error");
                 }
             } catch (error) {
-                notification.error({
-                    message: "Lỗi trong quá trình gọi api",
-                    description: error.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.handleError(error);
             }
         };
         fetchData();

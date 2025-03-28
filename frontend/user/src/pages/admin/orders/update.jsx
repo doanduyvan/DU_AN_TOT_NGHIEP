@@ -1,8 +1,7 @@
 import { OrderService } from "../../../services/api-orders";
-import { message, notification as Notification } from "antd";
+import { AntNotification } from "../../../components/notification";
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-import { notification } from "antd";
 import { OrderStatusSelect } from "../../../components/admin/orders/order_status";
 import { PaymentStatusSelect } from "../../../components/admin/orders/payment_status";
 import { ShippingStatusSelect } from "../../../components/admin/orders/shipping_status";
@@ -50,23 +49,12 @@ export const Update_Order = () => {
                 setOrderId((order) =>
                     order.id === orderId ? { ...order, status: newStatus } : order
                 );
-                notification.success({
-                    message: 'Cập nhật trạng thái thành công!',
-                    duration: 5,
-                });
+               AntNotification.showNotification("Cập nhật trạng thái thành công!", res?.message, "success");
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res?.message || 'Vui lòng thử lại sau',
-                    duration: 5,
-                });
+                AntNotification.showNotification("Có lỗi xảy ra", res?.message || "Vui lòng thử lại sau", "error");
             }
         } catch (error) {
-            notification.error({
-                message: 'Lỗi trong quá trình gọi API',
-                description: error.message || 'Vui lòng thử lại sau',
-                duration: 5,
-            });
+            AntNotification.handleError(error);
         }
     };
     const handlePaymentStatusChange = async (orderId, newStatus) => {
@@ -76,23 +64,12 @@ export const Update_Order = () => {
                 setOrderId((order) =>
                     order.id === orderId ? { ...order, payment_status: newStatus } : order
                 );
-                notification.success({
-                    message: 'Cập nhật trạng thái thành công!',
-                    duration: 5,
-                });
+                AntNotification.showNotification("Cập nhật trạng thái thành công!", res?.message, "success");
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res?.message || 'Vui lòng thử lại sau',
-                    duration: 5,
-                });
+                AntNotification.showNotification("Có lỗi xảy ra", res?.message || "Vui lòng thử lại sau", "error");
             }
         } catch (error) {
-            notification.error({
-                message: 'Lỗi trong quá trình gọi API',
-                description: error.message || 'Vui lòng thử lại sau',
-                duration: 5,
-            });
+            AntNotification.handleError(error);
         }
     };
     const handleShippingStatusChange = async (orderId, newStatus) => {
@@ -102,27 +79,15 @@ export const Update_Order = () => {
                 setOrderId((order) =>
                     order.id === orderId ? { ...order, shipping_status: newStatus } : order
                 );
-                notification.success({
-                    message: 'Cập nhật trạng thái thành công!',
-                    duration: 5,
-                });
+                AntNotification.showNotification("Cập nhật trạng thái thành công!", res?.message, "success");
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res?.message || 'Vui lòng thử lại sau',
-                    duration: 5,
-                });
+                AntNotification.showNotification("Có lỗi xảy ra", res?.message || "Vui lòng thử lại sau", "error");
             }
         } catch (error) {
-            notification.error({
-                message: 'Lỗi trong quá trình gọi API',
-                description: error.message || 'Vui lòng thử lại sau',
-                duration: 5,
-            });
+            AntNotification.handleError(error);
         }
     };
 
-    // console.log(order);
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
     };
@@ -136,11 +101,12 @@ export const Update_Order = () => {
         }
         try {
             const res = await OrderService.searchProduct(data);
-            console.log(res);
             setIsResultVisible(true);
             setSearch_Products(res);
         } catch (error) {
-            console.error('Error searching products', error);
+            console.error('Search failed', error);
+            AntNotification.handleError(error);
+            setSearch_Products([]);
         } finally {
             setLoading(false);
         }
@@ -181,25 +147,12 @@ export const Update_Order = () => {
                 const productList = res.order.order_details.map((item) => item);
                 setOrderDetails(productList);
                 console.log(productList);
-                notification.success({
-                    message: "Thêm thành công",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Thêm sản phẩm thành công", res?.message, "success");
             } else {
-                notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Có lỗi xảy ra", res?.message || "Vui lòng thử lại sau", "error");
             }
         } catch (error) {
-            console.log(error);
-            notification.error({
-                message: "Lỗi trong quá trình gọi api",
-                description: error.response.data.message || "Vui lòng thử lại sau",
-                duration: 5,
-            });
+            AntNotification.handleError(error);
         }
         setIsResultVisible(false);
     };
@@ -212,29 +165,15 @@ export const Update_Order = () => {
             if (res?.status === 200) {
                 setOrderId(res.order);
                 setOrderDetails(prevOrderDetails => {
-                    // Lọc ra tất cả đơn hàng mà không có variantId
                     const updatedOrderDetails = prevOrderDetails.filter(order => order.product_variant_id !== variantId);
                     return updatedOrderDetails;
                 });
-
-                notification.success({
-                    message: "Xóa thành công",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Xóa sản phẩm thành công", res?.message, "success");
             } else {
-                notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Có lỗi xảy ra", res?.message || "Vui lòng thử lại sau", "error");
             }
         } catch (error) {
-            notification.error({
-                message: "Lỗi trong quá trình gọi api",
-                description: error.message || "Vui lòng thử lại sau",
-                duration: 5,
-            });
+            AntNotification.handleError(error);
         }
     };
 
@@ -250,12 +189,8 @@ export const Update_Order = () => {
             const updateData = orderDetails.map(detail => {
                 const quantity = tempQuantities[detail.product_variant_id];
                 if (quantity <= 0 || Number.isNaN(quantity)) {
-                    notification.error({
-                        message: "Lỗi khi cập nhật số lượng",
-                        description: `Số lượng cho sản phẩm với ID ${detail.product_variant_id} không hợp lệ (không thể là 0 hoặc để trống).`,
-                        duration: 5,
-                    });
-                    throw new Error(`Số lượng không hợp lệ cho sản phẩm ${detail.product_variant_id}`); // Dừng hàm nếu có lỗi
+                    AntNotification.showNotification("Có lỗi xảy ra", `Số lượng không hợp lệ cho sản phẩm ${detail.product_variant_id}`, "error");
+                    throw new Error(`Số lượng không hợp lệ cho sản phẩm ${detail.product_variant_id}`); 
                 }
                 return {
                     product_variant_id: detail.product_variant_id,
@@ -268,32 +203,16 @@ export const Update_Order = () => {
             };
             const res = await OrderService.uodateOrderQuantities(data);
             setOrderId(res.order);
-
             if (res?.status === 200) {
-                notification.success({
-                    message: "Cập nhật thành công",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Cập nhật số lượng thành công", res?.message, "success");
             } else {
-                notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Có lỗi xảy ra", res?.message || "Vui lòng thử lại sau", "error");
             }
         } catch (error) {
             console.error('Update quantities failed', error);
         }
     };
-
-    search_products.map((product) => {
-        product.variants.map((variant) => {
-            console.log(variant.size);
-        }
-        );
-    }
-    );
+    console.log(order);
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <nav className="rounded-md w-full">

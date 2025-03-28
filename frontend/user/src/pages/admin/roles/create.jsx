@@ -1,6 +1,6 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { notification as Notification } from "antd";
+import { AntNotification } from "../../../components/notification";
 import { createRole, showPermission } from "../../../services/api-roles";
 export const Create_Role = () => {
     const [permissions, setPermissions] = useState([]);
@@ -11,11 +11,7 @@ export const Create_Role = () => {
                 const res = await showPermission();
                 setPermissions(res?.permissions || []);
             } catch (error) {
-                Notification.error({
-                    message: "Lỗi trong quá trình gọi api",
-                    description: error.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.handleError(error);
             }
         })();
     }, []);
@@ -26,25 +22,13 @@ export const Create_Role = () => {
         try {
             const res = await createRole(formData);
             if (res?.status === 200) {
-                Notification.success({
-                    message: "Thêm thành công",
-                    description: res?.message || "Thêm dữ liệu thành công",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Thêm thành công", res.message, "success");
                 navigate("/admin/roles");
             } else {
-                Notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Thêm thất bại", res.message, "error");
             }
         } catch (error) {
-            Notification.error({
-                message: "Có lỗi xảy ra",
-                description: error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại",
-                duration: 5,
-            });
+            AntNotification.handleError(error);
         }
         
     }

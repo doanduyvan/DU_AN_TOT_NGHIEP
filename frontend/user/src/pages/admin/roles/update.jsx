@@ -1,5 +1,4 @@
-
-import { message, notification } from "antd";
+import { AntNotification } from '../../../components/notification';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { showRole, showPermission, update } from "../../../services/api-roles";
@@ -17,11 +16,7 @@ export const Update_Role = () => {
                 const res = await showPermission();
                 setPermissions(res?.permissions || []);
             } catch (error) {
-                notification.error({
-                    message: "Lỗi trong quá trình gọi api",
-                    description: error.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.handleError(error);
             }
         })();
     }, []);
@@ -40,18 +35,11 @@ export const Update_Role = () => {
                     setRole(res.role);
                     setSelectPermiss(res.role.permissions.map((permiss) => permiss.id));
                 } else {
-                    notification.error({
-                        message: "Có lỗi xảy ra",
-                        description: res?.message || "Vui lòng thử lại sau",
-                        duration: 5,
-                    });
+                    AntNotification.showNotification("Có lỗi xảy ra", res.message, "error");
+                    Navigate('/admin/roles');
                 }
             } catch (error) {
-                notification.error({
-                    message: "Trang không tồn tại",
-                    description: error.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.handleError(error);
                 Navigate('/admin/roles');
             }
         })();
@@ -78,25 +66,13 @@ export const Update_Role = () => {
         try {
             const res = await update(formData, roleId);
             if (res?.status === 200) {
-                notification.success({
-                    message: "Cập nhật thành công",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Cập nhật thành công", res.message, "success");
                 Navigate('/admin/roles');
             } else {
-                notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: res?.message || "Vui lòng thử lại sau",
-                    duration: 5,
-                });
+                AntNotification.showNotification("Cập nhật thất bại", res.message, "error");
             }
         } catch (error) {
-            notification.error({
-                message: "Lỗi trong quá trình gọi api",
-                description: error.message || "Vui lòng thử lại sau",
-                duration: 5,
-            });
+            AntNotification.handleError(error);
         }
     };
     return (

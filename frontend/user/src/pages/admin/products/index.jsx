@@ -201,12 +201,9 @@ export const Products = () => {
                             <th scope="col" className="px-6 py-3">
                                 Hình ảnh
                             </th>
-                            {
-                                permissions.includes("update-product") &&
-                                <th scope="col" className="px-6 py-3">
-                                    Action
-                                </th>
-                            }
+                            <th scope="col" className="px-6 py-3">
+                                Action
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -254,19 +251,16 @@ export const Products = () => {
                                     </a>
                                     <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
                                 </td>
-                                {
-                                    permissions.includes("update-product") &&
-                                    <td className="px-6 py-4">
-                                        <Link
-                                            to={`/admin/products/update/${product.id}`}
-                                            type="button"
-                                            data-modal-target="editUserModal"
-                                            data-modal-show="editUserModal"
-                                            className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                                            Edit
-                                        </Link>
-                                    </td>
-                                }
+                                <td className="px-6 py-4">
+                                    <Link
+                                        to={`/admin/products/update/${product.id}`}
+                                        type="button"
+                                        data-modal-target="editUserModal"
+                                        data-modal-show="editUserModal"
+                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                                        Edit
+                                    </Link>
+                                </td>
                             </tr>
                         ))}
                     </tbody>

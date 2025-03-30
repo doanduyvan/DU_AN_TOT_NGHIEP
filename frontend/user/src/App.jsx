@@ -5,8 +5,8 @@ import { Brand } from './pages/user/brand'
 import './App.css';
 import { AuthProvider } from './contexts/authcontext';
 
-import CheckRoute from './components/checkroute';
-import ProtectedRoute from './components/protectedrouter';
+import CheckRoute from './contexts/checkroute';
+import ProtectedRoute from './contexts/protectedrouter';
 
 import { About } from './components/aboutPage/about';
 import { ProductDetail } from './pages/user/product_detail';
@@ -121,7 +121,7 @@ function App() {
     },
     {
       path: '/admin/',
-      element: <CheckRoute role={'Users'} permission={[]}><AdminLayout /></CheckRoute>,
+      element: <CheckRoute role={'Users'}><AdminLayout /></CheckRoute>,
       children: [
         {
           index: true, element:

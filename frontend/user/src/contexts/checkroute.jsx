@@ -3,11 +3,11 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/authcontext';
 
 const CheckRoute = ({ children, role, permission}) => {
-    const { currentUser, loading, hasPermission, hasRole} = useAuth();
-    if (hasRole(role) || hasPermission(permission)) {
+    const { currentUser, loading, hasRole, permissions} = useAuth();
+    console.log(permissions)
+    if (Array.isArray(permissions) && permissions.length === 0 && hasRole(role)) {
         return <Navigate to="/" />;
     }
-
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">

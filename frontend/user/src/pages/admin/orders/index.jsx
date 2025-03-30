@@ -6,10 +6,22 @@ import { OrderStatusSelect } from "../../../components/admin/orders/order_status
 import { PaymentStatusSelect } from "../../../components/admin/orders/payment_status";
 import { ShippingStatusSelect } from "../../../components/admin/orders/shipping_status";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import { OrderDetail } from "../../../components/admin/order_detail";
 
 export const Orders = () => {
     const [orders, setOrders] = useState([]);
     const [selectedOrders, setSelectedOrders] = useState([]);
+    const [orderDetail, setOrderDetail] = useState(null);
+
+    const openModal = async (id) => {
+        const res = await OrderService.getOrderById(id);
+        setOrderDetail(res);
+    };
+    const closeModal = () => {
+        setOrderDetail(null);
+    };
+
+
     const handleOrderStatusChange = async (orderId, newStatus) => {
         try {
             const res = await OrderService.updateOrderStatus(orderId, newStatus);
@@ -35,6 +47,7 @@ export const Orders = () => {
             AntNotification.handleError(error);
         }
     };
+
     const handlePaymentStatusChange = async (orderId, newStatus) => {
         try {
             const res = await OrderService.updatePaymentStatus(orderId, newStatus);
@@ -95,7 +108,6 @@ export const Orders = () => {
             }
         });
     };
-    console.log(selectedOrders);
     const hanDleDelete = async () => {
         if (selectedOrders.length === 0) {
             AntNotification.showNotification(
@@ -135,7 +147,6 @@ export const Orders = () => {
                 const res = await OrderService.getAllOrder();
                 if (res) {
                     setOrders(Array.isArray(res) ? res : []);
-                    console.log(res);
                 } else {
                     AntNotification.showNotification(
                         "Lỗi",
@@ -178,7 +189,7 @@ export const Orders = () => {
                     </h5>
                     <Link to="/admin/orders/create"
                         className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto">
-                            Thêm đơn hàng
+                        Thêm đơn hàng
                     </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
@@ -274,6 +285,9 @@ export const Orders = () => {
                                 Tên
                             </th>
                             <th scope="col" className="px-6 py-3">
+                                Chi tiết đơn hàng
+                            </th>
+                            <th scope="col" className="px-6 py-3">
                                 Trạng thái thanh toán
                             </th>
                             <th scope="col" className="px-6 py-3">
@@ -326,6 +340,17 @@ export const Orders = () => {
                                         </div>
                                     </div>
                                 </th>
+                                <td className="px-6 py-4">
+                                    <button 
+                                        className="underline cursor-pointer"
+                                        onClick={(e) => {
+                                            openModal(order.id);
+                                        }}
+                                    >
+                                        Xem chi tiết
+                                    </button>
+                                    <OrderDetail orderDetail={orderDetail} closeModal={closeModal} />
+                                </td>
                                 <td className="px-6 py-4">
                                     <PaymentStatusSelect order={order} onChange={handlePaymentStatusChange} />
                                 </td>

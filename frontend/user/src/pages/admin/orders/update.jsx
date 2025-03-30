@@ -27,21 +27,6 @@ export const Update_Order = () => {
         }
         fetchOrder();
     }, [id]);
-    // const handleChange_payment_status = (orderId, newStatus) => {
-    //     setOrderId((order) =>
-    //         order.id === orderId ? { ...order, payment_status: newStatus } : order
-    //     );
-    // };
-    // const handleChange_status = (orderId, newStatus) => {
-    //     setOrderId((order) =>
-    //         order.id === orderId ? { ...order, status: newStatus } : order
-    //     );
-    // };
-    // const handleChange_shipping_status = (orderId, newStatus) => {
-    //     setOrderId((order) =>
-    //         order.id === orderId ? { ...order, shipping_status: newStatus } : order
-    //     );
-    // };
     const handleOrderStatusChange = async (orderId, newStatus) => {
         try {
             const res = await OrderService.updateOrderStatus(orderId, newStatus);

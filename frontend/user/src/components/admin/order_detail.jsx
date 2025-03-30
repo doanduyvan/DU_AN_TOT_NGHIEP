@@ -4,9 +4,6 @@ export const OrderDetail = ({ orderDetail, closeModal }) => {
     const urlSRC = import.meta.env.VITE_URL_IMG;
     const productList = orderDetail.order_details.map((item) => item);
 
-    const phone = orderDetail.phone || "Chưa có thông tin";
-    const shippingAddress = orderDetail.shipping_address || "Chưa có thông tin";
-
     return (
         <div className="fixed inset-0 flex justify-center items-center z-50 bg-gray-500 bg-opacity-10">
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full transform transition-all duration-300 scale-95 hover:scale-100">
@@ -18,34 +15,30 @@ export const OrderDetail = ({ orderDetail, closeModal }) => {
                     </span>
                 </div>
 
-                <div className="space-y-4 text-base">
-                    <div className="flex gap-1">
-                        <span className="font-medium text-gray-600">Mã đơn hàng:</span>
-                        <span className="text-gray-800">{orderDetail.id}</span>
-                    </div>
-                    <div className="flex gap-1">
+                <div className="space-y-4">
+                    <div className="flex justify-between">
                         <span className="font-medium text-gray-600">Số điện thoại:</span>
-                        <span className="text-gray-800">{phone}</span>
+                        <span className="text-gray-800">{orderDetail.phone || "Chưa có thông tin"}</span>
                     </div>
-                    <div className="flex gap-1">
+                    <div className="flex justify-between">
                         <span className="font-medium text-gray-600">Địa chỉ giao hàng:</span>
-                        <span className="text-gray-800">{shippingAddress}</span>
+                        <span className="text-gray-800">{orderDetail.shipping_address || "Chưa có thông tin"}</span>
                     </div>
                 </div>
 
                 <div className="space-y-4 mt-4 max-h-96 overflow-y-auto">
                     {productList.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between border-b py-4 mr-2">
+                        <div key={item.id} className="flex items-center justify-between border-b py-4">
                             <div className="flex items-center space-x-4">
-                                <img
-                                    src={urlSRC + item.productvariant.product.avatar}
-                                    alt={item.productvariant.product.product_name}
-                                    className="w-16 h-16 object-cover rounded-lg"
+                                <img 
+                                    src={item.productvariant?.product?.avatar ? urlSRC + item.productvariant.product.avatar : 'default-avatar.jpg'}
+                                    alt={item.productvariant?.product?.product_name || 'Sản phẩm không có tên'}
+                                    className="w-16 h-16 object-cover rounded-lg" 
                                 />
                                 <div className="text-left">
-                                    <p className="text-xl font-medium text-gray-800">{item.productvariant.product.product_name}</p>
-                                    <p className="text-sm text-gray-600">Size: {item.productvariant.size}</p>
-                                    <p className="text-sm text-gray-600">SKU: {item.productvariant.sku}</p>
+                                    <p className="text-xl font-medium text-gray-800">{item.productvariant?.product?.product_name || 'Sản phẩm không có tên'}</p>
+                                    <p className="text-sm text-gray-600">Size: {item.productvariant?.size || 'N/A'}</p>
+                                    <p className="text-sm text-gray-600">SKU: {item.productvariant?.sku || 'N/A'}</p>
                                 </div>
                             </div>
                             <div className="flex flex-col items-end">

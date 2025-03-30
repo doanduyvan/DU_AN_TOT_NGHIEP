@@ -91,22 +91,35 @@ class ProductsController extends Controller
     }
 
     public function destroy(Request $request)
-    {
-        $ids = $request->ids;
-        if (is_array($ids) && !empty($ids)) {
-            try {
-                Product::whereIn('id', $ids)->delete();
-                return response()->json(['message' => 'Xóa sản phẩm thành công', 'status' => 200], 200);
-            } catch (QueryException $e) {
-                if ($e->getCode() == '23000') {
-                    return response()->json(['message' => 'Không thể xóa sản phẩm vì có dữ liệu liên quan', 'status' => 'error'], 400);
+{
+    $ids = $request->ids;
+    
+    if (is_array($ids) && !empty($ids)) {
+        try {
+            // Kiểm tra nếu có sản phẩm có biến thể liên quan
+            foreach ($ids as $id) {
+                $product = Product::find($id);
+
+                // Kiểm tra xem sản phẩm có biến thể không
+                if ($product && $product->variants()->count() > 0) {
+                    return response()->json(['message' => 'Không thể xóa sản phẩm vì có biến thể liên quan', 'status' => 'error'], 400);
                 }
-                return response()->json(['message' => 'Xóa sản phẩm thất bại: ' . $e->getMessage(), 'status' => 'error'], 500);
             }
-        } else {
-            return response()->json(['message' => 'Xóa sản phẩm thất bại', 'status' => 'error'], 400);
+
+            // Nếu không có biến thể liên quan, tiến hành xóa sản phẩm
+            Product::whereIn('id', $ids)->delete();
+            return response()->json(['message' => 'Xóa sản phẩm thành công', 'status' => 200], 200);
+        } catch (QueryException $e) {
+            if ($e->getCode() == '23000') {
+                return response()->json(['message' => 'Không thể xóa sản phẩm vì có dữ liệu liên quan', 'status' => 'error'], 400);
+            }
+            return response()->json(['message' => 'Xóa sản phẩm thất bại: ' . $e->getMessage(), 'status' => 'error'], 500);
         }
+    } else {
+        return response()->json(['message' => 'Xóa sản phẩm thất bại', 'status' => 'error'], 400);
     }
+}
+
 
     public function update(ProductRequest $productRequest, ProductImageRequest $imageRequest, ProductVariantRequest $variantRequest, $id)
     {

@@ -99,3 +99,22 @@ route::post('/news/destroy', [NewsController::class, 'destroy'])->middleware('ch
 Route::get('/testapi', function () {
     return json_encode(['tinnhan' => 'ok roi api hoạt động 12']);
 });
+
+
+
+
+// route cho người dùng  
+
+Route::group(['prefix' => 'customer'],function(){
+    Route::get('user', function(){
+        return response()->json(['message' => 'User API route']);
+
+        $quyen = [
+            1 => 'create-product',
+            2 => 'update-product',
+            3 => 'delete-product',
+            4 => 'create-category',
+        ];
+
+    })->middleware('check.permission:test1|test2');
+});

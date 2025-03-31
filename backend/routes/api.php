@@ -26,6 +26,7 @@ use App\Http\Controllers\OrderController;
 Route::get('orders', [OrderController::class, 'index']);
 Route::post('orders/update/{id}', [OrderController::class, 'update']);
 Route::post('orders/destroy', [OrderController::class, 'destroy']);
+Route::post('orders/create', [OrderController::class, 'create']);
 Route::post('orders/update-order-status/{id}', [OrderController::class, 'updateOrderStatus']);
 Route::post('orders/update-payment-status/{id}', [OrderController::class, 'updatePaymentStatus']);
 Route::post('orders/update-shipping-status/{id}', [OrderController::class, 'updateShippingStatus']);

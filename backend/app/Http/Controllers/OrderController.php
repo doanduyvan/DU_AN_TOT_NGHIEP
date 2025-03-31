@@ -8,6 +8,7 @@ use App\Models\OrderDetail;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use App\Models\ProductVariant;
+use App\Http\Requests\CreateOrderRequest;
 
 class OrderController extends Controller
 {
@@ -21,6 +22,49 @@ class OrderController extends Controller
     {
         $order = Order::with('orderDetails.productvariant.product')->find($id);
         return response()->json($order);
+    }
+    public function create(CreateOrderRequest $request)
+    {
+        $validateData = $request->validated();
+        $orderNumber = strtoupper('ORD' . time() . rand(1000, 9999));
+        // Kiểm tra xem mã đơn hàng đã tồn tại trong cơ sở dữ liệu chưa
+        while (Order::where('tracking_number', $orderNumber)->exists()) {
+            // Nếu mã trùng, tạo lại mã đơn hàng
+            $orderNumber = strtoupper('ORD' . time() . rand(1000, 9999));
+        }
+        $validateData['tracking_number'] = $orderNumber;
+        DB::beginTransaction();
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json(['message' => 'Người dùng chưa đăng nhập', 'status' => 'error'], 401);
+            }
+            $totalAmount = collect($validateData['order_details'])->reduce(function ($total, $item) {
+                return $total + $item['price'] * $item['quantity'];
+            }, 0);
+
+            $validateData['total_amount'] = $totalAmount;
+            $validateData['user_id'] = $user->id;
+            $order = Order::create($validateData);
+            foreach ($validateData['order_details'] as $detail) {
+                OrderDetail::create([
+                    'order_id' => $order->id,
+                    'product_variant_id' => $detail['product_variant_id'],
+                    'quantity' => $detail['quantity'],
+                    'price' => $detail['price'],
+                ]);
+            }
+
+            DB::commit();
+            return response()->json([
+                'message' => 'Tạo đơn hàng thành công',
+                'status' => 200,
+                'order' => $order
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Tạo đơn hàng thất bại: ' . $e->getMessage(), 'status' => 'error'], 500);
+        }
     }
     public function destroy(Request $request)
     {

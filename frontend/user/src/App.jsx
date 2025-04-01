@@ -33,8 +33,8 @@ import { Home_Admin } from './pages/admin/home';
 import LoginForm from './components/auth/login';
 import RegisterForm from './components/auth/register';
 import CartPage from "./components/cartPage/cartPage";
-import { Users } from "./pages/admin/users";
-import { Set_User_Role } from "./pages/admin/users/update";
+import { Users } from "./pages/admin/accounts";
+import { Set_User_Role } from "./pages/admin/accounts/update";
 
 import { Orders } from "./pages/admin/orders";
 import { Update_Order } from "./pages/admin/orders/update";
@@ -53,6 +53,9 @@ import { Update_Category_News } from "./pages/admin/categorynews/update";
 import { NewsAdmin } from "./pages/admin/news";
 import { Create_News } from "./pages/admin/news/create";
 import { Update_News } from "./pages/admin/news/update";
+
+import { Comment_Products } from "./pages/admin/comment_products";
+import { Create_Comment } from "./pages/admin/comment_products/create";
 
 
 function App() {
@@ -104,6 +107,9 @@ function App() {
     { path: 'news', element: < NewsAdmin /> },
     { path: 'news/create', element: < Create_News /> },
     { path: 'news/update/:id', element: < Update_News /> },
+
+    { path: 'comment-products', element: < Comment_Products /> },
+    { path: 'comment-products/create', element: < Create_Comment /> },
 
   ];
 

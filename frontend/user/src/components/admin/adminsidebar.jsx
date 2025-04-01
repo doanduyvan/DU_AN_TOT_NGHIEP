@@ -82,18 +82,18 @@ export const AdminSidebar = () => {
         {
             id: "5",
             name: "Danh mục bài viết",
-            link: "/admin/categorynews",
+            link: "/admin/category-news",
             svg: <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 32 32"><path fill="currentColor" d="M14 25h14v2H14zm-6.83 1l-2.58 2.58L6 30l4-4l-4-4l-1.42 1.41L7.17 26zM14 15h14v2H14zm-6.83 1l-2.58 2.58L6 20l4-4l-4-4l-1.42 1.41L7.17 16zM14 5h14v2H14zM7.17 6L4.59 8.58L6 10l4-4l-4-4l-1.42 1.41L7.17 6z" /></svg>,
             sub_menu: [
                 {
                     id: "5.1",
                     name: "Thêm",
-                    link: "/admin/categorynews/create",
+                    link: "/admin/category-news/create",
                 },
                 {
                     id: "5.2",
                     name: "Danh sách",
-                    link: "/admin/categorynews",
+                    link: "/admin/category-news",
                 },
             ]
         },
@@ -118,36 +118,36 @@ export const AdminSidebar = () => {
         {
             id: "7",
             name: "Bình luận bài viết",
-            link: "/admin/commentnews",
+            link: "/admin/comment-news",
             svg: <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M14 22.5L11.2 19H6C5.44772 19 5 18.5523 5 18V7.10256C5 6.55028 5.44772 6.10256 6 6.10256H22C22.5523 6.10256 23 6.55028 23 7.10256V18C23 18.5523 22.5523 19 22 19H16.8L14 22.5ZM15.8387 17H21V8.10256H7V17H11.2H12.1613L14 19.2984L15.8387 17ZM2 2H19V4H3V15H1V3C1 2.44772 1.44772 2 2 2Z"></path></svg>,
             sub_menu: [
                 {
                     id: "7.1",
                     name: "Thêm",
-                    link: "/admin/commentnews/create",
+                    link: "/admin/comment-news/create",
                 },
                 {
                     id: "7.2",
                     name: "Danh sách",
-                    link: "/admin/commentnews",
+                    link: "/admin/comment-news",
                 },
             ]
         },
         {
             id: "8",
             name: "Bình luận sản phẩm",
-            link: "/admin/commentproducts",
+            link: "/admin/comment-products",
             svg: <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 13.5h8m-8-5h4M6.099 19q-1.949-.192-2.927-1.172C2 16.657 2 14.771 2 11v-.5c0-3.771 0-5.657 1.172-6.828S6.229 2.5 10 2.5h4c3.771 0 5.657 0 6.828 1.172S22 6.729 22 10.5v.5c0 3.771 0 5.657-1.172 6.828S17.771 19 14 19c-.56.012-1.007.055-1.445.155c-1.199.276-2.309.89-3.405 1.424c-1.563.762-2.344 1.143-2.834.786c-.938-.698-.021-2.863.184-3.865" color="currentColor" /></svg>,
             sub_menu: [
                 {
                     id: "8.1",
                     name: "Thêm",
-                    link: "/admin/commentproducts/create",
+                    link: "/admin/comment-products/create",
                 },
                 {
                     id: "8.2",
                     name: "Danh sách",
-                    link: "/admin/commentproducts",
+                    link: "/admin/comment-products",
                 },
             ]
         },

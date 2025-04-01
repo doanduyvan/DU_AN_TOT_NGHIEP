@@ -14,12 +14,12 @@ export const Set_User_Role = () => {
     const { permissions } = useAuth();
 
     console.log(permissions);
-    useEffect(() => {
-        if (!permissions.includes("update-customer")) {
-            AntNotification.showNotification("Bạn không có quyền truy cập", "Vui lòng liên hệ quản trị viên", "error");
-            Navigate('/admin/accounts');
-        }
-    }, [permissions]);
+    // useEffect(() => {
+    //     if (!permissions.includes("update-customer")) {
+    //         AntNotification.showNotification("Bạn không có quyền truy cập", "Vui lòng liên hệ quản trị viên", "error");
+    //         Navigate('/admin/accounts');
+    //     }
+    // }, [permissions]);
 
     useEffect(() => {
         (async () => {

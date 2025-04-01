@@ -85,34 +85,11 @@ class UserController extends Controller
         ]);
     }
 
-    // public function update(Request $request, $id)
-    // {
-    //     $validatedData = $request->validate([
-    //         'fullname' => 'required|string|max:255',
-    //         'email' => 'required|string|email|max:255',
-    //         'status' => 'required',
-    //     ]);
-    //     try {
-    //         $user = User::findOrFail($id);
-    //         if ($user) {
-    //             $user->fullname = $validatedData['fullname'];
-    //             $user->email = $validatedData['email'];
-    //             $user->status = $validatedData['status'];
-    //             $user->save();
-    //             return response()->json(['message' => 'Cập nhập thành công thành công', 'status' => 200], 200);
-    //         }
-    //     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-    //         return response()->json([
-    //             'message' => 'Không tìm thấy người dùng',
-    //             'status' => 404,
-    //             'error' => $e->getMessage(),
-    //         ], 404);
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'message' => 'Có lỗi xảy ra',
-    //             'status' => 500,
-    //             'error' => $e->getMessage(),
-    //         ], 500);
-    //     }
-    // }
+    public function searchUser(Request $request)
+    {
+        $query = $request->input('search_user');
+        $user = User::where('email', 'like', '%' . $query . '%')->get();
+
+        return response()->json($user);
+    }
 }

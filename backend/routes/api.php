@@ -11,6 +11,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\CommentProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,6 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 route::post('/users/destroy/{id}', [UserController::class, 'destroy'])->middleware('check.permission:delete-customer');
 Route::middleware('check.permission:update-customer')->group(function () {
+    route::post('/users/search-users', [UserController::class, 'searchUser']);
     Route::post('/users/updatestatus', [UserController::class, 'updateStatus']);
     Route::post('/users/update/{id}', [UserController::class, 'updateUser']);
     Route::get('/users/showroles', [UserController::class, 'showRoles']);
@@ -84,6 +86,7 @@ route::post('/categorynews/destroy', [CategoryNewsController::class, 'destroy'])
 route::post('/categorynews/update/{id}', [CategoryNewsController::class, 'update'])->middleware('check.permission:update-category-news');
 
 route::get('/products', [ProductsController::class, 'index']);
+route::post('/products/search-variant-product', [ProductsController::class, 'searchVariantProduct']);
 route::post('/products/search-product', [ProductsController::class, 'searchProduct']);
 route::post('/products/update/{id}', [ProductsController::class, 'update'])->middleware('check.permission:update-product');
 route::get('/products/{id}', [ProductsController::class, 'getProductById'])->middleware('check.permission:update-product');
@@ -96,26 +99,11 @@ route::get('/news/{id}', [NewsController::class, 'getNewsById'])->middleware('ch
 route::post('/news/create', [NewsController::class, 'create'])->middleware('check.permission:create-news');
 route::post('/news/destroy', [NewsController::class, 'destroy'])->middleware('check.permission:delete-news');
 
+route::get('/comment-products', [CommentProductController::class, 'index']);
+route::post('/comment-products/create', [CommentProductController::class, 'create']);
+route::get('/test', [CommentProductController::class, 'test']);
+
 
 Route::get('/testapi', function () {
     return json_encode(['tinnhan' => 'ok roi api hoạt động 12']);
-});
-
-
-
-
-// route cho người dùng  
-
-Route::group(['prefix' => 'customer'],function(){
-    Route::get('user', function(){
-        return response()->json(['message' => 'User API route']);
-
-        $quyen = [
-            1 => 'create-product',
-            2 => 'update-product',
-            3 => 'delete-product',
-            4 => 'create-category',
-        ];
-
-    })->middleware('check.permission:test1|test2');
 });

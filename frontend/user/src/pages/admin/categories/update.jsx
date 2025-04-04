@@ -1,6 +1,6 @@
 import { update, callCategories } from "../../../services/api-categories";
 import { AntNotification } from "../../../components/notification";
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 export const Update_Category = () => {
     const Navigate = useNavigate();
@@ -35,12 +35,12 @@ export const Update_Category = () => {
             <nav className="rounded-md w-full">
                 <ol className="list-reset flex">
                     <li>
-                        <a
-                            href="/dashboard"
+                    <Link
+                            to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
-                            Dashboard
-                        </a>
+                            Quản Trị
+                        </Link>
                     </li>
                     <li>
                         <span className="mx-2 text-neutral-500 dark:text-neutral-400">
@@ -48,12 +48,12 @@ export const Update_Category = () => {
                         </span>
                     </li>
                     <li>
-                        <a
-                            href="dashboard/categories"
+                        <Link
+                            to="dashboard/categories"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
                             Quản Lý Danh Mục
-                        </a>
+                        </Link>
                     </li>
                     <li>
                         <span className="mx-2 text-neutral-500 dark:text-neutral-400">

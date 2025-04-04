@@ -10,13 +10,6 @@ const apiPost = async (url, data) => {
   });
   return response;
 };
-const apiPut = async (url, data) => {
-  const response = await axios.put(url, data, {
-    headers: getHeaders(),
-    withCredentials: true,
-  });
-  return response;
-};
 
 const apiGet = async (url) => {
   const response = await axios.get(url, {
@@ -26,7 +19,7 @@ const apiGet = async (url) => {
   return response;
 };
 
-const commentsService = {
+const commentProductsService = {
 
   searchUsers: async (query) => {
     return apiPost("/users/search-users",  query);
@@ -60,4 +53,4 @@ const commentsService = {
     return apiGet("/products");
   },
 };
-export { commentsService };
+export { commentProductsService };

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { destroy, callCategories } from "../../../services/api-categories";
 import { AntNotification } from "../../../components/notification";
 import { ImageModal } from "../../../components/admin/imgmodal";
+import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
 
 export const Categories = () => {
@@ -87,12 +88,12 @@ export const Categories = () => {
             <nav className="rounded-md w-full">
                 <ol className="list-reset flex">
                     <li>
-                        <a
-                            href="#"
+                    <Link
+                            to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
-                            Home
-                        </a>
+                            Quản Trị
+                        </Link>
                     </li>
                     <li>
                         <span className="mx-2 text-neutral-500 dark:text-neutral-400">
@@ -264,15 +265,15 @@ export const Categories = () => {
                                 </td>
 
                                 <td className="px-6 py-4">
-                                    <a
-                                        href={`/admin/categories/update/${category.id}`}
+                                    <Link
+                                        to={`/admin/categories/update/${category.id}`}
                                         type="button"
                                         data-modal-target="editUserModal"
                                         data-modal-show="editUserModal"
                                         className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                                     >
                                         Edit
-                                    </a>
+                                    </Link>
                                 </td>
                             </tr>
                         ))}

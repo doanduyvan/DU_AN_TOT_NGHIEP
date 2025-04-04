@@ -95,11 +95,11 @@ export const Update_News = () => {
             <nav className="rounded-md w-full">
                 <ol className="list-reset flex">
                     <li>
-                        <Link
+                    <Link
                             to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
-                            Trang Chủ
+                            Quản Trị
                         </Link>
                     </li>
                     <li>
@@ -112,7 +112,7 @@ export const Update_News = () => {
                             to="/admin/news"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
-                            Quản Lý Bài Viết
+                            Quản Lý Tin Tức
                         </Link>
                     </li>
                     <li>
@@ -121,14 +121,14 @@ export const Update_News = () => {
                         </span>
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Cập Nhật Bài Viết
+                        Cập Nhật Tin Tức
                     </li>
                 </ol>
             </nav>
             <div className="bg-white shadow rounded-lg mb-4 mt-4 p-4 sm:p-6 h-full">
                 <div className="flex justify-between items-center mb-4">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Cập Nhật Bài Viết
+                        Cập Nhật Tin Tức
                     </h5>
                 </div>
                 <form className="max-w-5xl mt-5" onSubmit={handSubmit}>
@@ -143,7 +143,7 @@ export const Update_News = () => {
                     </div>
                     <div className="mb-5">
                         <label htmlFor="img" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
-                            Hình ảnh bài viết
+                            Hình ảnh tin
                         </label>
                         <input
                             type="file"
@@ -170,7 +170,7 @@ export const Update_News = () => {
                     </div>
 
                     <div className="mb-5">
-                        <label htmlFor="category" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Danh mục bài viết</label>
+                        <label htmlFor="category" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Danh mục tin tức</label>
                         <select
                             name="category_news_id"
                             value={news.category_news_id}
@@ -188,7 +188,7 @@ export const Update_News = () => {
                         </select>
                     </div>
                     <div className="mb-5 w-auto">
-                        <label htmlFor="description" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Mô tả sản phẩm</label>
+                        <label htmlFor="content" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Nội dung</label>
                         <Ckeditor5Component
                             dataEditor={editorData}
                             onChange={handleEditorChange}

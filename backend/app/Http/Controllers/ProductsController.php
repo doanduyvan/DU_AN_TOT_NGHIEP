@@ -36,11 +36,13 @@ class ProductsController extends Controller
 
     public function create(ProductRequest $productRequest, ProductImageRequest $imageRequest, ProductVariantRequest $variantRequest)
     {
+        db::beginTransaction();
         try {
             $path = $productRequest->file('avatar')->storePublicly('uploads/products', 'public');
             $validateData = $productRequest->validated();
             $user = auth()->user();
             if (!$user) {
+                DB::rollBack();
                 return response()->json([
                     'message' => 'Người dùng chưa đăng nhập',
                     'status' => 'error'
@@ -64,18 +66,26 @@ class ProductsController extends Controller
                     $existingVariant = ProductVariant::where('product_id', $Product->id)
                         ->where('size', $variant['size'])
                         ->first();
-
+                    $existingVariantSku = ProductVariant::where('sku', $variant['sku'])
+                        ->first();
                     if ($existingVariant) {
+                        DB::rollBack();
                         return response()->json([
-                            'message' => "Size {$variant['size']} đã có vui lòng chọn size khác",
+                            'message' => "Size {$variant['size']} đã có. Vui lòng chọn size khác",
                             'existing_variant' => $existingVariant
                         ], 400);
                     }
-
+                    if ($existingVariantSku) {
+                        DB::rollBack();
+                        return response()->json([
+                            'message' => "Mã sản phâm {$variant['sku']} đã tồn tại. Vui lòng nhập mã sản phẩm khác",
+                            'existing_variant' => $existingVariant
+                        ], 400);
+                    }
                     $Product->variants()->create($variant);
                 }
             }
-
+            db::commit();
             return response()->json([
                 'message' => 'Thêm sản phẩm thành công',
                 'status' => 200,
@@ -195,16 +205,16 @@ class ProductsController extends Controller
                         ->where('id', '!=', $variant['id'] ?? null)  // Bỏ qua id của biến thể đang cập nhật
                         ->first();
 
-                    $existingVariantSku = $product->variants()->where('product_id', $product->id)
-                        ->where('sku', $variant['sku'])
+                    $existingVariantSku = ProductVariant::where('sku', $variant['sku'])
                         ->where('id', '!=', $variant['id'] ?? null)
+                        ->lockForUpdate() // Khóa bản ghi để tránh race condition
                         ->first();
 
                     // Kiểm tra nếu size hoặc mã sản phẩm đã tồn tại
                     if ($existingVariant) {
                         DB::rollBack();
                         return response()->json([
-                            'message' => "Size {$variant['size']} đã có, vui lòng chọn size khác",
+                            'message' => "Size {$variant['size']} đã có. vui lòng chọn size khác",
                             'existing_variant' => $existingVariant
                         ], 400);
                     }
@@ -212,7 +222,7 @@ class ProductsController extends Controller
                     if ($existingVariantSku) {
                         DB::rollBack();
                         return response()->json([
-                            'message' => "Mã sản phẩm: {$variant['sku']} đã tồn tại. Vui lòng chọn mã sản phẩm khác",
+                            'message' => "Mã sản phẩm: {$variant['sku']} đã tồn tại. Vui lòng nhập mã sản phẩm khác",
                             'existing_variant' => $existingVariantSku
                         ], 400);
                     }

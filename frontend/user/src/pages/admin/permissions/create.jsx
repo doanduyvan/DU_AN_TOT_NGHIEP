@@ -1,5 +1,5 @@
-import { useNavigate } from "react-router-dom";
-import { useState, useEffect, Link } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { AntNotification } from "../../../components/notification";
 import { create } from "../../../services/api-permissions";
 export const Create_Permission = () => {
@@ -31,12 +31,12 @@ export const Create_Permission = () => {
                 <nav className="rounded-md w-full">
                     <ol className="list-reset flex">
                         <li>
-                            <a
-                                href="/admin"
-                                className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
-                            >
-                                Dashboard
-                            </a>
+                        <Link
+                            to="/admin"
+                            className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
+                        >
+                            Quản Trị
+                        </Link>
                         </li>
                         <li>
                             <span className="mx-2 text-neutral-500 dark:text-neutral-400">
@@ -44,12 +44,12 @@ export const Create_Permission = () => {
                             </span>
                         </li>
                         <li>
-                            <a
-                                href="/admin/persmissions"
+                            <Link
+                                to="/admin/persmissions"
                                 className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                             >
                                 Quản lý quyền hạn
-                            </a>
+                            </Link>
                         </li>
                         <li>
                             <span className="mx-2 text-neutral-500 dark:text-neutral-400">

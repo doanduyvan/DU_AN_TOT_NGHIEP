@@ -1,10 +1,9 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { AntNotification } from "../../../components/notification";
-import { commentsService } from "../../../services/api-comments";
-import { Ckeditor5Component } from "../../../components/ckeditor";
+import { commentProductsService } from "../../../services/api-comment-products";
 
-export const Create_Comment = () => {
+export const Create_CommentProduct = () => {
     const [editorData, setEditorData] = useState('');
     const [isResultVisible, setIsResultVisible] = useState(false);
     const [isUserResultVisible, setIsUserResultVisible] = useState(false);
@@ -24,15 +23,12 @@ export const Create_Comment = () => {
     const [selectedUserName, setSelectedUserName] = useState('');
     const navigate = useNavigate();
 
-    const handleEditorChange = (data) => {
-        setEditorData(data);
-    };
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 // Fetch products
-                const productsRes = await commentsService.getAllProducts();
+                const productsRes = await commentProductsService.getAllProducts();
                 if (productsRes) {
                     setProducts(Array.isArray(productsRes) ? productsRes : []);
                 } else {
@@ -40,8 +36,7 @@ export const Create_Comment = () => {
                 }
 
                 // Fetch users
-                const usersRes = await commentsService.getAllUsers();
-                console.log("Users:", usersRes);
+                const usersRes = await commentProductsService.getAllUsers();
                 if (usersRes) {
 
                     setUsers(Array.isArray(usersRes) ? usersRes : []);
@@ -55,9 +50,14 @@ export const Create_Comment = () => {
         fetchData();
     }, []);
 
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (!selectedProductId) {
             AntNotification.showNotification("Lỗi", "Vui lòng chọn sản phẩm", "error");
             return;
@@ -75,7 +75,7 @@ export const Create_Comment = () => {
         formData.append('rating', e.target.rating.value);
 
         try {
-            const res = await commentsService.create(formData);
+            const res = await commentProductsService.create(formData);
             if (res?.status === 200) {
                 AntNotification.showNotification("Thêm bình luận thành công", res?.message, "success");
                 navigate("/admin/comment-products");
@@ -100,7 +100,7 @@ export const Create_Comment = () => {
             search_product: searchQuery,
         }
         try {
-            const res = await commentsService.searchProduct(data);
+            const res = await commentProductsService.searchProduct(data);
             setSearch_Products(res);
             setIsResultVisible(true);
         } catch (error) {
@@ -138,7 +138,7 @@ export const Create_Comment = () => {
             search_user: userSearchQuery,
         }
         try {
-            const res = await commentsService.searchUsers(data);
+            const res = await commentProductsService.searchUsers(data);
             setSearch_Users(res);
             setIsUserResultVisible(true);
         } catch (error) {
@@ -188,7 +188,7 @@ export const Create_Comment = () => {
                             to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
-                            Dashboard
+                            Quản Trị
                         </Link>
                     </li>
                     <li>
@@ -234,6 +234,7 @@ export const Create_Comment = () => {
                                         value={searchQuery}
                                         onChange={handleSearchChange}
                                         onFocus={handleInputFocus}
+                                        onKeyDown={handleKeyDown}
                                         placeholder="Tìm kiếm sản phẩm"
                                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
                                     />
@@ -314,7 +315,8 @@ export const Create_Comment = () => {
                                         value={userSearchQuery}
                                         onChange={handleUserSearchChange}
                                         onFocus={handleUserInputFocus}
-                                        placeholder="Tìm kiếm người dùng"
+                                        onKeyDown={handleKeyDown}
+                                        placeholder="Tìm kiếm bằng email"
                                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
                                     />
                                     <button
@@ -388,7 +390,7 @@ export const Create_Comment = () => {
                         <label htmlFor="rating" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Đánh giá ⭐:</label>
                         <div className="rating">
                             <input type="radio" id="star5" name="rating" value="5" />
-                            <label title="Excellent!" for="star5">
+                            <label title="Excellent!" htmlFor="star5">
                                 <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
                                     <path
                                         d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"
@@ -396,7 +398,7 @@ export const Create_Comment = () => {
                                 </svg>
                             </label>
                             <input value="4" name="rating" id="star4" type="radio" />
-                            <label title="Great!" for="star4">
+                            <label title="Great!" htmlFor="star4">
                                 <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
                                     <path
                                         d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"
@@ -404,7 +406,7 @@ export const Create_Comment = () => {
                                 </svg>
                             </label>
                             <input value="3" name="rating" id="star3" type="radio" />
-                            <label title="Good" for="star3">
+                            <label title="Good" htmlFor="star3">
                                 <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
                                     <path
                                         d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"
@@ -412,7 +414,7 @@ export const Create_Comment = () => {
                                 </svg>
                             </label>
                             <input value="2" name="rating" id="star2" type="radio" />
-                            <label title="Okay" for="star2">
+                            <label title="Okay" htmlFor="star2">
                                 <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
                                     <path
                                         d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"
@@ -420,7 +422,7 @@ export const Create_Comment = () => {
                                 </svg>
                             </label>
                             <input value="1" name="rating" id="star1" type="radio" />
-                            <label title="Bad" for="star1">
+                            <label title="Bad" htmlFor="star1">
                                 <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
                                     <path
                                         d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"

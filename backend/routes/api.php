@@ -12,6 +12,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CommentProductController;
+use App\Http\Controllers\CommentNewsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,10 +75,11 @@ Route::middleware('check.permission:update-customer')->group(function () {
 
 
 
-route::get('/categories/{id?}', [CategoriesController::class, 'index']);
 route::post('/categories/create', [CategoriesController::class, 'create'])->middleware('check.permission:create-category');
 route::post('/categories/destroy', [CategoriesController::class, 'destroy'])->middleware('check.permission:delete-category');
 route::post('/categories/update/{id}', [CategoriesController::class, 'update'])->middleware('check.permission:update-category');
+route::get('/categories/{id?}', [CategoriesController::class, 'index']);
+
 
 route::get('/categorynews', [CategoryNewsController::class, 'index']);
 route::get('/categorynews/getbyid/{id}', [CategoryNewsController::class, 'getCategoyById']);
@@ -89,19 +91,32 @@ route::get('/products', [ProductsController::class, 'index']);
 route::post('/products/search-variant-product', [ProductsController::class, 'searchVariantProduct']);
 route::post('/products/search-product', [ProductsController::class, 'searchProduct']);
 route::post('/products/update/{id}', [ProductsController::class, 'update'])->middleware('check.permission:update-product');
-route::get('/products/{id}', [ProductsController::class, 'getProductById'])->middleware('check.permission:update-product');
 route::post('/products/create', [ProductsController::class, 'create'])->middleware('check.permission:create-product');
 route::post('/products/destroy', [ProductsController::class, 'destroy'])->middleware('check.permission:delete-product');
+route::get('/products/{id}', [ProductsController::class, 'getProductById'])->middleware('check.permission:update-product');
+
 
 route::get('/news', [NewsController::class, 'index']);
 route::post('/news/update/{id}', [NewsController::class, 'update'])->middleware('check.permission:update-news');
-route::get('/news/{id}', [NewsController::class, 'getNewsById'])->middleware('check.permission:update-news');
 route::post('/news/create', [NewsController::class, 'create'])->middleware('check.permission:create-news');
 route::post('/news/destroy', [NewsController::class, 'destroy'])->middleware('check.permission:delete-news');
+route::get('/news/{id}', [NewsController::class, 'getNewsById'])->middleware('check.permission:update-news');
+
 
 route::get('/comment-products', [CommentProductController::class, 'index']);
 route::post('/comment-products/create', [CommentProductController::class, 'create']);
-route::get('/test', [CommentProductController::class, 'test']);
+route::post('/comment-products/update/{id}', [CommentProductController::class, 'update']);
+route::post('/comment-products/destroy', [CommentProductController::class, 'destroy']);
+route::get('/comment-products/{id}', [CommentProductController::class, 'getById']);
+
+route::get('/comment-news', [CommentNewsController::class, 'index']);
+route::post('/comment-news/search-news', [CommentNewsController::class, 'searchNews']);
+route::get('/comment_news/get-allnews', [CommentNewsController::class, 'getAllNews']);
+route::post('/comment-news/create', [CommentNewsController::class, 'create']);
+route::post('/comment-news/update/{id}', [CommentNewsController::class, 'update']);
+route::post('/comment-news/destroy', [CommentNewsController::class, 'destroy']);
+route::get('/comment-news/{id}', [CommentNewsController::class, 'getById']);
+
 
 
 Route::get('/testapi', function () {

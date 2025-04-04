@@ -33,7 +33,7 @@ export const Create_category_news = () => {
                             to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
-                            Dashboard
+                            Quản Trị
                         </Link>
                     </li>
                     <li>
@@ -46,7 +46,7 @@ export const Create_category_news = () => {
                             to="/admin/cate"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
-                            Quản Lý Danh Mục Bài Viết
+                            Quản Lý Danh Mục Tin Tức
                         </Link>
                     </li>
                     <li>
@@ -55,14 +55,14 @@ export const Create_category_news = () => {
                         </span>
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Thêm Danh Mục Bài Viết
+                        Thêm Danh Mục Tin Tức
                     </li>
                 </ol>
             </nav>
             <div className="bg-white shadow rounded-lg mb-4 mt-4 p-4 sm:p-6 h-full">
                 <div className="flex justify-between items-center mb-4">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Thêm danh mục bài viết
+                        Thêm danh mục tin tức
                     </h5>
                 </div>
                 <form className="max-w-sm mt-5" onSubmit={handSubmit}>

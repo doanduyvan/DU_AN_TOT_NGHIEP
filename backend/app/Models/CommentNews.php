@@ -6,21 +6,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class CommentProduct extends Model
+class CommentNews extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = [
         'content',
-        'rating',
-        'product_id',
+        'news_id',
         'user_id',
-        'comment_product_id',
+        'comment_news_id',
     ];
     protected $dates = ['deleted_at'];
-    protected $table = 'comment_products';
-    public function product()
+    protected $table = 'comment_news';
+    public function news()
     {
-        return $this->belongsTo(Product::class, 'product_id');
+        return $this->belongsTo(News::class, 'news_id');
     }
     public function user()
     {
@@ -29,7 +28,7 @@ class CommentProduct extends Model
     public function scopeFilter($query, array $filters)
     {
         $query->when($filters['search'] ?? false, function ($query, $search) {
-            return $query->where('comment', 'like', '%' . $search . '%');
+            return $query->where('comment_news', 'like', '%' . $search . '%');
         });
     }
     public function scopeSort($query, array $sort)
@@ -44,11 +43,11 @@ class CommentProduct extends Model
     }
     public function scopeWithRelations($query)
     {
-        return $query->with(['product', 'user']);
+        return $query->with(['news', 'user']);
     }
     public function scopeWithCount($query)
     {
-        return $query->withCount(['product', 'user']);
+        return $query->withCount(['news', 'user']);
     }
     public function scopeWithTrashed($query)
     {

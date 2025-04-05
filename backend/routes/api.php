@@ -12,6 +12,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\customer\HomeController;
 use App\Http\Controllers\customer\ProductdetailController;
 use App\Http\Controllers\customer\ShopController;
+use App\Http\Controllers\customer\NewsController as CustomerNewsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CommentProductController;
@@ -135,5 +136,5 @@ Route::group(['prefix' => 'customer'],function(){
     Route::get('shop/getcategory',[ShopController::class, 'getCategory']);
     Route::get('shop/getproducts',[ShopController::class, 'getProducts']);
     Route::get('productdetail/getproductbyid/{id}',[ProductdetailController::class, 'getProductById']);
-
+    Route::get('news/categorynews',[CustomerNewsController::class, 'getCategoryNews']);
 });

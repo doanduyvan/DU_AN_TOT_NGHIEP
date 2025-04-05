@@ -1,8 +1,29 @@
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import AxiosUser from "../../../utils/axios_user";
+
+const urlCategory = "/customer/news/categorynews";
 
 function Sidebar() {
 
-  const categories = ["Chăm sóc da", "Trang điểm", "Dưỡng tóc", "Sức khỏe"];
+  // const categories = ["Chăm sóc da", "Trang điểm", "Dưỡng tóc", "Sức khỏe"];
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(()=> {
+    const fetchCategories = async () => {
+      try {
+        const response = await AxiosUser.get(urlCategory);
+        // const data = response.categories;
+        // setCategories(data);
+        console.log(response);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  },[])
 
     return (
         <>

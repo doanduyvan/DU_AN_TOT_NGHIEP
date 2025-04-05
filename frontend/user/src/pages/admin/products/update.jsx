@@ -188,7 +188,7 @@ export const Update_Product = () => {
         newVariants.splice(index, 1);
         setVariants(newVariants);
     };
-    
+
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <nav className="rounded-md w-full">
@@ -198,7 +198,7 @@ export const Update_Product = () => {
                             to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
-                            Trang Chủ
+                            Quản Trị
                         </Link>
                     </li>
                     <li>

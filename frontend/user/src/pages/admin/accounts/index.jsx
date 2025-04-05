@@ -1,132 +1,52 @@
 import { useState, useEffect, useRef } from "react";
-import { OrderService } from "../../../services/api-orders";
-import { AntNotification } from "../../../components/notification";
 import { Link } from "react-router-dom";
-import { OrderStatusSelect } from "../../../components/admin/orders/order_status";
-import { PaymentStatusSelect } from "../../../components/admin/orders/payment_status";
-import { ShippingStatusSelect } from "../../../components/admin/orders/shipping_status";
+import { UsersService } from "../../../services/api-users";
+import { AntNotification } from "../../../components/notification";
+import { ImageModal } from "../../../components/admin/imgmodal";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
-import { OrderDetail } from "../../../components/admin/order_detail";
 
-export const Orders = () => {
-    const [orders, setOrders] = useState([]);
-    const [selectedOrders, setSelectedOrders] = useState([]);
-    const [orderDetail, setOrderDetail] = useState(null);
+export const Users = () => {
+    const [imageSrc, setImageSrc] = useState(null);
+    const [users, setUser] = useState([]);
+    const [selectedUsers, setSelectedUsers] = useState([]);
 
-    const openModal = async (id) => {
-        const res = await OrderService.getOrderById(id);
-        setOrderDetail(res);
+    const openModal = (src) => {
+        setImageSrc(src);
     };
+
     const closeModal = () => {
-        setOrderDetail(null);
+        setImageSrc(null);
     };
 
-
-    const handleOrderStatusChange = async (orderId, newStatus) => {
-        try {
-            const res = await OrderService.updateOrderStatus(orderId, newStatus);
-            if (res) {
-                setOrders((orders) =>
-                    orders.map((order) =>
-                        order.id === orderId ? { ...order, status: newStatus } : order
-                    )
-                );
-                AntNotification.showNotification(
-                    "Cập nhật trạng thái thành công!",
-                    res?.message || "Vui lòng thử lại sau",
-                    "success"
-                );
-            } else {
-                AntNotification.showNotification(
-                    "Có lỗi xảy ra",
-                    res?.message || "Vui lòng thử lại sau",
-                    "error"
-                );
-            }
-        } catch (error) {
-            AntNotification.handleError(error);
-        }
-    };
-
-    const handlePaymentStatusChange = async (orderId, newStatus) => {
-        try {
-            const res = await OrderService.updatePaymentStatus(orderId, newStatus);
-            if (res) {
-                setOrders((orders) =>
-                    orders.map((order) =>
-                        order.id === orderId ? { ...order, payment_status: newStatus } : order
-                    )
-                );
-                AntNotification.showNotification(
-                    "Cập nhật trạng thái thành công!",
-                    res?.message,
-                    "success"
-                );
-            } else {
-                AntNotification.showNotification(
-                    "Có lỗi xảy ra",
-                    res?.message || "Vui lòng thử lại sau",
-                    "error"
-                );
-            }
-        } catch (error) {
-            AntNotification.handleError(error);
-        }
-    };
-    const handleShippingStatusChange = async (orderId, newStatus) => {
-        try {
-            const res = await OrderService.updateShippingStatus(orderId, newStatus);
-            if (res) {
-                setOrders((orders) =>
-                    orders.map((order) =>
-                        order.id === orderId ? { ...order, shipping_status: newStatus } : order
-                    )
-                );
-                AntNotification.showNotification(
-                    "Cập nhật trạng thái thành công!",
-                    res?.message,
-                    "success"
-                );
-            } else {
-                AntNotification.showNotification(
-                    "Có lỗi xảy ra",
-                    res?.message,
-                    "error"
-                );
-            }
-        } catch (error) {
-            AntNotification.handleError(error);
-        }
-    };
-
-    const checkOrder = (e, id) => {
-        setSelectedOrders((prevselectedOrders) => {
+    const checkUser = (e, id) => {
+        setSelectedUsers((prevselectedUsers) => {
             if (e.target.checked) {
-                return [...prevselectedOrders, id];
+                return [...prevselectedUsers, id];
             } else {
-                return prevselectedOrders.filter((item) => item !== id);
+                return prevselectedUsers.filter((item) => item !== id);
             }
         });
     };
     const hanDleDelete = async () => {
-        if (selectedOrders.length === 0) {
+        if (selectedUsers.length === 0) {
             AntNotification.showNotification(
-                "Chưa có đơn hàng nào được chọn",
-                "Vui lòng chọn ít nhất một đơn hàng để xóa",
-                "warning"
+                "Chưa có người dùng nào được chọn",
+                "Vui lòng chọn ít nhất một người dùng",
+                "error"
             );
             return;
         }
         try {
-            const res = await OrderService.destroy(selectedOrders);
+            const res = await UsersService.destroy(selectedUsers);
             if (res?.status === 200) {
-                setOrders((prevOrders) => {
-                    return prevOrders.filter(
-                        (order) => !selectedOrders.includes(order.id)
+                setUser((prevusers) => {
+                    return prevusers.filter(
+                        (user) => !selectedUsers.includes(user.id)
                     );
                 });
+                setSelectedUsers([]);
                 AntNotification.showNotification(
-                    "Xóa đơn hàng thành công",
+                    "Xóa thành công",
                     res?.message,
                     "success"
                 );
@@ -141,16 +61,18 @@ export const Orders = () => {
             AntNotification.handleError(error);
         }
     };
+    console.log(selectedUsers);
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await OrderService.getAllOrder();
+                const res = await UsersService.getAllUsers();
                 if (res) {
-                    setOrders(Array.isArray(res) ? res : []);
+                    setUser(Array.isArray(res) ? res : []);
+                    console.log(res);
                 } else {
                     AntNotification.showNotification(
-                        "Lỗi",
-                        "Không thể lấy danh sách đơn hàng",
+                        "Có lỗi xảy ra",
+                        res?.message || "Vui lòng thử lại sau",
                         "error"
                     );
                 }
@@ -160,6 +82,36 @@ export const Orders = () => {
         };
         fetchData();
     }, []);
+
+    const handleStatusChange = async (id, status) => {
+        try {
+            const res = await UsersService.upadteStatus({ id, status });
+            if (res?.status === 200) {
+                setUser((prevUsers) => {
+                    return prevUsers.map((user) => {
+                        if (user.id === id) {
+                            return { ...user, status };
+                        }
+                        return user;
+                    });
+                });
+                AntNotification.showNotification(
+                    "Cập nhật thành công",
+                    res?.message,
+                    "success"
+                );
+            } else {
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
+            }
+        } catch (error) {
+            AntNotification.handleError(error);
+        }
+    }
+
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <nav className="rounded-md w-full">
@@ -178,19 +130,15 @@ export const Orders = () => {
                         </span>
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Quản Lý đơn hàng
+                        Quản Lý Người Dùng
                     </li>
                 </ol>
             </nav>
             <div className="relative overflow-x-auto shadow-md my-4 sm:rounded-lg bg-white">
                 <div className="flex justify-between items-center p-4">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Quản Lý Đơn Hàng
+                        Quản Lý Người Dùng
                     </h5>
-                    <Link to="/admin/orders/create"
-                        className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto">
-                        Thêm đơn hàng
-                    </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
                     <div>
@@ -220,9 +168,9 @@ export const Orders = () => {
                         </button>
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
-                        {(selectedOrders.length > 0) ?
+                        {(selectedUsers.length > 0) ?
                             <DeleteConfirmationModal
-                                data={`Bạn có chắc chắn muốn xóa ${selectedOrders.length} đơn hàng này không?`}
+                                data={`Bạn có chắc chắn muốn xóa ${selectedUsers.length} người dùng này không?`}
                                 onDelete={hanDleDelete}
                             /> : null
                         }
@@ -262,19 +210,19 @@ export const Orders = () => {
                             <th scope="col" className="p-4">
                                 <div className="flex items-center">
                                     <input
-                                        checked={selectedOrders.length === orders.length}
+                                        checked={selectedUsers.length === users.length}
                                         onChange={() => {
-                                            if (selectedOrders.length === orders.length) {
-                                                setSelectedOrders([]); // bo chon tat ca
+                                            if (selectedUsers.length === users.length) {
+                                                setSelectedUsers([]); // bo chon tat ca
                                             } else {
-                                                setSelectedOrders(
-                                                    orders.map((category) => category.id)
+                                                setSelectedUsers(
+                                                    users.map((user) => user.id)
                                                 ); // chon tat ca
                                             }
                                         }}
                                         id="checkbox-all-search"
                                         type="checkbox"
-                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                        className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                     />
                                     <label htmlFor="checkbox-all-search" className="sr-only">
                                         checkbox
@@ -285,22 +233,7 @@ export const Orders = () => {
                                 Tên
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Chi tiết đơn hàng
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Trạng thái thanh toán
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Trạng thái đơn hàng
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Trạng thái vận chuyển
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Ngày đặt
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Tổng tiền
+                                Trạng thái
                             </th>
                             <th scope="col" className="px-6 py-3">
                                 Action
@@ -308,19 +241,19 @@ export const Orders = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {orders.map((order) => (
+                        {users.map((user) => (
                             <tr
-                                key={order.id}
+                                key={user.id}
                                 className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                             >
                                 <td className="w-4 p-4">
                                     <div className="flex items-center">
                                         <input
                                             id="checkbox-table-search-1"
-                                            onChange={(e) => checkOrder(e, order.id)}
-                                            checked={selectedOrders.includes(order.id)}
+                                            onChange={(e) => checkUser(e, user.id)}
+                                            checked={selectedUsers.includes(user.id)}
                                             type="checkbox"
-                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                            className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
                                         />
                                         <label
                                             htmlFor="checkbox-table-search-1"
@@ -334,54 +267,35 @@ export const Orders = () => {
                                     scope="row"
                                     className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                 >
-                                    <div className="px-6 py-4">
+                                    <img className="w-12 h-12 rounded-full" alt="" />
+                                    <div className="ps-3">
                                         <div className="text-base font-semibold">
-                                            {order.fullname}
+                                            {user.fullname}
+                                        </div>
+                                        <div className="font-normal text-gray-500">
+                                            {user.email}
                                         </div>
                                     </div>
                                 </th>
                                 <td className="px-6 py-4">
-                                    <button 
-                                        className="underline cursor-pointer"
-                                        onClick={(e) => {
-                                            openModal(order.id);
-                                        }}
-                                    >
-                                        Xem chi tiết
-                                    </button>
-                                    <OrderDetail orderDetail={orderDetail} closeModal={closeModal} />
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" className="sr-only peer" value={(user.status === 1) ? 0 : 1}
+                                            checked={user.status === 1}
+                                            onChange={(e) => handleStatusChange(user.id, e.target.checked ? 1 : 0)}
+                                        />
+                                        <div className="group peer bg-white rounded-full duration-300 w-16 h-8 ring-2 ring-red-500 after:duration-300 after:bg-red-500 peer-checked:after:bg-green-500 peer-checked:ring-green-500 after:rounded-full after:absolute after:h-6 after:w-6 after:top-1 after:left-1 after:flex after:justify-center after:items-center peer-checked:after:translate-x-8 peer-hover:after:scale-95" />
+                                    </label>
                                 </td>
-                                <td className="px-6 py-4">
-                                    <PaymentStatusSelect order={order} onChange={handlePaymentStatusChange} />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <OrderStatusSelect order={order} onChange={handleOrderStatusChange} />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <ShippingStatusSelect order={order} onChange={handleShippingStatusChange} />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="text-base font-semibold">
-                                        {new Date(order.created_at).toLocaleString('vi-VN')}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="text-base font-semibold">
-                                        {new Intl.NumberFormat('vi-VN', {
-                                            style: 'currency',
-                                            currency: 'VND',
-                                        }).format(order.total_amount)}
-                                    </div>
-                                </td>
+
                                 <td className="px-6 py-4">
                                     <Link
-                                        to={`/admin/orders/update/${order.id}`}
+                                        to={`/admin/accounts/update/${user.id}`}
                                         type="button"
                                         data-modal-target="editUserModal"
                                         data-modal-show="editUserModal"
                                         className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                                     >
-                                        Edit
+                                        Cấp vai trò
                                     </Link>
                                 </td>
                             </tr>

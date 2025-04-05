@@ -74,12 +74,12 @@ export const Products = () => {
             <nav className="rounded-md w-full">
                 <ol className="list-reset flex">
                     <li>
-                        <a
-                            href="#"
+                    <Link
+                            to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
-                            Home
-                        </a>
+                            Quản Trị
+                        </Link>
                     </li>
                     <li>
                         <span className="mx-2 text-neutral-500 dark:text-neutral-400">
@@ -234,7 +234,7 @@ export const Products = () => {
                                     className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                 >
                                     <div className="ps-3">
-                                        <div className="text-base font-semibold">
+                                        <div className="text-base font-semibold truncate">
                                             {product.product_name}
                                         </div>
                                     </div>

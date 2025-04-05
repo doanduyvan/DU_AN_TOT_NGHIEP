@@ -22,7 +22,7 @@ export const AntNotification = {
             for (let field in errors) {
                 errorMessage += `${errors[field].join(', ')}\n`;
             }
-            AntNotification.showNotification("Lỗi trong quá trình gọi API", errorMessage, "error");
+            AntNotification.showNotification("Không thành công", errorMessage, "error");
         } else if (error.response?.data?.message) {
             AntNotification.showNotification("Lỗi trong quá trình gọi API", error.response.data.message, "error");
         } else {

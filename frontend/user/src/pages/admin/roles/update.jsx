@@ -81,11 +81,11 @@ export const Update_Role = () => {
             <nav className="rounded-md w-full my-2">
                 <ol className="list-reset flex">
                     <li>
-                        <Link
+                    <Link
                             to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
-                            Dashboard
+                            Quản Trị
                         </Link>
                     </li>
                     <li>

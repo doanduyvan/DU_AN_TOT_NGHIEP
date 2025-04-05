@@ -33,8 +33,8 @@ import { Home_Admin } from './pages/admin/home';
 import LoginForm from './components/auth/login';
 import RegisterForm from './components/auth/register';
 import CartPage from "./components/cartPage/cartPage";
-import { Users } from "./pages/admin/users";
-import { Set_User_Role } from "./pages/admin/users/update";
+import { Users } from "./pages/admin/accounts";
+import { Set_User_Role } from "./pages/admin/accounts/update";
 
 import { Orders } from "./pages/admin/orders";
 import { Update_Order } from "./pages/admin/orders/update";
@@ -46,14 +46,21 @@ import News from "./pages/user/news/news";
 import NewsDetail from "./pages/user/news/newsDetail";
 import ContactPage from "./pages/user/contact/contact";
 
-import { CategoryNews } from "./pages/admin/categorynews";
-import { Create_category_news } from "./pages/admin/categorynews/create";
-import { Update_Category_News } from "./pages/admin/categorynews/update";
+import { CategoryNews } from "./pages/admin/category_news";
+import { Create_category_news } from "./pages/admin/category_news/create";
+import { Update_Category_News } from "./pages/admin/category_news/update";
 
 import { NewsAdmin } from "./pages/admin/news";
 import { Create_News } from "./pages/admin/news/create";
 import { Update_News } from "./pages/admin/news/update";
 
+import { Comment_Products } from "./pages/admin/comment_products";
+import { Create_CommentProduct } from "./pages/admin/comment_products/create";
+import { Update_CommentProduct } from "./pages/admin/comment_products/update";
+
+import { Comment_News } from "./pages/admin/comment_news";
+import { Create_CommentNews } from "./pages/admin/comment_news/create";
+import { Update_CommentNews } from "./pages/admin/comment_news/update";
 
 function App() {
   const Pages = [
@@ -97,14 +104,21 @@ function App() {
     { path: 'orders/update/:id', element: < Update_Order /> },
     { path: 'orders/create', element: < Create_Order /> },
 
-    { path: 'categorynews', element: < CategoryNews /> },
-    { path: 'categorynews/create', element: < Create_category_news /> },
-    { path: 'categorynews/update/:id', element: < Update_Category_News /> },
+    { path: 'category-news', element: < CategoryNews /> },
+    { path: 'category-news/create', element: < Create_category_news /> },
+    { path: 'category-news/update/:id', element: < Update_Category_News /> },
 
     { path: 'news', element: < NewsAdmin /> },
     { path: 'news/create', element: < Create_News /> },
     { path: 'news/update/:id', element: < Update_News /> },
 
+    { path: 'comment-products', element: < Comment_Products /> },
+    { path: 'comment-products/create', element: < Create_CommentProduct /> },
+    { path: 'comment-products/update/:id', element: < Update_CommentProduct /> },
+
+    { path: 'comment-news', element: < Comment_News /> },
+    { path: 'comment-news/create', element: < Create_CommentNews /> },
+    { path: 'comment-news/update/:id', element: < Update_CommentNews /> },
   ];
 
   const router = createBrowserRouter([

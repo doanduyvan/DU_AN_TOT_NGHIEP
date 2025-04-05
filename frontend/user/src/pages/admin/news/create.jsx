@@ -35,7 +35,7 @@ export const Create_News = () => {
                     setCategories(Array.isArray(res) ? res : []);
                     console.log(res);
                 } else {
-                    AntNotification.showNotification("Lỗi", "Không thể lấy danh sách danh mục bài viết", "error");
+                    AntNotification.showNotification("Lỗi", "Không thể lấy danh sách danh mục tin tức", "error");
                 }
             } catch (error) {
                 AntNotification.handleError(error);
@@ -59,10 +59,10 @@ export const Create_News = () => {
         try {
             const res = await newsService.create(formData);
             if (res?.status === 200) {
-                AntNotification.showNotification("Thêm bài viết thành công", res?.message, "success");
+                AntNotification.showNotification("Thêm tin thành công", res?.message, "success");
                 navigate("/admin/news");
             } else {
-                AntNotification.showNotification("Thêm bài viết thất bại", res?.message, "error");
+                AntNotification.showNotification("Thêm tin thất bại", res?.message, "error");
             }
         } catch (error) {
             AntNotification.handleError(error);
@@ -74,11 +74,11 @@ export const Create_News = () => {
             <nav className="rounded-md w-full">
                 <ol className="list-reset flex">
                     <li>
-                        <Link
+                    <Link
                             to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
-                            Dashboard
+                            Quản Trị
                         </Link>
                     </li>
                     <li>
@@ -91,7 +91,7 @@ export const Create_News = () => {
                             to="/admin/news"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
-                            Quản Lý Bài Viết
+                            Quản Lý Tin Tức
                         </Link>
                     </li>
                     <li>
@@ -100,14 +100,14 @@ export const Create_News = () => {
                         </span>
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Thêm Bài Viết
+                        Thêm Tin Tức
                     </li>
                 </ol>
             </nav>
             <div className="bg-white shadow rounded-lg mb-4 mt-4 p-4 sm:p-6 h-full">
                 <div className="flex justify-between items-center mb-4">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Thêm Bài Viết
+                        Thêm Tin Tức
                     </h5>
                 </div>
                 <form className="max-w-5xl mt-5" onSubmit={handSubmit}>
@@ -138,7 +138,7 @@ export const Create_News = () => {
                         )}
                     </div>
                     <div className="mb-5">
-                        <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Danh mục bài viết</label>
+                        <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Danh mục tin</label>
                         <select name="category_news_id" id="" className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
                             <option value="">Chọn danh mục</option>
                             {categories.map((category) => (
@@ -147,7 +147,7 @@ export const Create_News = () => {
                         </select>
                     </div>
                     <div className="mb-5 w-auto">
-                        <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Nội dung bài viết</label>
+                        <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Nội dung tin</label>
                         <Ckeditor5Component
                             onChange={handleEditorChange}
                         />

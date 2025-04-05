@@ -40,14 +40,14 @@ class NewsController extends Controller
             $News = News::create($validateData);
 
             return response()->json([
-                'message' => 'Thêm bài viết thành công',
+                'message' => 'Thêm tin tức thành công',
                 'status' => 200,
                 'news' => $News,
                 'image_url' => asset('storage/' . $path)
             ], 200);
         } catch (QueryException $e) {
             return response()->json([
-                'message' => 'Thêm bài viết thất bại: ' . $e->getMessage(),
+                'message' => 'Thêm tin tức thất bại: ' . $e->getMessage(),
                 'status' => 'error'
             ], 500);
         }
@@ -59,15 +59,15 @@ class NewsController extends Controller
         if (is_array($ids) && !empty($ids)) {
             try {
                 News::whereIn('id', $ids)->delete();
-                return response()->json(['message' => 'Xóa bài viết thành công', 'status' => 200], 200);
+                return response()->json(['message' => 'Xóa tin tức thành công', 'status' => 200], 200);
             } catch (QueryException $e) {
                 if ($e->getCode() == '23000') {
-                    return response()->json(['message' => 'Không thể xóa bài viết vì có dữ liệu liên quan', 'status' => 'error'], 400);
+                    return response()->json(['message' => 'Không thể xóa tin tức vì có dữ liệu liên quan', 'status' => 'error'], 400);
                 }
-                return response()->json(['message' => 'Xóa bài viết thất bại: ' . $e->getMessage(), 'status' => 'error'], 500);
+                return response()->json(['message' => 'Xóa tin tức thất bại: ' . $e->getMessage(), 'status' => 'error'], 500);
             }
         } else {
-            return response()->json(['message' => 'Xóa bài viết thất bại', 'status' => 'error'], 400);
+            return response()->json(['message' => 'Xóa tin tức thất bại', 'status' => 'error'], 400);
         }
     }
 
@@ -86,16 +86,18 @@ class NewsController extends Controller
             }
             $news->update($validateData);
             return response()->json([
-                'message' => 'Cập nhật bài viết thành công',
+                'message' => 'Cập nhật tin tức thành công',
                 'status' => 200,
                 'news' => $news,
             ], 200);
         } catch (QueryException $e) {
             return response()->json([
-                'message' => 'Cập nhật bài viết thất bại: ' . $e->getMessage(),
+                'message' => 'Cập nhật tin tức thất bại: ' . $e->getMessage(),
                 'status' => 'error'
             ], 500);
         }
     }
+
+
 
 }

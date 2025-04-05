@@ -1,80 +1,57 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import { UsersService } from "../../../services/api-users";
+import { formatDistanceToNow } from 'date-fns';
+import { vi } from 'date-fns/locale';
+import { commentNewsService } from "../../../services/api-comment-news";
 import { AntNotification } from "../../../components/notification";
-import { ImageModal } from "../../../components/admin/imgmodal";
+import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
 
-export const Users = () => {
-    const [imageSrc, setImageSrc] = useState(null);
-    const [users, setUser] = useState([]);
-    const [selectedUsers, setSelectedUsers] = useState([]);
+export const Comment_News = () => {
 
-    const openModal = (src) => {
-        setImageSrc(src);
-    };
+    const [comments, setComments] = useState([]);
+    const [selectedComments, setSelectedCommnets] = useState([]);
 
-    const closeModal = () => {
-        setImageSrc(null);
-    };
-
-    const checkUser = (e, id) => {
-        setSelectedUsers((prevselectedUsers) => {
+    const checkComments = (e, id) => {
+        setSelectedCommnets((prevselectedComment) => {
             if (e.target.checked) {
-                return [...prevselectedUsers, id];
+                return [...prevselectedComment, id];
             } else {
-                return prevselectedUsers.filter((item) => item !== id);
+                return prevselectedComment.filter((item) => item !== id);
             }
         });
     };
     const hanDleDelete = async () => {
-        if (selectedUsers.length === 0) {
-            AntNotification.showNotification(
-                "Chưa có người dùng nào được chọn",
-                "Vui lòng chọn ít nhất một người dùng",
-                "error"
-            );
+        if (selectedComments.length === 0) {
+            AntNotification.showNotification("Chưa có bình luận nào được chọn", "Vui lòng chọn ít nhất một bình luận để xóa", "error");
             return;
         }
         try {
-            const res = await UsersService.destroy(selectedUsers);
+            const res = await commentNewsService.destroy(selectedComments);
+            console.log(selectedComments);
             if (res?.status === 200) {
-                setUser((prevusers) => {
-                    return prevusers.filter(
-                        (user) => !selectedUsers.includes(user.id)
+                setComments((prevNews) => {
+                    return prevNews.filter(
+                        (comments) => !selectedComments.includes(comments.id)
                     );
                 });
-                setSelectedUsers([]);
-                AntNotification.showNotification(
-                    "Xóa thành công",
-                    res?.message,
-                    "success"
-                );
+                setSelectedCommnets([]);
+                AntNotification.showNotification("Xóa bình luận thành công", res?.message, "success");
             } else {
-                AntNotification.showNotification(
-                    "Có lỗi xảy ra",
-                    res?.message || "Vui lòng thử lại sau",
-                    "error"
-                );
+                AntNotification.showNotification("Xóa bình luận thất bại", res?.message, "error");
             }
         } catch (error) {
             AntNotification.handleError(error);
         }
     };
-    console.log(selectedUsers);
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await UsersService.getAllUsers();
+                const res = await commentNewsService.getComments();
                 if (res) {
-                    setUser(Array.isArray(res) ? res : []);
-                    console.log(res);
+                    setComments(res.data);
+                    console.log(res.data);
                 } else {
-                    AntNotification.showNotification(
-                        "Có lỗi xảy ra",
-                        res?.message || "Vui lòng thử lại sau",
-                        "error"
-                    );
+                    AntNotification.showNotification("Lỗi", "Không thể lấy danh sách bình luận", "error");
                 }
             } catch (error) {
                 AntNotification.handleError(error);
@@ -83,45 +60,16 @@ export const Users = () => {
         fetchData();
     }, []);
 
-    const handleStatusChange = async (id, status) => {
-        try {
-            const res = await UsersService.upadteStatus({ id, status });
-            if (res?.status === 200) {
-                setUser((prevUsers) => {
-                    return prevUsers.map((user) => {
-                        if (user.id === id) {
-                            return { ...user, status };
-                        }
-                        return user;
-                    });
-                });
-                AntNotification.showNotification(
-                    "Cập nhật thành công",
-                    res?.message,
-                    "success"
-                );
-            } else {
-                AntNotification.showNotification(
-                    "Có lỗi xảy ra",
-                    res?.message || "Vui lòng thử lại sau",
-                    "error"
-                );
-            }
-        } catch (error) {
-            AntNotification.handleError(error);
-        }
-    }
-
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <nav className="rounded-md w-full">
                 <ol className="list-reset flex">
                     <li>
                         <Link
-                            to="/"
+                            to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
-                            Trang Chủ
+                            Quản Trị
                         </Link>
                     </li>
                     <li>
@@ -130,15 +78,21 @@ export const Users = () => {
                         </span>
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Quản Lý Người Dùng
+                        Quản Lý Bình Luận Tin Tức
                     </li>
                 </ol>
             </nav>
             <div className="relative overflow-x-auto shadow-md my-4 sm:rounded-lg bg-white">
                 <div className="flex justify-between items-center p-4">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Quản Lý Người Dùng
+                        Quản Lý Bình Luận Tin Tức
                     </h5>
+                    <Link
+                        to="/admin/comment-news/create"
+                        className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
+                    >
+                        Thêm Bình Luận
+                    </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
                     <div>
@@ -168,9 +122,9 @@ export const Users = () => {
                         </button>
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
-                        {(selectedUsers.length > 0) ?
+                        {(selectedComments.length > 0) ?
                             <DeleteConfirmationModal
-                                data={`Bạn có chắc chắn muốn xóa ${selectedUsers.length} người dùng này không?`}
+                                data={`Bạn có chắc chắn muốn xóa ${selectedComments.length} bình luận này không?`}
                                 onDelete={hanDleDelete}
                             /> : null
                         }
@@ -210,19 +164,19 @@ export const Users = () => {
                             <th scope="col" className="p-4">
                                 <div className="flex items-center">
                                     <input
-                                        checked={selectedUsers.length === users.length}
+                                        checked={selectedComments.length === comments.length}
                                         onChange={() => {
-                                            if (selectedUsers.length === users.length) {
-                                                setSelectedUsers([]); // bo chon tat ca
+                                            if (selectedComments.length === comments.length) {
+                                                setSelectedCommnets([]); // bo chon tat ca
                                             } else {
-                                                setSelectedUsers(
-                                                    users.map((user) => user.id)
+                                                setSelectedCommnets(
+                                                    comments.map((item) => item.id)
                                                 ); // chon tat ca
                                             }
                                         }}
                                         id="checkbox-all-search"
                                         type="checkbox"
-                                        className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                     />
                                     <label htmlFor="checkbox-all-search" className="sr-only">
                                         checkbox
@@ -230,10 +184,13 @@ export const Users = () => {
                                 </div>
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Tên
+                                Thông tin bình luận
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Trạng thái
+                                Tin tức
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Thời gian
                             </th>
                             <th scope="col" className="px-6 py-3">
                                 Action
@@ -241,19 +198,19 @@ export const Users = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map((user) => (
+                        {comments.map((item) => (
                             <tr
-                                key={user.id}
+                                key={item.id}
                                 className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                             >
                                 <td className="w-4 p-4">
                                     <div className="flex items-center">
                                         <input
                                             id="checkbox-table-search-1"
-                                            onChange={(e) => checkUser(e, user.id)}
-                                            checked={selectedUsers.includes(user.id)}
+                                            onChange={(e) => checkComments(e, item.id)}
+                                            checked={selectedComments.includes(item.id)}
                                             type="checkbox"
-                                            className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
+                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                         />
                                         <label
                                             htmlFor="checkbox-table-search-1"
@@ -267,35 +224,36 @@ export const Users = () => {
                                     scope="row"
                                     className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                 >
-                                    <img className="w-12 h-12 rounded-full" alt="" />
-                                    <div className="ps-3">
+                                    <div className="">
                                         <div className="text-base font-semibold">
-                                            {user.fullname}
+                                            {item.user.fullname}
                                         </div>
                                         <div className="font-normal text-gray-500">
-                                            {user.email}
+                                            {item.content}
                                         </div>
                                     </div>
                                 </th>
                                 <td className="px-6 py-4">
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" className="sr-only peer" value={(user.status === 1) ? 0 : 1}
-                                            checked={user.status === 1}
-                                            onChange={(e) => handleStatusChange(user.id, e.target.checked ? 1 : 0)}
-                                        />
-                                        <div className="group peer bg-white rounded-full duration-300 w-16 h-8 ring-2 ring-red-500 after:duration-300 after:bg-red-500 peer-checked:after:bg-green-500 peer-checked:ring-green-500 after:rounded-full after:absolute after:h-6 after:w-6 after:top-1 after:left-1 after:flex after:justify-center after:items-center peer-checked:after:translate-x-8 peer-hover:after:scale-95" />
-                                    </label>
+                                    <div className="text-base font-semibold truncate">
+                                        {item.news.title}
+                                    </div>
                                 </td>
-
+                                <td className="px-6 py-4">
+                                    <div className="text-base font-semibold">
+                                        {formatDistanceToNow(new Date(item.created_at), {
+                                            addSuffix: true,
+                                            locale: vi
+                                        })}
+                                    </div>
+                                </td>
                                 <td className="px-6 py-4">
                                     <Link
-                                        to={`/admin/accounts/update/${user.id}`}
+                                        to={`/admin/comment-news/update/${item.id}`}
                                         type="button"
                                         data-modal-target="editUserModal"
                                         data-modal-show="editUserModal"
-                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                    >
-                                        Cấp vai trò
+                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                                        Edit
                                     </Link>
                                 </td>
                             </tr>

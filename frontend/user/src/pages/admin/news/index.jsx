@@ -44,9 +44,9 @@ export const NewsAdmin = () => {
                     );
                 });
                 setselectedNews([]);
-                AntNotification.showNotification("Xóa bài viết thành công", res?.message, "success");
+                AntNotification.showNotification("Xóa tin thành công", res?.message, "success");
             } else {
-                AntNotification.showNotification("Xóa bài viết thất bại", res?.message, "error");
+                AntNotification.showNotification("Xóa tin thất bại", res?.message, "error");
             }
         } catch (error) {
             AntNotification.handleError(error);
@@ -74,11 +74,11 @@ export const NewsAdmin = () => {
             <nav className="rounded-md w-full">
                 <ol className="list-reset flex">
                     <li>
-                        <Link
+                    <Link
                             to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
-                            Home
+                            Quản Trị
                         </Link>
                     </li>
                     <li>
@@ -87,20 +87,20 @@ export const NewsAdmin = () => {
                         </span>
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Quản Lý Bài Viết
+                        Quản Lý Tin Tức
                     </li>
                 </ol>
             </nav>
             <div className="relative overflow-x-auto shadow-md my-4 sm:rounded-lg bg-white">
                 <div className="flex justify-between items-center p-4">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Quản Lý Bài Viết
+                        Quản Lý Tin Tức
                     </h5>
                         <Link
                             to="/admin/news/create"
                             className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
                         >
-                            Thêm Bài Viết
+                            Thêm Tin Tức
                         </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">

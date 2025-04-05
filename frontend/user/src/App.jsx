@@ -71,11 +71,12 @@ function App() {
     { path: 'product/:id/:productname', element: < ProductDetail /> },
     { path: 'cart', element: <CartPage /> },
     { path: 'shop/:categoryname/:idcategory', element: <Shop /> },
-    { path: 'profile', element: <Profile /> },
     { path: 'shop', element: <Shop /> },
     { path: 'profile', element: <Profile /> },
+    { path: 'profile', element: <Profile /> },
+    { path: 'news/:idcategorynews', element: <News /> },
     { path: 'news', element: <News /> },
-    { path: 'news/:id', element: <NewsDetail /> },
+    { path: 'news/:id/:categoryname', element: <NewsDetail /> },
     { path: 'contact', element: <ContactPage /> }
   ];
 

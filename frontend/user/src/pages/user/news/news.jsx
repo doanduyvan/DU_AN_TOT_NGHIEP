@@ -1,9 +1,10 @@
 import React, { useState, useEffect} from "react";
-import { Pagination } from "antd";
+import { Pagination, Empty } from "antd";
 import Sidebar from "./sidebar";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import AxiosUser from "../../../utils/axios_user";
 import { FullScreenLoader } from "../../../utils/helpersjsx";
+
 
 const urlGetNews = "/customer/news/getnews";
 const baseUrlImg = import.meta.env.VITE_URL_IMG;
@@ -11,6 +12,7 @@ const baseUrlImg = import.meta.env.VITE_URL_IMG;
 
 const News = () => {
 
+  const navigate = useNavigate();
   // lấy idcategorynews từ url
   const { idcategorynews } = useParams();
 
@@ -42,10 +44,14 @@ const News = () => {
     params.page = currentPage;
     params.per_page = pageSize;
     if(idcategorynews){
+      if(isNaN(idcategorynews)){
+        navigate("/news");
+        return;
+      }
       params.category_news_id = idcategorynews;
     }
     fetchNews(params);
-  },[idcategorynews, currentPage, pageSize])
+  },[idcategorynews, currentPage, pageSize, navigate])
 
   useEffect(()=>{
     setCurrentPage(1);
@@ -88,17 +94,26 @@ const News = () => {
               </div>
             ))}
           </div>
+
+          {news.length <= 0 && (
+            <div className="flex justify-center items-center">
+              <Empty description="Không có tin tức nào" />
+            </div>
+          )}
+
           {/* Pagination */}
-          <div className="mt-6 flex justify-center items-center">
-            <Pagination
-              current={currentPage}
-              total={totalItems}
-              pageSize={pageSize}
-              showSizeChanger={true}
-              pageSizeOptions={["3", "6", "9", "12", "15"]}
-              onChange={handlePageChange}
-            />
-          </div>
+          {news.length > 0 && (
+            <div className="mt-6 flex justify-center items-center">
+              <Pagination
+                current={currentPage}
+                total={totalItems}
+                pageSize={pageSize}
+                showSizeChanger={true}
+                pageSizeOptions={["3", "6", "9", "12", "15"]}
+                onChange={handlePageChange}
+              />
+            </div>
+          )}
         </main>
       </div>
       <FullScreenLoader visible={loading} tip="Đang tải tin tức..." />

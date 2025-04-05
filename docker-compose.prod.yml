@@ -48,8 +48,6 @@ services:
     restart: always
     environment:
       PMA_HOST: mysql
-      PMA_USER: ${PMA_USER}
-      PMA_PASSWORD: ${PMA_PASSWORD}
       PMA_ARBITRARY: ${PMA_ARBITRARY}
     ports:
       - "7004:80"

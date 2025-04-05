@@ -2,7 +2,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { AntNotification } from "../../../components/notification";
 import { newsService } from "../../../services/api-news";
-import { Ckeditor5Component } from "../../../components/ckeditor";
+import { QuillEditor } from "../../../components/quilleditor";
 import { useAuth } from "../../../contexts/authcontext";
 
 export const Create_News = () => {
@@ -148,7 +148,7 @@ export const Create_News = () => {
                     </div>
                     <div className="mb-5 w-auto">
                         <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Nội dung tin</label>
-                        <Ckeditor5Component
+                        <QuillEditor
                             onChange={handleEditorChange}
                         />
                     </div>

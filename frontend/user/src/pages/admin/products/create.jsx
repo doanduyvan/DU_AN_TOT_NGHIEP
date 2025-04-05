@@ -2,7 +2,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { AntNotification } from "../../../components/notification";
 import { productService } from "../../../services/api-products";
-import { Ckeditor5Component } from "../../../components/ckeditor";
+import { QuillEditor } from "../../../components/quilleditor";
 import { useAuth } from "../../../contexts/authcontext";
 
 export const Create_Product = () => {
@@ -153,7 +153,7 @@ export const Create_Product = () => {
             <nav className="rounded-md w-full">
                 <ol className="list-reset flex">
                     <li>
-                    <Link
+                        <Link
                             to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
@@ -226,7 +226,8 @@ export const Create_Product = () => {
                     </div>
                     <div className="mb-5 w-auto">
                         <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Mô tả sản phẩm</label>
-                        <Ckeditor5Component
+                        <QuillEditor
+                            dataEditor={editorData}
                             onChange={handleEditorChange}
                         />
                     </div>

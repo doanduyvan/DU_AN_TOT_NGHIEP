@@ -2,7 +2,7 @@ import { useNavigate, Link, useParams } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { AntNotification } from "../../../components/notification";
 import { productService } from "../../../services/api-products";
-import { Ckeditor5Component } from "../../../components/ckeditor";
+import { QuillEditor } from "../../../components/quilleditor";
 
 export const Update_Product = () => {
     const { id } = useParams();
@@ -289,7 +289,7 @@ export const Update_Product = () => {
                     </div>
                     <div className="mb-5 w-auto">
                         <label htmlFor="description" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Mô tả sản phẩm</label>
-                        <Ckeditor5Component
+                        <QuillEditor
                             dataEditor={editorData}
                             onChange={handleEditorChange}
                         />

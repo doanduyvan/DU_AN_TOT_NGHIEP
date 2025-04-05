@@ -2,7 +2,7 @@ import { useNavigate, Link, useParams } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { AntNotification } from "../../../components/notification";
 import { newsService } from "../../../services/api-news";
-import { Ckeditor5Component } from "../../../components/ckeditor";
+import { QuillEditor } from "../../../components/quilleditor";
 
 export const Update_News = () => {
     const { id } = useParams();
@@ -189,7 +189,7 @@ export const Update_News = () => {
                     </div>
                     <div className="mb-5 w-auto">
                         <label htmlFor="content" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Nội dung</label>
-                        <Ckeditor5Component
+                        <QuillEditor
                             dataEditor={editorData}
                             onChange={handleEditorChange}
                         />

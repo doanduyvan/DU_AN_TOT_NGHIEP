@@ -1,4 +1,4 @@
-FROM php:7.4-apache
+FROM php:8.2-apache
 
 # Cài đặt các extension cần thiết
 RUN apt-get update && apt-get install -y \
@@ -24,13 +24,19 @@ WORKDIR /var/www/html
 
 COPY ./apache-conf/000-default.conf /etc/apache2/sites-available/000-default.conf
 
-# Copy mã nguồn Laravel vào container
+# Copy mã nguồn Laravel vào container ( không copy vendor trong .dockerignore )
 COPY . .
 
 # Thiết lập quyền
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache
+# RUN chown -R www-data:www-data /var/www/html \
+#     && chmod -R 775 /var/www/html/storage \
+#     && chmod -R 775 /var/www/html/bootstrap/cache
+
+    # RUN mkdir -p /var/www/html/storage \
+    # && mkdir -p /var/www/html/bootstrap/cache \
+    # && chown -R www-data:www-data /var/www/html \
+    # && chmod -R 775 /var/www/html/storage \
+    # && chmod -R 775 /var/www/html/bootstrap/cache
 
 # Mở cổng 80
 EXPOSE 80

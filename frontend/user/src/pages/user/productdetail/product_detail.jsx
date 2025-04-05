@@ -1,51 +1,84 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
+import { Image } from 'antd';
+import { List, Avatar, Form, Input, Button, message } from 'antd';
+import dayjs from "dayjs";
+import { useParams,useNavigate } from "react-router-dom";
+import AxiosUser from "../../../utils/axios_user";
+import { formatCurrency } from "../../../utils/helpers";
+import CommentProduct from "./commentproduct";
+import { FullScreenLoader } from "/src/utils/helpersjsx";
+const baseUrlImg = import.meta.env.VITE_URL_IMG;
+const urlProductDetail = '/customer/productdetail/getproductbyid/';
+
 
 export const ProductDetail = () => {
-  const [weight, setWeight] = useState(null);
-  const [activeTab, setActiveTab] = useState("review");
-  const handleWeightClick = (value) => {
-    setWeight(value);
+  const [activeTab, setActiveTab] = useState(0);
+  const navigate = useNavigate();
+  const { id } = useParams();
+  if (isNaN(id)) {
+    navigate('/404');
+  }
+
+  const [product, setProduct] = useState({});
+  const [variants, setVariants] = useState([]);
+  const [currentVariant, setCurrentVariant] = useState({});
+  const price = currentVariant.promotional_price || currentVariant.price;
+  const price_delete =  currentVariant.promotional_price ? currentVariant.price : '';
+  const [imgs, setImgs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(()=>{
+    const fetchProduct = async () => {
+      try {
+        const response = await AxiosUser.get(urlProductDetail + id);
+        const data = response.product;
+        if(!data) {
+          navigate('/404');
+          return;
+        }
+        setProduct(data);
+        setVariants(data.variants);
+        setCurrentVariant(data.variants[0]);
+        setImgs(data.images);
+      } catch (error) {
+        console.error("Error fetching product details:", error);
+      }finally{
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  },[id,navigate]);
+
+  const handleChangeVariant = (variant) => {
+    setCurrentVariant(variant);
   };
 
-  const reviews = [
-    {
-      id: 1,
-      name: "Jakir Hussen",
-      comment: "Great product, I love this Coffee Beans",
-      rating: 3.5,
-      image: "https://randomuser.me/api/portraits/men/1.jpg",
-    },
-    {
-      id: 2,
-      name: "Jubed Ahmed",
-      comment: "Awesome Coffee, I love this Coffee Beans",
-      rating: 3.5,
-      image: "https://randomuser.me/api/portraits/men/2.jpg",
-    },
-    {
-      id: 3,
-      name: "Delwar Hussain",
-      comment: "Great product, I like this Coffee Beans",
-      rating: 3.5,
-      image: "https://randomuser.me/api/portraits/men/3.jpg",
-    },
-  ];
+
   return (
     <>
-        <div className="h-[100px]"></div>
+      <div className="h-[100px]"></div>
       <div className="swapper p-3">
         <div className="mx-auto flex flex-col md:flex-row md:gap-8 gap-4">
-          <div className="md:w-1/2 w-full">
-            <img
-              src="/images/png/product_detail.png"
-              className="w-full h-auto"
-              alt="Product"
-            />
+
+          <div className="md:w-1/2 w-full flex flex-col lg:flex-row gap-2 lg:max-h-[430px]">
+          <div className="max-w-[100px] max-h-full overflow-y-auto hidden lg:block">
+              <ProductImages images={imgs} xy={'Y'} />
+            </div>
+            <div className="w-full">
+              <img
+                src={product?.avatar ? baseUrlImg + product.avatar : ""}
+                className="w-full h-full object-cover"
+                alt="Product"
+              />
+            </div>
+            <div className="mt-3 lg:hidden">
+              <ProductImages images={imgs} xy={'X'} />
+            </div>
           </div>
 
-          <div className="md:w-1/2 w-full bg-white p-5 flex flex-col justify-between">
+          <div className="md:w-1/2 w-full bg-white p-5 flex flex-col justify-start">
             <p className="text-3xl md:text-4xl font-semibold text-gray-800 mb-4">
-              Soy pH-Balanced Hydrating Face Wash Jumbo
+              {product?.product_name || "Loading..."}
             </p>
 
             <div className="flex flex-col lg:flex-row gap-4">
@@ -57,35 +90,31 @@ export const ProductDetail = () => {
                     className="my-auto"
                     width="18"
                     height="18"
-                    fill="currentColor"
+                    fill="gray"
                   >
                     <path d="M12.0006 18.26L4.94715 22.2082L6.52248 14.2799L0.587891 8.7918L8.61493 7.84006L12.0006 0.5L15.3862 7.84006L23.4132 8.7918L17.4787 14.2799L19.054 22.2082L12.0006 18.26Z"></path>
                   </svg>
-                  <p className="font-medium text-lg">(3.5) 1100 reviews</p>
+                  <p className="font-medium text-lg">
+                    ({product.rating_avg}) {product.total_reviews} Đánh giá
+                  </p>
                 </div>
 
-                <div className="flex flex-col gap-3">
-                  <p className="text-2xl font-medium">Size/Weight</p>
-                  <select
-                    name="size"
-                    className="border w-full md:w-1/2 rounded-lg p-2 cursor-pointer border-black"
-                  >
-                    <option value="100ml">100ml</option>
-                    <option value="200ml">200ml</option>
-                    <option value="300ml">300ml</option>
-                    <option value="400ml">400ml</option>
-                  </select>
-                  <div className="flex gap-3">
-                    {["small", "medium", "large"].map((size) => (
-                      <a
-                        key={size}
-                        className={`bg-yellow-100 p-2 px-5 rounded-md hover:bg-yellow-200 cursor-pointer ${
-                          weight === size ? "bg-yellow-200" : ""
+                <div className="flex flex-col gap-2">
+                  <p className="text-base font-normal">Phân loại:</p>
+
+                  <div className="flex gap-3 flex-wrap">
+                    {variants.map((size, i) => (
+                      <button
+                        key={`size_${i}`}
+                        className={`py-1 px-3 rounded-md hover:bg-yellow-500 cursor-pointer ${
+                          currentVariant.id == size.id
+                            ? "bg-yellow-500"
+                            : "bg-yellow-200"
                         }`}
-                        onClick={() => handleWeightClick(size)}
+                        onClick={() => handleChangeVariant(size)}
                       >
-                        {size.charAt(0).toUpperCase() + size.slice(1)}
-                      </a>
+                        {size.size}
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -172,107 +201,87 @@ export const ProductDetail = () => {
                 </div>
               </div>
             </div>
-            <div className="mt-8 w-full flex justify-between">
-              <div className="hidden lg:block lg:w-1/2"></div>
-              <div className="w-full lg:w-1/2 rounded-lg p-5 border border-black flex flex-col gap-4">
-                <p className="text-lg font-medium">19.000 đ</p>
-                <p className="text-2xl font-medium">19.000 đ</p>
+            <div className="mt-7 w-full flex justify-between">
+              <div className="w-full rounded-lg p-5 border border-black flex flex-col gap-4">
+                <div className="flex justify-between items-center">
+                  <p className="text-2xl font-medium text-[#ff6600]">
+                    {" "}
+                    {formatCurrency(price)}{" "}
+                  </p>
+                  <p className="text-lg font-medium text-gray-400 line-through">
+                    {" "}
+                    {formatCurrency(price_delete)}{" "}
+                  </p>
+                </div>
                 <button className="bg-yellow-300 p-2 rounded-lg hover:bg-yellow-400 transition-colors">
-                  Add to Cart
+                  Thêm giỏ hàng
                 </button>
               </div>
             </div>
+
           </div>
         </div>
-        <div className="p-6 bg-[#fdf8f2]">
+        <div className="p-2 lg:p-6 bg-[#fdf8f2]">
           <div className="flex space-x-6 border-b pb-2">
-            {["description", "features", "review", "similar"].map((tab) => (
+            {["Mô Tả", "Đánh giá"].map((tab, i) => (
               <button
                 key={tab}
                 className={`pb-2 text-lg font-medium capitalize ${
-                  activeTab === tab
+                  activeTab === i
                     ? "border-b-2 border-black text-black"
                     : "text-gray-500"
                 }`}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => setActiveTab(i)}
               >
-                {tab === "review" ? `Review (1100)` : tab}
+                {tab}
               </button>
             ))}
           </div>
 
-          <div className="mt-6">
-            {activeTab === "description" && (
-              <p className="text-gray-700">
-                This is a high-quality coffee bean product sourced from the best
-                farms.
-              </p>
-            )}
-
-            {activeTab === "features" && (
-              <ul className="list-disc pl-6 text-gray-700">
-                <li>100% Organic Arabica Beans</li>
-                <li>Rich Flavor & Aroma</li>
-                <li>Sourced from Premium Farms</li>
-                <li>Available in Multiple Roasts</li>
-              </ul>
-            )}
-
-            {activeTab === "review" && (
-              <div>
-                <h2 className="text-xl font-bold mb-4">
-                  What our customers are saying
-                </h2>
-                <div className="flex flex-col md:flex-row gap-6">
-                  {reviews.map((review) => (
-                    <div
-                      key={review.id}
-                      className="bg-white shadow-lg rounded-xl p-4 w-full md:w-1/3 flex flex-col items-center"
-                    >
-                      <img
-                        src={review.image}
-                        alt={review.name}
-                        className="w-16 h-16 rounded-full mb-3"
-                      />
-                      <h3 className="font-semibold text-lg">{review.name}</h3>
-                      <p className="text-sm text-gray-600 text-center">
-                        {review.comment}
-                      </p>
-                      <div className="flex items-center mt-3">
-                        {Array.from({ length: 5 }, (_, index) => (
-                          <svg
-                            key={index}
-                            className={`h-5 w-5 ${
-                              index < Math.floor(review.rating)
-                                ? "text-black"
-                                : index < review.rating
-                                ? "text-gray-500"
-                                : "text-gray-300"
-                            }`}
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M10 1l2.5 6.5H19l-5 5 1.5 6.5-6-4-6 4L6 12.5 1 7.5h6.5z" />
-                          </svg>
-                        ))}
-                        <span className="ml-2 text-gray-700 text-sm">
-                          ({review.rating}) Review
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+          <div className="mt-3">
+            {activeTab === 0 && (
+              <div className="bg-white p-4 rounded-lg shadow-md">
+                {product.description ? (
+                  <div
+                    dangerouslySetInnerHTML={{ __html: product.description }}
+                  />
+                ) : (
+                  "Loading..."
+                )}
               </div>
             )}
 
-            {activeTab === "similar" && (
-              <p className="text-gray-700">
-                Similar products will be displayed here.
-              </p>
+            {activeTab === 1 && (
+              <div>
+                <CommentProduct />
+              </div>
             )}
           </div>
         </div>
       </div>
+      <FullScreenLoader visible={loading} tip="Đang tải sản phẩm..." />
     </>
   );
 };
+
+
+
+const ProductImages = ({ images,xy }) => {
+  const className = xy == 'X' ? "grid grid-cols-4 sm:grid-cols-6 md:grid-cols-4 lg:grid-cols-6 gap-4" : "flex flex-col gap-3";
+  return (
+    <Image.PreviewGroup>
+      <div className={className}>
+        {images.map((img, i) => (
+          <Image
+            key={i}
+            src={baseUrlImg + img.img}
+            className="w-full rounded shadow-md border"
+          />
+        ))}
+      </div>
+    </Image.PreviewGroup>
+  );
+};
+
+
+

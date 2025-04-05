@@ -21,6 +21,7 @@ class CreateProductsVariantTable extends Migration
             $table->integer('stock_quantity')->default(0);
             $table->string('sku')->unique();
             $table->unsignedBigInteger('product_id');
+            $table->integer('sold_quantity',false,true)->default(0);
             $table->timestamps();
 
             // Khóa ngoại

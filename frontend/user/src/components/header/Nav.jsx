@@ -2,7 +2,7 @@ import Cart from "./cart";
 import Info from "./info";
 import Menu from "./menu";
 import Search from "./search";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 const Navbar = () => {
@@ -29,7 +29,7 @@ const Navbar = () => {
         <Menu isOpen={isOpen} setIsOpen={setIsOpen}/>
 
         <div className="flex-1 lg:flex-none logo-primary">
-          <a href="" className="font-bold text-2xl text-gray-900">Mes Skin</a>
+          <Link to="/" className="font-bold text-2xl text-gray-900">Mes Skin</Link>
         </div>
 
         <div className="flex items-stretch gap-3">

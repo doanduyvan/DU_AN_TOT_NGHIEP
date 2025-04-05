@@ -3,8 +3,30 @@ import CategorySection from "./category/category";
 import HomeSection7 from "./homeSection7";
 import HomeSection8 from "./homeSection8";
 import ProductCarousel from "./productCarousel";
+import axios from "axios";
+import { useEffect, useState } from "react";
+
+const baseUrl = import.meta.env.VITE_API_URL;
+const urlGetNewProducts = `${baseUrl}/customer/home/getnewproducts`;
 
 const Home = () => {
+
+  const [newProducts, setNewProducts] = useState([]);
+
+  // Fetch product data from the server (mocked here)
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get(urlGetNewProducts); // Adjust the endpoint as needed
+        const data = response.data.newProducts;
+        setNewProducts(data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    fetchProducts();
+  }, []);
+
   return (
     <>
       {/* component 1 */}
@@ -46,7 +68,7 @@ const Home = () => {
 
       {/* component 3 */}
       <div className="swapper mt-5">
-        <ProductCarousel />
+        <ProductCarousel products={newProducts} />
       </div>
 
       {/* component 4 */}

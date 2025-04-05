@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { Carousel, Grid } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import ProductCard from "./productCard";
-
 // Ant Design breakpoints
 const { useBreakpoint } = Grid;
 
-const ProductCarousel = () => {
+
+const ProductCarousel = ({products}) => {
+
+
   const screens = useBreakpoint();
   const [slidesToShow, setSlidesToShow] = useState(4);
 
@@ -105,13 +107,10 @@ const ProductCarousel = () => {
           slidesToScroll={1}
           infinite={true}
         >
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
+
+        {products.map((product, index) => <ProductCard key={`newProducts_${index}`} product={product} /> )}
+          
+         
         </Carousel>
 
         {/* Divider */}

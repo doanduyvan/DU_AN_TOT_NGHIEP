@@ -20,6 +20,9 @@ class CreateProductsTable extends Migration
             $table->binary('description')->nullable();
             $table->unsignedBigInteger('category_id');
             $table->unsignedBigInteger('user_id');
+            $table->float('rating_avg')->default(0);
+            $table->boolean('status')->default(1);
+            $table->unsignedInteger('total_reviews')->default(0);
             $table->timestamps();
 
             // Khóa ngoại

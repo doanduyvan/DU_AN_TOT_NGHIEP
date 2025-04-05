@@ -13,4 +13,9 @@ class Category extends Model
     protected $table = 'category';
     protected $fillable = ['category_name', 'img'];
     protected $dates = ['deleted_at'];
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'category_id');
+    }
 }

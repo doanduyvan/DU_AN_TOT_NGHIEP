@@ -9,7 +9,7 @@ import CheckRoute from './contexts/checkroute';
 import ProtectedRoute from './contexts/protectedrouter';
 
 import { About } from './components/aboutPage/about';
-import { ProductDetail } from './pages/user/product_detail';
+import { ProductDetail } from './pages/user/productdetail/product_detail';
 import Home from './components/homePage/home';
 
 import { Roles } from './pages/admin/roles/index';
@@ -61,9 +61,9 @@ function App() {
     { path: 'register', element: <ProtectedRoute><RegisterForm /></ProtectedRoute> },
     { path: 'brand', element: < Brand /> },
     { path: 'about', element: < About /> },
-    { path: 'products/1', element: < ProductDetail /> },
+    { path: 'product/:id/:productname', element: < ProductDetail /> },
     { path: 'cart', element: <CartPage /> },
-    { path: 'shop', element: <Shop /> },
+    { path: 'shop/:categoryname/:idcategory', element: <Shop /> },
     { path: 'profile', element: <Profile /> },
     { path: 'shop', element: <Shop /> },
     { path: 'profile', element: <Profile /> },

@@ -9,6 +9,9 @@ use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\customer\HomeController;
+use App\Http\Controllers\customer\ProductdetailController;
+use App\Http\Controllers\customer\ShopController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
 
@@ -107,15 +110,10 @@ Route::get('/testapi', function () {
 // route cho người dùng  
 
 Route::group(['prefix' => 'customer'],function(){
-    Route::get('user', function(){
-        return response()->json(['message' => 'User API route']);
+    Route::get('home/getnewproducts', [HomeController::class, 'getNewProducts']);
+    Route::get('home/getcategory', [HomeController::class, 'getCategory']);
+    Route::get('shop/getcategory',[ShopController::class, 'getCategory']);
+    Route::get('shop/getproducts',[ShopController::class, 'getProducts']);
+    Route::get('productdetail/getproductbyid/{id}',[ProductdetailController::class, 'getProductById']);
 
-        $quyen = [
-            1 => 'create-product',
-            2 => 'update-product',
-            3 => 'delete-product',
-            4 => 'create-category',
-        ];
-
-    })->middleware('check.permission:test1|test2');
 });

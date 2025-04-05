@@ -137,4 +137,5 @@ Route::group(['prefix' => 'customer'],function(){
     Route::get('shop/getproducts',[ShopController::class, 'getProducts']);
     Route::get('productdetail/getproductbyid/{id}',[ProductdetailController::class, 'getProductById']);
     Route::get('news/categorynews',[CustomerNewsController::class, 'getCategoryNews']);
+    Route::get('news/getnews',[CustomerNewsController::class, 'getNews']);
 });

@@ -3,16 +3,18 @@ import { RolesService } from "../../../services/api-roles";
 import { AntNotification } from "../../../components/notification";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import RestoreConfirmationModal from "../../../components/restore_confirm";
+
 import { Pagination } from 'antd';
-export const Roles = () => {
+export const RolesTrash = () => {
     const [roles, setRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
-        const [currentPage, setCurrentPage] = useState(1);
-        const [pageSize, setPageSize] = useState(10);
-        const [totalItems, setTotalItems] = useState(0);
-        const [sortorder, setSortOrder] = useState(null);
-        const [keyword, setKeyword] = useState("");
-        const [inputValue, setInputValue] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalItems, setTotalItems] = useState(0);
+    const [sortorder, setSortOrder] = useState(null);
+    const [keyword, setKeyword] = useState("");
+    const [inputValue, setInputValue] = useState('');
 
     const checkRoles = (e, id) => {
         setSelectedRoles((prevSelect) => {
@@ -23,20 +25,54 @@ export const Roles = () => {
             }
         })
     }
-    const hanDleDelete = async () => {
+
+    const handleRestore = async () => {
         if (selectedRoles.length === 0) {
-            AntNotification.showNotification("Chưa có vai trò nào được chọn", "Vui lòng chọn ít nhất một vai trò để xóa", "error");
+            AntNotification.showNotification(
+                "Không có vai trò nào được chọn",
+                "Vui lòng chọn ít nhất một vao trò để khôi phục",
+                "error"
+            );
             return;
         }
         try {
-            const res = await RolesService.destroy(selectedRoles);
+            const res = await RolesService.restore(selectedRoles);
+            console.log(selectedRoles);
             if (res?.status === 200) {
                 setRoles((prevRole) => {
                     return prevRole.filter(
                         (role) => !selectedRoles.includes(role.id)
                     );
                 });
-                setSelectedRoles([]); 
+                setSelectedRoles([]);
+                AntNotification.showNotification(
+                    "Khôi phục vai trò thành công",
+                    res?.message || "khôi phục thành công",
+                    "success"
+                );
+            } else {
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
+            }
+        } catch (error) {
+            console.log(error);
+            AntNotification.handleError(error);
+        }
+    };
+
+    const hanDleDelete = async (id) => {
+        try {
+            const res = await RolesService.forceDelete(id);
+            if (res?.status === 200) {
+                setRoles((prevRole) => {
+                    return prevRole.filter(
+                        (role) => role.id !== id
+                    );
+                });
+                setSelectedRoles([]);
                 AntNotification.showNotification("Xóa thành công", res.message, "success");
             } else {
                 AntNotification.showNotification("Xóa thất bại", res.message, "error");
@@ -49,7 +85,7 @@ export const Roles = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await RolesService.callRoles({
+                const res = await RolesService.roleTrash({
                     page: currentPage,
                     per_page: pageSize,
                     sortorder: sortorder,
@@ -97,20 +133,28 @@ export const Roles = () => {
                     <nav className="rounded-md w-full">
                         <ol className="list-reset flex">
                             <li>
-                            <Link
-                            to="/admin"
-                            className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
-                        >
-                            Quản Trị
-                        </Link>
+                                <Link
+                                    to="/admin"
+                                    className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
+                                >
+                                    Quản Trị
+                                </Link>
                             </li>
                             <li>
                                 <span className="mx-2 text-neutral-500 dark:text-neutral-400">
                                     /
                                 </span>
                             </li>
+                            <li>
+                                <Link
+                                    to="/admin/roles"
+                                    className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
+                                >
+                                    Quản lý vai trò
+                                </Link>
+                            </li>
                             <li className="text-neutral-500 dark:text-neutral-400">
-                                Quản Lý Vai Trò
+                                Danh sách vai trò đã xóa
                             </li>
                         </ol>
                     </nav>
@@ -118,17 +162,11 @@ export const Roles = () => {
                         <h5 className="text-xl font-medium leading-tight text-primary">
                             Quản Lý Vai Trò
                         </h5>
-                        <Link
-                            to="/admin/roles/create"
-                            className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
-                        >
-                            Thêm Vai Trò
-                        </Link>
                     </div>
 
                     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                         <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
-                        <div>
+                            <div>
                                 <select
                                     className="cursor-pointer items-center text-black bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 font-medium rounded-lg text-sm px-3 py-1.5 "
                                     onChange={handleFilterChange}
@@ -142,12 +180,10 @@ export const Roles = () => {
                                 </select>
                             </div>
                             <div className="py-1 flex flex-wrap-reverse">
-                                {(selectedRoles.length > 0) ?
-                                    <DeleteConfirmationModal
-                                        data={`Bạn có chắc chắn muốn xóa ${selectedRoles.length} vai trò này không?`}
-                                        onDelete={hanDleDelete}
-                                    /> : null
-                                }
+                                <RestoreConfirmationModal
+                                    data={`Bạn có chắc chắn muốn khôi phục ${selectedRoles.length} vai trò này không?`}
+                                    onDelete={handleRestore}
+                                />
                                 <label htmlFor="table-search" className="sr-only">
                                     Tìm kiếm
                                 </label>
@@ -215,7 +251,7 @@ export const Roles = () => {
                                         Guard Name
                                     </th>
                                     <th scope="col" className="px-6 py-3">
-                                        Update Time
+                                        Delete Time
                                     </th>
                                     <th scope="col" className="px-6 py-3">
                                         Action
@@ -257,17 +293,14 @@ export const Roles = () => {
                                             </div>
                                         </th>
                                         <td className="px-6 py-4 text-gray-700">{role.guard_name}</td>
-                                        <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(role.updated_at).toLocaleDateString('vi-VN')}</td>
+                                        <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(role.deleted_at).toLocaleDateString('vi-VN')}</td>
+
                                         <td className="px-6 py-4">
-                                            <Link
-                                                to={`/admin/roles/update/${role.id}`}
-                                                type="button"
-                                                data-modal-target="editUserModal"
-                                                data-modal-show="editUserModal"
-                                                className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                            >
-                                                Edit
-                                            </Link>
+                                            <DeleteConfirmationModal
+                                                data={`Bạn có chắc chắn muốn xóa vĩnh viễn vai trò ${role.name} không?`}
+                                                id={role.id}
+                                                onDelete={() => hanDleDelete(role.id)}
+                                            />
                                         </td>
                                     </tr>
                                 ))}

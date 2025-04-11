@@ -1,21 +1,23 @@
 import { useState, useEffect, useRef } from "react";
-import { RolesService } from "../../../services/api-roles";
-import { AntNotification } from "../../../components/notification";
 import { Link } from "react-router-dom";
+import { PermissionsService } from "../../../services/api-permissions";
+import { AntNotification } from "../../../components/notification";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import RestoreConfirmationModal from "../../../components/restore_confirm";
 import { Pagination } from 'antd';
-export const Roles = () => {
-    const [roles, setRoles] = useState([]);
-    const [selectedRoles, setSelectedRoles] = useState([]);
-        const [currentPage, setCurrentPage] = useState(1);
-        const [pageSize, setPageSize] = useState(10);
-        const [totalItems, setTotalItems] = useState(0);
-        const [sortorder, setSortOrder] = useState(null);
-        const [keyword, setKeyword] = useState("");
-        const [inputValue, setInputValue] = useState('');
 
-    const checkRoles = (e, id) => {
-        setSelectedRoles((prevSelect) => {
+export const PermissionsTrash = () => {
+    const [permissions, setPermission] = useState([]);
+    const [selectedPermiss, setselectedPermiss] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalItems, setTotalItems] = useState(0);
+    const [sortorder, setSortOrder] = useState(null);
+    const [keyword, setKeyword] = useState("");
+    const [inputValue, setInputValue] = useState('');
+
+    const checkPermission = (e, id) => {
+        setselectedPermiss((prevSelect) => {
             if (e.target.checked) {
                 return [...prevSelect, id];
             } else {
@@ -23,44 +25,86 @@ export const Roles = () => {
             }
         })
     }
-    const hanDleDelete = async () => {
-        if (selectedRoles.length === 0) {
-            AntNotification.showNotification("Chưa có vai trò nào được chọn", "Vui lòng chọn ít nhất một vai trò để xóa", "error");
+    const handleRestore = async () => {
+        if (selectedPermiss.length === 0) {
+            AntNotification.showNotification(
+                "Không có quyền nào được chọn",
+                "Vui lòng chọn ít nhất một quyền để khôi phục",
+                "error"
+            );
             return;
         }
         try {
-            const res = await RolesService.destroy(selectedRoles);
+            const res = await PermissionsService.restore(selectedPermiss);
+            console.log(selectedPermiss);
             if (res?.status === 200) {
-                setRoles((prevRole) => {
-                    return prevRole.filter(
-                        (role) => !selectedRoles.includes(role.id)
+                setPermission((prevPermiss) => {
+                    return prevPermiss.filter(
+                        (permiss) => !selectedPermiss.includes(permiss.id)
                     );
                 });
-                setSelectedRoles([]); 
-                AntNotification.showNotification("Xóa thành công", res.message, "success");
+                setselectedPermiss([]);
+                AntNotification.showNotification(
+                    "Khôi phục quền hạn thành công",
+                    res?.message || "khôi phục thành công",
+                    "success"
+                );
             } else {
-                AntNotification.showNotification("Xóa thất bại", res.message, "error");
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
+            }
+        } catch (error) {
+            console.log(error);
+            AntNotification.handleError(error);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        console.log(id);
+        try {
+            const res = await PermissionsService.forceDelete(id);
+            if (res?.status === 200) {
+                setPermission((prevPermiss) => {
+                    return prevPermiss.filter(
+                        (permiss) => permiss.id !== id
+                    );
+                });
+                setselectedPermiss([]);
+                AntNotification.showNotification(
+                    "Xóa quyền hạn vĩnh viễn thành công",
+                    res?.message || "Xóa thành công",
+                    "success"
+                );
+            } else {
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
             }
         } catch (error) {
             AntNotification.handleError(error);
         }
-    }
+    };
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await RolesService.callRoles({
+                const res = await PermissionsService.permissionTrash({
                     page: currentPage,
                     per_page: pageSize,
                     sortorder: sortorder,
                     keyword: keyword,
                 });
                 if (res) {
-                    setRoles(res.data);
+                    setPermission(res.data);
                     setTotalItems(res.total || 0);
                     console.log(res);
                 } else {
-                    AntNotification.showNotification("Lỗi", "Không thể tải dữ liệu", "error");
+                    AntNotification.showNotification("Lỗi", "Không thể lấy danh sách quyền hạn", "error");
                 }
             } catch (error) {
                 AntNotification.handleError(error);
@@ -68,6 +112,7 @@ export const Roles = () => {
         };
         fetchData();
     }, [currentPage, pageSize, sortorder, keyword]);
+
     useEffect(() => {
         const debounceTimer = setTimeout(() => {
             if (inputValue !== "") {
@@ -90,6 +135,7 @@ export const Roles = () => {
         const sortOrder = value === "asc" ? "asc" : "desc";
         setSortOrder(sortOrder);
     };
+    console.log(selectedPermiss);
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <div className="bg-white shadow rounded-lg mb-4 p-4 sm:p-6 h-full">
@@ -97,12 +143,25 @@ export const Roles = () => {
                     <nav className="rounded-md w-full">
                         <ol className="list-reset flex">
                             <li>
-                            <Link
-                            to="/admin"
-                            className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
-                        >
-                            Quản Trị
-                        </Link>
+                                <Link
+                                    to="/admin"
+                                    className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
+                                >
+                                    Quản Trị
+                                </Link>
+                            </li>
+                            <li>
+                                <span className="mx-2 text-neutral-500 dark:text-neutral-400">
+                                    /
+                                </span>
+                            </li>
+                            <li>
+                                <Link
+                                    to="/admin/permissions"
+                                    className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
+                                >
+                                    Quản lý quyền hạn
+                                </Link>
                             </li>
                             <li>
                                 <span className="mx-2 text-neutral-500 dark:text-neutral-400">
@@ -110,25 +169,19 @@ export const Roles = () => {
                                 </span>
                             </li>
                             <li className="text-neutral-500 dark:text-neutral-400">
-                                Quản Lý Vai Trò
+                                Danh sách quyền hạn đã xóa
                             </li>
                         </ol>
                     </nav>
                     <div className="flex justify-between items-center my-4">
                         <h5 className="text-xl font-medium leading-tight text-primary">
-                            Quản Lý Vai Trò
+                            Danh sách quyền hạn đã xóa
                         </h5>
-                        <Link
-                            to="/admin/roles/create"
-                            className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
-                        >
-                            Thêm Vai Trò
-                        </Link>
                     </div>
 
                     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                         <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
-                        <div>
+                            <div>
                                 <select
                                     className="cursor-pointer items-center text-black bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 font-medium rounded-lg text-sm px-3 py-1.5 "
                                     onChange={handleFilterChange}
@@ -142,12 +195,10 @@ export const Roles = () => {
                                 </select>
                             </div>
                             <div className="py-1 flex flex-wrap-reverse">
-                                {(selectedRoles.length > 0) ?
-                                    <DeleteConfirmationModal
-                                        data={`Bạn có chắc chắn muốn xóa ${selectedRoles.length} vai trò này không?`}
-                                        onDelete={hanDleDelete}
-                                    /> : null
-                                }
+                                <RestoreConfirmationModal
+                                    data={`Bạn có chắc chắn muốn khôi phục ${selectedPermiss.length} quyền hạn này không?`}
+                                    onDelete={handleRestore}
+                                />
                                 <label htmlFor="table-search" className="sr-only">
                                     Tìm kiếm
                                 </label>
@@ -186,20 +237,21 @@ export const Roles = () => {
                                     <th scope="col" className="p-4">
                                         <div className="flex items-center">
                                             <input
-                                                checked={selectedRoles.length === roles.length}
+                                                checked={selectedPermiss.length === permissions.length}
                                                 onChange={() => {
-                                                    if (selectedRoles.length === roles.length) {
-                                                        setSelectedRoles([]); // bo chon tat ca
+                                                    if (selectedPermiss.length === permissions.length) {
+                                                        setselectedPermiss([]); // Bỏ chọn tất cả
                                                     } else {
-                                                        setSelectedRoles(
-                                                            roles.map((role) => role.id)
-                                                        ); // chon tat ca
+                                                        setselectedPermiss(
+                                                            permissions.map((permiss) => permiss.id)
+                                                        ); // Chọn tất cả
                                                     }
                                                 }}
                                                 id="checkbox-all-search"
                                                 type="checkbox"
                                                 className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                             />
+
                                             <label htmlFor="checkbox-all-search" className="sr-only">
                                                 checkbox
                                             </label>
@@ -215,7 +267,7 @@ export const Roles = () => {
                                         Guard Name
                                     </th>
                                     <th scope="col" className="px-6 py-3">
-                                        Update Time
+                                        Delete Time
                                     </th>
                                     <th scope="col" className="px-6 py-3">
                                         Action
@@ -223,17 +275,17 @@ export const Roles = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {roles.map((role) => (
+                                {permissions.map((permiss) => (
                                     <tr
-                                        key={role.id}
+                                        key={permiss.id}
                                         className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                                     >
                                         <td className="w-4 p-4">
                                             <div className="flex items-center">
                                                 <input
                                                     id="checkbox-table-search-1"
-                                                    onChange={(e) => checkRoles(e, role.id)}
-                                                    checked={selectedRoles.includes(role.id)}
+                                                    onChange={(e) => checkPermission(e, permiss.id)}
+                                                    checked={selectedPermiss.includes(permiss.id)}
                                                     type="checkbox"
                                                     className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                                 />
@@ -245,29 +297,25 @@ export const Roles = () => {
                                                 </label>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">{role.id}</td>
+                                        <td className="px-6 py-4">{permiss.id}</td>
                                         <th
                                             scope="row"
                                             className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                         >
                                             <div className="">
                                                 <div className="text-base font-semibold lineclap w-60 text-limit">
-                                                    {role.name}
+                                                    {permiss.name}
                                                 </div>
                                             </div>
                                         </th>
-                                        <td className="px-6 py-4 text-gray-700">{role.guard_name}</td>
-                                        <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(role.updated_at).toLocaleDateString('vi-VN')}</td>
+                                        <td className="px-6 py-4 text-gray-700">{permiss.guard_name}</td>
+                                        <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(permiss.deleted_at).toLocaleDateString('vi-VN')}</td>
                                         <td className="px-6 py-4">
-                                            <Link
-                                                to={`/admin/roles/update/${role.id}`}
-                                                type="button"
-                                                data-modal-target="editUserModal"
-                                                data-modal-show="editUserModal"
-                                                className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                            >
-                                                Edit
-                                            </Link>
+                                            <DeleteConfirmationModal
+                                                data={`Bạn có chắc chắn muốn xóa vĩnh viễn quyền ${permiss.name} không?`}
+                                                id={permiss.id}
+                                                onDelete={() => handleDelete(permiss.id)}
+                                            />
                                         </td>
                                     </tr>
                                 ))}

@@ -1,8 +1,8 @@
 
 import { AntNotification } from '../../../components/notification';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { update, showPermission } from "../../../services/api-permissions";
+import { PermissionsService } from "../../../services/api-permissions";
 
 export const Update_Permission = () => {
     const Navigate = useNavigate();
@@ -11,7 +11,7 @@ export const Update_Permission = () => {
     useEffect(() => {
         (async () => {
             try {
-                const res = await showPermission(id);
+                const res = await PermissionsService.showPermission(id);
                 console.log(res);
                 if (res.status === 200) {
                     setPermission(res.permission);
@@ -29,7 +29,7 @@ export const Update_Permission = () => {
         e.preventDefault();
         const formData = new FormData(e.target);
         try {
-            const res = await update(formData, id);
+            const res = await PermissionsService.update(formData, id);
             if (res?.status === 200) {
                 AntNotification.showNotification("Cập nhật quyền hạn thành công", res?.message, "success");
                 Navigate('/admin/permissions');

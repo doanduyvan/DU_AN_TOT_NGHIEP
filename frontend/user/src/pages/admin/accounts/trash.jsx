@@ -4,9 +4,10 @@ import { UsersService } from "../../../services/api-users";
 import { AntNotification } from "../../../components/notification";
 import { ImageModal } from "../../../components/admin/imgmodal";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import RestoreConfirmationModal from "../../../components/restore_confirm";
 import { Pagination } from 'antd';
 
-export const Users = () => {
+export const UsersTrash = () => {
     const [imageSrc, setImageSrc] = useState(null);
     const [users, setUser] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState([]);
@@ -34,26 +35,54 @@ export const Users = () => {
             }
         });
     };
-    const hanDleDelete = async () => {
+    const handleRestore = async () => {
         if (selectedUsers.length === 0) {
             AntNotification.showNotification(
-                "Chưa có người dùng nào được chọn",
-                "Vui lòng chọn ít nhất một người dùng",
+                "Không có quyền nào được chọn",
+                "Vui lòng chọn ít nhất một quyền để khôi phục",
                 "error"
             );
             return;
         }
         try {
-            const res = await UsersService.destroy(selectedUsers);
+            const res = await UsersService.restore(selectedUsers);
+            console.log(selectedUsers);
             if (res?.status === 200) {
-                setUser((prevusers) => {
-                    return prevusers.filter(
+                setUser((prevUser) => {
+                    return prevUser.filter(
                         (user) => !selectedUsers.includes(user.id)
                     );
                 });
                 setSelectedUsers([]);
                 AntNotification.showNotification(
-                    "Xóa thành công",
+                    "Khôi phục tài khoản thành công",
+                    res?.message || "khôi phục thành công",
+                    "success"
+                );
+            } else {
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
+            }
+        } catch (error) {
+            console.log(error);
+            AntNotification.handleError(error);
+        }
+    };
+    const hanDleDelete = async (id) => {
+        try {
+            const res = await UsersService.forceDelete(id);
+            if (res?.status === 200) {
+                setUser((prevusers) => {
+                    return prevusers.filter(
+                        (user) => user.id !== id
+                    );
+                });
+                setSelectedUsers([]);
+                AntNotification.showNotification(
+                    "Xóa tài khoản vĩnh viễn thành công",
                     res?.message,
                     "success"
                 );
@@ -72,7 +101,7 @@ export const Users = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await UsersService.getAllUsers({
+                const res = await UsersService.userTrash({
                     page: currentPage,
                     per_page: pageSize,
                     sortorder: sortorder,
@@ -81,7 +110,6 @@ export const Users = () => {
                 if (res) {
                     setUser(Array.isArray(res.data) ? res.data : []);
                     setTotalItems(res.total || 0);
-                    console.log(res);
                 } else {
                     AntNotification.showNotification(
                         "Có lỗi xảy ra",
@@ -96,35 +124,6 @@ export const Users = () => {
         fetchData();
     }, [currentPage, pageSize, sortorder, keyword]);
 
-    const handleStatusChange = async (id, status) => {
-        try {
-            const res = await UsersService.upadteStatus({ id, status });
-            if (res?.status === 200) {
-                setUser((prevUsers) => {
-                    return prevUsers.map((user) => {
-                        if (user.id === id) {
-                            return { ...user, status };
-                        }
-                        return user;
-                    });
-                });
-                AntNotification.showNotification(
-                    "Cập nhật thành công",
-                    res?.message,
-                    "success"
-                );
-            } else {
-                AntNotification.showNotification(
-                    "Có lỗi xảy ra",
-                    res?.message || "Vui lòng thử lại sau",
-                    "error"
-                );
-            }
-        } catch (error) {
-            AntNotification.handleError(error);
-        }
-    }
-    
     useEffect(() => {
         const debounceTimer = setTimeout(() => {
             if (inputValue !== "") {
@@ -163,15 +162,28 @@ export const Users = () => {
                             /
                         </span>
                     </li>
+                    <li>
+                        <Link
+                            to="/admin/accounts"
+                            className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
+                        >
+                            Quản Lý Tài Khoản
+                        </Link>
+                    </li>
+                    <li>
+                        <span className="mx-2 text-neutral-500 dark:text-neutral-400">
+                            /
+                        </span>
+                    </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Quản Lý Tài Khoản
+                        Danh sách tài khoản đã xóa
                     </li>
                 </ol>
             </nav>
             <div className="relative overflow-x-auto shadow-md my-4 sm:rounded-lg bg-white">
                 <div className="flex justify-between items-center p-4">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Quản Lý Tài Khoản
+                        Danh sách tài khoản đã xóa
                     </h5>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
@@ -189,12 +201,10 @@ export const Users = () => {
                         </select>
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
-                        {(selectedUsers.length > 0) ?
-                            <DeleteConfirmationModal
-                                data={`Bạn có chắc chắn muốn xóa ${selectedUsers.length} người dùng này không?`}
-                                onDelete={hanDleDelete}
-                            /> : null
-                        }
+                        <RestoreConfirmationModal
+                            data={`Bạn có chắc chắn muốn khôi phục ${selectedUsers.length} quyền hạn này không?`}
+                            onDelete={handleRestore}
+                        />
                         <label htmlFor="table-search" className="sr-only">
                             Tìm kiếm
                         </label>
@@ -220,7 +230,7 @@ export const Users = () => {
                                 type="text"
                                 id="table-search-users"
                                 className="block pt-2 ps-10 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-950 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Tìm kiếm tên tài khoản hoặc email"
+                                placeholder="Tìm kiếm..."
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                             />
@@ -256,7 +266,7 @@ export const Users = () => {
                                 Tên
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Trạng thái
+                                Thời gian xóa
                             </th>
                             <th scope="col" className="px-6 py-3">
                                 Action
@@ -300,26 +310,13 @@ export const Users = () => {
                                         </div>
                                     </div>
                                 </th>
+                                <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(user.deleted_at).toLocaleDateString('vi-VN')}</td>
                                 <td className="px-6 py-4">
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" className="sr-only peer" value={(user.status === 1) ? 0 : 1}
-                                            checked={user.status === 1}
-                                            onChange={(e) => handleStatusChange(user.id, e.target.checked ? 1 : 0)}
-                                        />
-                                        <div className="group peer bg-white rounded-full duration-300 w-16 h-8 ring-2 ring-red-500 after:duration-300 after:bg-red-500 peer-checked:after:bg-green-500 peer-checked:ring-green-500 after:rounded-full after:absolute after:h-6 after:w-6 after:top-1 after:left-1 after:flex after:justify-center after:items-center peer-checked:after:translate-x-8 peer-hover:after:scale-95" />
-                                    </label>
-                                </td>
-
-                                <td className="px-6 py-4">
-                                    <Link
-                                        to={`/admin/accounts/update/${user.id}`}
-                                        type="button"
-                                        data-modal-target="editUserModal"
-                                        data-modal-show="editUserModal"
-                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                    >
-                                        Cấp vai trò
-                                    </Link>
+                                    <DeleteConfirmationModal
+                                        data={`Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản ${user.email} không?`}
+                                        id={user.id}
+                                        onDelete={() => hanDleDelete(user.id)}
+                                    />
                                 </td>
                             </tr>
                         ))}

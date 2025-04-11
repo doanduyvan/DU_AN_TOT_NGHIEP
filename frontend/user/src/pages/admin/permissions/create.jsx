@@ -1,14 +1,14 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { AntNotification } from "../../../components/notification";
-import { create } from "../../../services/api-permissions";
+import { PermissionsService } from "../../../services/api-permissions";
 export const Create_Permission = () => {
     const navigate = useNavigate();
     const handSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
         try {
-            const res = await create(formData);
+            const res = await PermissionsService.create(formData);
             if (res?.status === 200) {
                 AntNotification.showNotification("Thêm quyền hạn thành công", res?.message, "success");
                 navigate("/admin/permissions");

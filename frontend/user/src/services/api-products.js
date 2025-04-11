@@ -1,34 +1,34 @@
 import axios from "../utils/axios-customize.js";
-const getHeaders = () => ({
-  "Content-Type": "multipart/form-data",
-});
 
 const apiPost = async (url, data) => {
-  const response = await axios.post(url, data, {
-    headers: getHeaders(),
-    withCredentials: true,
+  const response = await axios.post(url, data);
+  return response;
+};
+
+const apiGet = async (url, options = {}) => {
+  const response = await axios.get(url, {
+    ...options,
   });
   return response;
 };
 
-const apiGet = async (url) => {
-  const response = await axios.get(url, {
-    headers: getHeaders(),
-    withCredentials: true,
-  });
+const apiDelete = async (url, data) => {
+  const response = await axios.delete(url, data);
   return response;
 };
 
 const productService = {
-  getAllProducts: async () => {
-    return apiGet("/products");
+  getAllProducts: async ({page, per_page, sortorder, keyword, filter_category}) => {
+    return apiGet("/products", {
+      params: { page, per_page, sortorder, keyword, filter_category },
+    });
   },
 
   getProductById: async (id) => {
     return apiGet(`/products/${id}`);
   },
   categories: async () => {
-    return apiGet("/categories");
+    return apiGet("/products/getcategories");
   },
   create: async (data) => {
     return apiPost("/products/create", data);
@@ -38,6 +38,17 @@ const productService = {
   },
   destroy: async (ids) => {
     return apiPost("/products/destroy", { ids });
+  },
+  productTrash: async ({ page, per_page, sortorder, keyword }) => {
+    return apiGet("products/trash", {
+      params: { page, per_page, sortorder, keyword },
+    });
+  },
+  restore: async (ids) => {
+    return apiPost("/products/restore", { ids });
+  },
+  forceDelete: async (id) => {
+    return apiDelete(`/products/force-delete/${id}`);
   },
 };
 export { productService };

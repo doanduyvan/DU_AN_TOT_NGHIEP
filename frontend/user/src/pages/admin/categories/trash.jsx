@@ -1,15 +1,17 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import { UsersService } from "../../../services/api-users";
+import { restore, categoryTrash, forceDelete } from "../../../services/api-categories";
 import { AntNotification } from "../../../components/notification";
 import { ImageModal } from "../../../components/admin/imgmodal";
+import { Link } from "react-router-dom";
+import RestoreConfirmationModal from "../../../components/restore_confirm";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
 import { Pagination } from 'antd';
 
-export const Users = () => {
+
+export const CategoryTransh = () => {
     const [imageSrc, setImageSrc] = useState(null);
-    const [users, setUser] = useState([]);
-    const [selectedUsers, setSelectedUsers] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [selectedCategories, setSelectedCategories] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
@@ -25,36 +27,37 @@ export const Users = () => {
         setImageSrc(null);
     };
 
-    const checkUser = (e, id) => {
-        setSelectedUsers((prevselectedUsers) => {
+    const checkCategory = (e, id) => {
+        setSelectedCategories((prevSelectedCategories) => {
             if (e.target.checked) {
-                return [...prevselectedUsers, id];
+                return [...prevSelectedCategories, id];
             } else {
-                return prevselectedUsers.filter((item) => item !== id);
+                return prevSelectedCategories.filter((item) => item !== id);
             }
         });
     };
-    const hanDleDelete = async () => {
-        if (selectedUsers.length === 0) {
+    const hanDleRestore = async () => {
+        if (selectedCategories.length === 0) {
             AntNotification.showNotification(
-                "Chưa có người dùng nào được chọn",
-                "Vui lòng chọn ít nhất một người dùng",
+                "Không có danh mục nào được chọn",
+                "Vui lòng chọn ít nhất một danh mục để khôi phục",
                 "error"
             );
             return;
         }
         try {
-            const res = await UsersService.destroy(selectedUsers);
+            const res = await restore(selectedCategories);
+            console.log(selectedCategories);
             if (res?.status === 200) {
-                setUser((prevusers) => {
-                    return prevusers.filter(
-                        (user) => !selectedUsers.includes(user.id)
+                setCategories((prevCategories) => {
+                    return prevCategories.filter(
+                        (category) => !selectedCategories.includes(category.id)
                     );
                 });
-                setSelectedUsers([]);
+                setSelectedCategories([]);
                 AntNotification.showNotification(
-                    "Xóa thành công",
-                    res?.message,
+                    "Khôi phục danh mục thành công",
+                    res?.message || "khôi phục thành công",
                     "success"
                 );
             } else {
@@ -68,18 +71,46 @@ export const Users = () => {
             AntNotification.handleError(error);
         }
     };
-    console.log(selectedUsers);
+
+    const handleDelete = async (id) => {
+        console.log(id);
+        try {
+            const res = await forceDelete(id);
+            if (res?.status === 200) {
+                setCategories((prevCategories) => {
+                    return prevCategories.filter(
+                        (category) => category.id !== id
+                    );
+                });
+                setSelectedCategories([]);
+                AntNotification.showNotification(
+                    "Xóa danh mục vĩnh viễn thành công",
+                    res?.message || "Xóa thành công",
+                    "success"
+                );
+            } else {
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
+            }
+        } catch (error) {
+            AntNotification.handleError(error);
+        }
+    };
+    console.log(selectedCategories);
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await UsersService.getAllUsers({
+                const res = await categoryTrash({
                     page: currentPage,
                     per_page: pageSize,
                     sortorder: sortorder,
                     keyword: keyword,
                 });
                 if (res) {
-                    setUser(Array.isArray(res.data) ? res.data : []);
+                    setCategories(Array.isArray(res.data) ? res.data : []);
                     setTotalItems(res.total || 0);
                     console.log(res);
                 } else {
@@ -95,36 +126,6 @@ export const Users = () => {
         };
         fetchData();
     }, [currentPage, pageSize, sortorder, keyword]);
-
-    const handleStatusChange = async (id, status) => {
-        try {
-            const res = await UsersService.upadteStatus({ id, status });
-            if (res?.status === 200) {
-                setUser((prevUsers) => {
-                    return prevUsers.map((user) => {
-                        if (user.id === id) {
-                            return { ...user, status };
-                        }
-                        return user;
-                    });
-                });
-                AntNotification.showNotification(
-                    "Cập nhật thành công",
-                    res?.message,
-                    "success"
-                );
-            } else {
-                AntNotification.showNotification(
-                    "Có lỗi xảy ra",
-                    res?.message || "Vui lòng thử lại sau",
-                    "error"
-                );
-            }
-        } catch (error) {
-            AntNotification.handleError(error);
-        }
-    }
-    
     useEffect(() => {
         const debounceTimer = setTimeout(() => {
             if (inputValue !== "") {
@@ -138,6 +139,7 @@ export const Users = () => {
     }, [inputValue]);
 
     const handlePageChange = async (page, size) => {
+        console.log(page);
         setCurrentPage(page);
         setPageSize(size);
     }
@@ -164,14 +166,22 @@ export const Users = () => {
                         </span>
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Quản Lý Tài Khoản
+                        Quản Lý Danh Mục
+                    </li>
+                    <li>
+                        <span className="mx-2 text-neutral-500 dark:text-neutral-400">
+                            /
+                        </span>
+                    </li>
+                    <li className="text-neutral-500 dark:text-neutral-400">
+                        Danh Mục Đã Xóa
                     </li>
                 </ol>
             </nav>
             <div className="relative overflow-x-auto shadow-md my-4 sm:rounded-lg bg-white">
                 <div className="flex justify-between items-center p-4">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Quản Lý Tài Khoản
+                        Danh Mục Đã Xóa
                     </h5>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
@@ -189,12 +199,10 @@ export const Users = () => {
                         </select>
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
-                        {(selectedUsers.length > 0) ?
-                            <DeleteConfirmationModal
-                                data={`Bạn có chắc chắn muốn xóa ${selectedUsers.length} người dùng này không?`}
-                                onDelete={hanDleDelete}
-                            /> : null
-                        }
+                        <RestoreConfirmationModal
+                            data={`Bạn có chắc chắn muốn khôi phục ${selectedCategories.length} danh mục này không?`}
+                            onDelete={hanDleRestore}
+                        />
                         <label htmlFor="table-search" className="sr-only">
                             Tìm kiếm
                         </label>
@@ -220,7 +228,7 @@ export const Users = () => {
                                 type="text"
                                 id="table-search-users"
                                 className="block pt-2 ps-10 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-950 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Tìm kiếm tên tài khoản hoặc email"
+                                placeholder="Tìm kiếm..."
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                             />
@@ -233,19 +241,19 @@ export const Users = () => {
                             <th scope="col" className="p-4">
                                 <div className="flex items-center">
                                     <input
-                                        checked={selectedUsers.length === users.length}
+                                        checked={selectedCategories.length === categories.length}
                                         onChange={() => {
-                                            if (selectedUsers.length === users.length) {
-                                                setSelectedUsers([]); // bo chon tat ca
+                                            if (selectedCategories.length === categories.length) {
+                                                setSelectedCategories([]); // bo chon tat ca
                                             } else {
-                                                setSelectedUsers(
-                                                    users.map((user) => user.id)
+                                                setSelectedCategories(
+                                                    categories.map((category) => category.id)
                                                 ); // chon tat ca
                                             }
                                         }}
                                         id="checkbox-all-search"
                                         type="checkbox"
-                                        className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                     />
                                     <label htmlFor="checkbox-all-search" className="sr-only">
                                         checkbox
@@ -256,27 +264,30 @@ export const Users = () => {
                                 Tên
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Trạng thái
+                                Hình ảnh
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Action
+                                Thời gian xóa
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Thao tác
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map((user) => (
+                        {categories.map((category) => (
                             <tr
-                                key={user.id}
+                                key={category.id}
                                 className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                             >
                                 <td className="w-4 p-4">
                                     <div className="flex items-center">
                                         <input
                                             id="checkbox-table-search-1"
-                                            onChange={(e) => checkUser(e, user.id)}
-                                            checked={selectedUsers.includes(user.id)}
+                                            onChange={(e) => checkCategory(e, category.id)}
+                                            checked={selectedCategories.includes(category.id)}
                                             type="checkbox"
-                                            className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
+                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                         />
                                         <label
                                             htmlFor="checkbox-table-search-1"
@@ -290,36 +301,32 @@ export const Users = () => {
                                     scope="row"
                                     className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                 >
-                                    <img className="w-12 h-12 rounded-full" alt="" />
                                     <div className="ps-3">
                                         <div className="text-base font-semibold">
-                                            {user.fullname}
-                                        </div>
-                                        <div className="font-normal text-gray-500">
-                                            {user.email}
+                                            {category.category_name}
                                         </div>
                                     </div>
                                 </th>
                                 <td className="px-6 py-4">
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" className="sr-only peer" value={(user.status === 1) ? 0 : 1}
-                                            checked={user.status === 1}
-                                            onChange={(e) => handleStatusChange(user.id, e.target.checked ? 1 : 0)}
-                                        />
-                                        <div className="group peer bg-white rounded-full duration-300 w-16 h-8 ring-2 ring-red-500 after:duration-300 after:bg-red-500 peer-checked:after:bg-green-500 peer-checked:ring-green-500 after:rounded-full after:absolute after:h-6 after:w-6 after:top-1 after:left-1 after:flex after:justify-center after:items-center peer-checked:after:translate-x-8 peer-hover:after:scale-95" />
-                                    </label>
+                                    <a
+                                        className="underline cursor-pointer"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            openModal(category.img);
+                                        }}
+                                    >
+                                        Hình ảnh
+                                    </a>
+                                    <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
                                 </td>
+                                <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(category.deleted_at).toLocaleDateString('vi-VN')}</td>
 
                                 <td className="px-6 py-4">
-                                    <Link
-                                        to={`/admin/accounts/update/${user.id}`}
-                                        type="button"
-                                        data-modal-target="editUserModal"
-                                        data-modal-show="editUserModal"
-                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                    >
-                                        Cấp vai trò
-                                    </Link>
+                                    <DeleteConfirmationModal
+                                        data={`Bạn có chắc chắn muốn xóa vĩnh viễn danh mục ${category.category_name} không?`}
+                                        id={category.id}
+                                        onDelete={() => handleDelete(category.id)}
+                                    />
                                 </td>
                             </tr>
                         ))}

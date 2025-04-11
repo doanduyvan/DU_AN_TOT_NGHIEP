@@ -17,7 +17,7 @@ class CreateProductsTable extends Migration
             $table->id();
             $table->string('product_name');
             $table->text('avatar')->nullable();
-            $table->binary('description')->nullable();
+            $table->longText('description')->nullable();
             $table->unsignedBigInteger('category_id');
             $table->unsignedBigInteger('user_id');
             $table->float('rating_avg')->default(0);

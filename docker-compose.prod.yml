@@ -35,8 +35,8 @@ services:
     container_name: duan2_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: duan2
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     ports:
       - "7003:3306"
     volumes:
@@ -48,8 +48,7 @@ services:
     restart: always
     environment:
       PMA_HOST: mysql
-      PMA_USER: root
-      PMA_PASSWORD: root
+      PMA_ARBITRARY: ${PMA_ARBITRARY}
     ports:
       - "7004:80"
     depends_on:

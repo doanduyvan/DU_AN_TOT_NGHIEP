@@ -16,6 +16,15 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CommentProductController;
 use App\Http\Controllers\CommentNewsController;
+use App\Http\Controllers\ChartDataController;
+use App\Http\Controllers\Trashed\TrashedCategoryController;
+use App\Http\Controllers\Trashed\TrashedCategoryNewsController;
+use App\Http\Controllers\Trashed\TrashedUserController;
+use App\Http\Controllers\Trashed\TrashedRoleController;
+use App\Http\Controllers\Trashed\TrashedPermissionController;
+use App\Http\Controllers\Trashed\TrashedProductController;
+use App\Http\Controllers\Trashed\TrashedOrderController;
+use App\Http\Controllers\Trashed\TrashedNewsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +36,43 @@ use App\Http\Controllers\CommentNewsController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+route::get('/users/trash', [TrashedUserController::class, 'index']);
+route::post('/users/restore', [TrashedUserController::class, 'restore']);
+route::delete('/users/force-delete/{id}', [TrashedUserController::class, 'forceDelete']);
+
+route::get('/roles/trash', [TrashedRoleController::class, 'index']);
+route::post('/roles/restore', [TrashedRoleController::class, 'restore']);
+route::delete('/roles/force-delete/{id}', [TrashedRoleController::class, 'forceDelete']);
+
+route::get('/products/trash', [TrashedProductController::class, 'index']);
+route::post('/products/restore', [TrashedProductController::class, 'restore']);
+route::delete('/products/force-delete/{id}', [TrashedProductController::class, 'forceDelete']);
+
+route::get('/permissions/trash', [TrashedPermissionController::class, 'index']);
+route::post('/permissions/restore', [TrashedPermissionController::class, 'restore']);
+route::delete('/permissions/force-delete/{id}', [TrashedPermissionController::class, 'forceDelete']);
+
+route::get('/orders/trash', [TrashedOrderController::class, 'index']);
+route::post('/orders/restore', [TrashedOrderController::class, 'restore']);
+route::delete('/orders/force-delete/{id}', [TrashedOrderController::class, 'forceDelete']);
+
+route::get('/news/trash', [TrashedNewsController::class, 'index']);
+route::post('/news/restore', [TrashedNewsController::class, 'restore']);
+route::delete('/news/force-delete/{id}', [TrashedNewsController::class, 'forceDelete']);
+
+route::get('/categorynews/trash', [TrashedCategoryNewsController::class, 'index']);
+route::post('/categorynews/restore', [TrashedCategoryNewsController::class, 'restore']);
+route::delete('/categorynews/force-delete/{id}', [TrashedCategoryNewsController::class, 'forceDelete']);
+
+
+route::get('/categories/trash', [TrashedCategoryController::class, 'index']);
+route::post('/categories/restore', [TrashedCategoryController::class, 'restore']);
+route::delete('/categories/force-delete/{id}', [TrashedCategoryController::class, 'forceDelete']);
+
+
+Route::get('/product-performance', [ChartDataController::class, 'getProductPerformance']);
+
 
 Route::get('orders', [OrderController::class, 'index']);
 Route::post('orders/update/{id}', [OrderController::class, 'update']);
@@ -67,7 +113,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/users', [UserController::class, 'index']);
 });
-route::post('/users/destroy/{id}', [UserController::class, 'destroy'])->middleware('check.permission:delete-customer');
+route::post('/users/destroy', [UserController::class, 'destroy'])->middleware('check.permission:delete-customer');
+
 Route::middleware('check.permission:update-customer')->group(function () {
     route::post('/users/search-users', [UserController::class, 'searchUser']);
     Route::post('/users/updatestatus', [UserController::class, 'updateStatus']);
@@ -77,11 +124,11 @@ Route::middleware('check.permission:update-customer')->group(function () {
 });
 
 
-
 route::post('/categories/create', [CategoriesController::class, 'create'])->middleware('check.permission:create-category');
 route::post('/categories/destroy', [CategoriesController::class, 'destroy'])->middleware('check.permission:delete-category');
 route::post('/categories/update/{id}', [CategoriesController::class, 'update'])->middleware('check.permission:update-category');
-route::get('/categories/{id?}', [CategoriesController::class, 'index']);
+route::get('/categories', [CategoriesController::class, 'index']);
+route::get('/categories/getbyid/{id}', [CategoriesController::class, 'getCategoyById']);
 
 
 route::get('/categorynews', [CategoryNewsController::class, 'index']);
@@ -91,6 +138,7 @@ route::post('/categorynews/destroy', [CategoryNewsController::class, 'destroy'])
 route::post('/categorynews/update/{id}', [CategoryNewsController::class, 'update'])->middleware('check.permission:update-category-news');
 
 route::get('/products', [ProductsController::class, 'index']);
+route::get('/products/getcategories', [ProductsController::class, 'getAllCategories']);
 route::post('/products/search-variant-product', [ProductsController::class, 'searchVariantProduct']);
 route::post('/products/search-product', [ProductsController::class, 'searchProduct']);
 route::post('/products/update/{id}', [ProductsController::class, 'update'])->middleware('check.permission:update-product');

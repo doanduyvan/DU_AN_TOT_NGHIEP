@@ -5,17 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Traits\HasPermissions;
 
-class CategoryNews extends Model
+class Permission extends Model
 {
-    use HasFactory, SoftDeletes;
-
+    use HasFactory, SoftDeletes, HasPermissions;
     protected $dates = ['deleted_at'];
-    protected $table = 'category_news';
-    protected $fillable = ['category_news_name', 'img'];
-    public function news()
+    protected $table = 'permissions';
+    protected $fillable = ['name', 'guard_name'];
+    public function roles()
     {
-        return $this->hasMany(Product::class, 'category_news_id', 'id');
+        return $this->belongsToMany(Role::class, 'role_has_permissions', 'permission_id', 'role_id');
+    }
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'model_has_permissions', 'permission_id', 'model_id');
     }
     public function scopePaginate($query, $perPage)
     {
@@ -31,7 +36,7 @@ class CategoryNews extends Model
     public function scopeSearch($query, $keyword)
     {
         if (!empty($keyword)) {
-            return $query->where('category_news_name', 'LIKE', '%' . $keyword . '%');
+            return $query->where('name', 'LIKE', '%' . $keyword . '%');
         }
         return $query;
     }
@@ -45,9 +50,13 @@ class CategoryNews extends Model
     }
     public function scopeForceDeleteId($query, $id)
     {
-        // Chỉ xóa những bản ghi đã bị xóa mềm
-        return $query->withTrashed()
-            ->where('id', $id)
-            ->forceDelete();
+        $category = $query->withTrashed()->where('id', $id)->first();
+        if ($category) {
+            if ($category->img && Storage::disk('public')->exists($category->img)) {
+                Storage::disk('public')->delete($category->img);
+            }
+            return $category->forceDelete();
+        }
+        return false;
     }
 }

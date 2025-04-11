@@ -10,16 +10,20 @@ use Illuminate\Database\QueryException;
 class CategoriesController extends Controller
 {
     //
-    public function index($id = null)
+    public function index()
     {
-        if ($id !== null) {
-            $category = Category::findOrFail($id);
-            return response()->json([
-                'category' => $category,
-            ]);
-        }
-        $categories = Category::orderBy('id', 'desc')->get();
+        $filters = request()->only(['per_page', 'sortorder', 'keyword']);
+        $categories = Category::search($filters['keyword'] ?? null)
+        ->applyFilters($filters);
         return response()->json($categories);
+    }
+
+    public function getCategoyById($id)
+    {
+        $category = Category::findOrFail($id);
+        return response()->json([
+            'category' => $category
+        ]);
     }
     public function create(Request $request)
     {
@@ -50,12 +54,6 @@ class CategoriesController extends Controller
         $ids = $request->ids;
         if (is_array($ids) && !empty($ids)) {
             try {
-                $categories = Category::whereIn('id', $ids)->get();
-                foreach ($categories as $category) {
-                    if ($category->img) {
-                        Storage::disk('public')->delete($category->img);
-                    }
-                }
                 Category::whereIn('id', $ids)->delete();
                 return response()->json(['message' => 'Xóa Danh Mục thành công', 'status' => 200], 200);
             } catch (QueryException $e) {

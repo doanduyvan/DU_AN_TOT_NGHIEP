@@ -8,40 +8,44 @@ use Illuminate\Auth\Events\Validated;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use App\Http\Requests\RegisterUserRequest;
 
 
 class AuthController extends Controller
 {
     //
-    public function register(Request $request)
+    public function register(RegisterUserRequest $request)
     {
-        $request->validate([
-            'fullname' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-
-        $user = User::create([
-            'fullname' => $request->fullname,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        // // Gán role mặc định cho user
-        $user->assignRole('Users');
-
-        // Tạo token
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'status' => 200,
-            'message' => 'User registered successfully',
-            'user' => $user,
-            'permissions' => $user->getAllPermissions()->pluck('name'),
-            'roles' => $user->getRoleNames(),
-            'token' => $token
-        ], 200);
+        $validated = $request->validated();
+        DB::beginTransaction();
+        try {
+            $user = User::create([
+                'fullname' => $request->fullname,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+            $user->assignRole('Users');
+            $token = $user->createToken('auth_token')->plainTextToken;
+            DB::commit();
+            return response()->json([
+                'status' => 200,
+                'message' => 'User registered successfully',
+                'user' => $user,
+                'permissions' => $user->getAllPermissions()->pluck('name'),
+                'roles' => $user->getRoleNames(),
+                'token' => $token
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred while registering the user.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+    
 
     /**
      * Đăng nhập người dùng

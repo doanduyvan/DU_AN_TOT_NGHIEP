@@ -57,9 +57,8 @@ class CommentNews extends Model
     {
         return $query->onlyTrashed();
     }
-    public function scopeRestore($query)
-    {
-        return $query->restore();
+    public function scopeRestore($query, $id) {
+        return $query->where('id', $id)->restore();
     }
     public function scopeForceDelete($query)
     {

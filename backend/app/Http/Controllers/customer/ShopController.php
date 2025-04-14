@@ -29,15 +29,22 @@ class ShopController extends Controller
             ->where('status', 1)
             ->whereNull('deleted_at');
 
-        // Lọc danh mục
+        // Lọc danh mục hoặc từ khóa
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
         } else if ($request->has('keyword')) {
             $query->where('product_name', 'like', '%' . $request->keyword . '%');
-            $keywordInput = $request->keyword;
         }
 
-        // sort 
+        // lọc theo biến thể
+        if ($request->variants && is_array($request->variants)) {
+            $query->whereHas('variants', function ($q) use ($request) {
+                $q->whereIn('size', $request->variants);
+            });
+        }
+
+
+        // sắp sếp
         if ($request->has('sort_by') && in_array($request->sort_by, ['min_price', 'max_price', 'sold_qty', 'new'])) {
             $sortBy = $request->sort_by;
             switch ($sortBy) {
@@ -80,6 +87,13 @@ class ShopController extends Controller
             'last_page'      => $products->lastPage(),
             'total'          => $products->total(),
             'data'           => $products->items()
+        ]);
+    }
+
+    function getVariantFilter(){
+        $variants = ProductVariant::select('size')->distinct()->pluck('size');
+        return response()->json([
+            'variants' => $variants
         ]);
     }
     

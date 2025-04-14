@@ -98,3 +98,11 @@ h4 {
 h5 {
   @apply text-lg font-medium;
 }
+
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* số dòng tối đa */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

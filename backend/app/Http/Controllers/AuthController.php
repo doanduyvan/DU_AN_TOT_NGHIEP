@@ -56,19 +56,19 @@ class AuthController extends Controller
         // Kiểm tra email
         $user = User::where('email', $request->email)->first();
 
-        if($user->status == 0){
+      
+        // Kiểm tra user và password
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['Email hoặc mật khẩu không đúng.'],
+            ]);
+        }
+        if ($user->status == 0) {
             return response()->json([
                 'status' => 401,
                 'message' => 'Tài khoản của bạn đã bị khóa'
             ]);
         }
-        // Kiểm tra user và password
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
-        }
-
         $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
 

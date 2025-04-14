@@ -73,7 +73,6 @@ function App() {
     { path: 'shop/:categoryname/:idcategory', element: <Shop /> },
     { path: 'shop', element: <Shop /> },
     { path: 'profile', element: <Profile /> },
-    { path: 'profile', element: <Profile /> },
     { path: 'news/:idcategorynews', element: <News /> },
     { path: 'news', element: <News /> },
     { path: 'news/:id/:categoryname', element: <NewsDetail /> },

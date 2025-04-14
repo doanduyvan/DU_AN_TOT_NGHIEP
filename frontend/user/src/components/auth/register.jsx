@@ -17,10 +17,13 @@ const RegisterForm = () => {
       if (response.status === 200) {
         localStorage.setItem("token", response.token);
         message.success("Đăng ký, đăng nhập thành công");
-        window.location.href = "/";
+        navigate('/');
       }
+      console.log(response);
     } catch (error) {
       setError(error.response.data.errors);
+      setTimeout(()=> { setError('') },2000)
+      console.log(error);
     }
 
   };

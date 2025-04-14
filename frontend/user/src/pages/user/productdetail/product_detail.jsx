@@ -1,17 +1,24 @@
-import React, { useState,useEffect } from "react";
+import React, { useState,useEffect,useRef } from "react";
 import { Image } from 'antd';
-import { List, Avatar, Form, Input, Button, message } from 'antd';
+import {  Button, message } from 'antd';
 import dayjs from "dayjs";
 import { useParams,useNavigate } from "react-router-dom";
 import AxiosUser from "../../../utils/axios_user";
 import { formatCurrency } from "../../../utils/helpers";
 import CommentProduct from "./commentproduct";
-import { FullScreenLoader } from "/src/utils/helpersjsx";
+import { FullScreenLoader, FlyToCart } from "/src/utils/helpersjsx";
+import CarouselProducts from "/src/components/carouselproduct/carouselproduct";
+import { useUserContext } from "../../../context/user/userContext";
+
 const baseUrlImg = import.meta.env.VITE_URL_IMG;
 const urlProductDetail = '/customer/productdetail/getproductbyid/';
-
+const urlRelatedProduct = '/customer/productdetail/getrelatedproducts/';
 
 export const ProductDetail = () => {
+  const buttonRef = useRef();
+  const flyRef = useRef();
+  
+  const { addToCart } = useUserContext();
   const [activeTab, setActiveTab] = useState(0);
   const navigate = useNavigate();
   const { id } = useParams();
@@ -25,11 +32,14 @@ export const ProductDetail = () => {
   const price = currentVariant.promotional_price || currentVariant.price;
   const price_delete =  currentVariant.promotional_price ? currentVariant.price : '';
   const [imgs, setImgs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [addProductLoading, setAddProductLoading] = useState(false);
 
   useEffect(()=>{
     const fetchProduct = async () => {
       try {
+        setLoading(true);
         const response = await AxiosUser.get(urlProductDetail + id);
         const data = response.product;
         if(!data) {
@@ -49,9 +59,33 @@ export const ProductDetail = () => {
     fetchProduct();
   },[id,navigate]);
 
+  // lấy sản phẩm liên quan 
+
+  useEffect(() => {
+    const fetchRelatedProducts = async () => {
+      try {
+        const response = await AxiosUser.get(urlRelatedProduct + id);
+        const data = response.related;
+        setRelatedProducts(data);
+      } catch (error) {
+        console.error("Error fetching related products:", error);
+      }
+    };
+    fetchRelatedProducts();
+  }, [id]);
+
   const handleChangeVariant = (variant) => {
     setCurrentVariant(variant);
   };
+
+  const handleAddToCart = async () => {
+    if (addProductLoading) return;
+    setAddProductLoading(true);
+    const check = await addToCart(product.id, currentVariant.id);
+    setAddProductLoading(false);
+    if (!check) return;
+    flyRef.current.fly();
+  }
 
 
   return (
@@ -213,9 +247,15 @@ export const ProductDetail = () => {
                     {formatCurrency(price_delete)}{" "}
                   </p>
                 </div>
-                <button className="bg-yellow-300 p-2 rounded-lg hover:bg-yellow-400 transition-colors">
+                <Button
+                className="bg-yellow-300 p-2 rounded-lg hover:!bg-yellow-400 transition-colors"
+                type="text"
+                ref={buttonRef}
+                onClick={handleAddToCart}
+                loading={addProductLoading}
+                >
                   Thêm giỏ hàng
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -258,8 +298,22 @@ export const ProductDetail = () => {
             )}
           </div>
         </div>
+
+        <div>
+          <div>
+            <CarouselProducts products={relatedProducts} nameSection="Các Sản phẩm liên quan" />
+          </div>
+        </div>
       </div>
+
       <FullScreenLoader visible={loading} tip="Đang tải sản phẩm..." />
+      <FlyToCart
+        ref={flyRef}
+        imageSrc={`${baseUrlImg}${product?.avatar}`}
+        startRef={buttonRef}
+        endId="cart-icon"
+      />
+
     </>
   );
 };

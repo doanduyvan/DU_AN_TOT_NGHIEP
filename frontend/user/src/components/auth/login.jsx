@@ -4,20 +4,32 @@ import { AuthService } from "../../services/api-auth";
 import { useState, useEffect } from "react";
 import { useHref, useNavigate, NavLink } from "react-router-dom";
 import { notification as Notification, message } from "antd";
+import { useAuth } from "../../contexts/authcontext";
+import { FullScreenLoader } from "../../utils/helpersjsx";
+import { useUserContext } from "../../context/user/userContext";
 
 const LoginForm = () => {
   const navigate = useNavigate();
+  const { setUser,setIsLoggedIn } = useUserContext();
+  const { setCurrentUser } = useAuth();
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    console.log(formData.forEach((value, key) => console.log(key, value)));
+    // console.log(formData.forEach((value, key) => console.log(key, value)));
     try {
+      setLoading(true);
       const response = await AuthService.login(formData);
       if (response.status === 200) {
         localStorage.setItem("token", response.token);
         message.success("Đăng nhập thành công");
-        window.location.href = '/';
+        const user = response.user;
+        setCurrentUser(user);
+        setUser(user);
+        setIsLoggedIn(true);
+        console.log(response);
       } else if (response.status === 401) {
         console.log("401");
         Notification.warning({
@@ -28,10 +40,16 @@ const LoginForm = () => {
       }
     } catch (error) {
       setError(error.response.data.errors);
+      setTimeout(() => {
+        setError("");
+      }, 2000);
+    }finally{
+      setLoading(false);
     }
   };
 
   return (
+    <>
     <div className="flex items-center justify-center min-h-screen bg-yellow-50">
       <div className="bg-white p-8 shadow-lg rounded-2xl w-96 text-center">
         <h2 className="text-2xl font-bold">Mes Skin</h2>
@@ -70,6 +88,8 @@ const LoginForm = () => {
         </div>
       </div>
     </div>
+    <FullScreenLoader visible={loading} tip="Đang tải..." />
+    </>
   );
 };
 

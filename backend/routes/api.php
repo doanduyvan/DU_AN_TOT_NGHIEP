@@ -26,6 +26,7 @@ use App\Http\Controllers\Trashed\TrashedPermissionController;
 use App\Http\Controllers\Trashed\TrashedProductController;
 use App\Http\Controllers\Trashed\TrashedOrderController;
 use App\Http\Controllers\Trashed\TrashedNewsController;
+use App\Http\Controllers\LocationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,14 @@ use App\Http\Controllers\Trashed\TrashedNewsController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::get('/provinces', [LocationController::class, 'getProvinces']);
+Route::get('/districts/{provinceCode}', [LocationController::class, 'getDistrictsByProvince']);
+Route::get('/wards/{districtCode}', [LocationController::class, 'getWardsByDistrict']);
+
+
+route::post('orders/search-by-phone', [OrderController::class, 'searchByPhone']);
+
+
 
 route::get('/users/trash', [TrashedUserController::class, 'index']);
 route::post('/users/restore', [TrashedUserController::class, 'restore']);
@@ -79,6 +88,7 @@ Route::get('orders', [OrderController::class, 'index']);
 Route::post('orders/update/{id}', [OrderController::class, 'update']);
 Route::post('orders/destroy', [OrderController::class, 'destroy']);
 Route::post('orders/create', [OrderController::class, 'create']);
+Route::post('orders/create-user', [OrderController::class, 'createUser']);
 Route::post('orders/update-order-status/{id}', [OrderController::class, 'updateOrderStatus']);
 Route::post('orders/update-payment-status/{id}', [OrderController::class, 'updatePaymentStatus']);
 Route::post('orders/update-shipping-status/{id}', [OrderController::class, 'updateShippingStatus']);

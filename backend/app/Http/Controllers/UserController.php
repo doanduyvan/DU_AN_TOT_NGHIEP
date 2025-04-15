@@ -16,7 +16,10 @@ class UserController extends Controller
         $users = User::search($filters['keyword'])->applyFilters($filters);
         return response()->json($users);
     }
-
+    public function test1(){
+        $users = User::with('shippingAddresses')->get();
+        return response()->json($users);
+    }
     public function destroy(Request $request)
     {
         $ids = $request->ids;

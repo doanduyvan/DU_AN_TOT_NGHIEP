@@ -10,6 +10,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Spatie\Permission\Models\Permission;
+use App\Models\ShippingAddress;
 
 class User extends Authenticatable
 {
@@ -26,6 +27,7 @@ class User extends Authenticatable
         'fullname',
         'email',
         'password',
+        'phone',
     ];
 
     /**
@@ -46,6 +48,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    public function shippingAddresses()
+    {
+        return $this->hasMany(ShippingAddress::class);
+    }
     public function orders()
     {
         return $this->hasMany(Order::class);

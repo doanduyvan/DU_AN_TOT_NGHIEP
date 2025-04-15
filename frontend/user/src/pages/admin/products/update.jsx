@@ -290,7 +290,7 @@ export const Update_Product = () => {
                     <div className="mb-5 w-auto">
                         <label htmlFor="description" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Mô tả sản phẩm</label>
                         <QuillEditor
-                            dataEditor={editorData}
+                            dataEditor={product.description}
                             onChange={handleEditorChange}
                         />
                     </div>

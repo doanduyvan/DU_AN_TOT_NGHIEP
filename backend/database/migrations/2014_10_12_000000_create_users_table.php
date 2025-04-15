@@ -17,7 +17,7 @@ class CreateUsersTable extends Migration
             $table->string('avatar')->nullable();
             $table->string('fullname');
             $table->string('email')->unique()->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->boolean('is_verify')->default(false);
             $table->integer('status')->default(1);  // Hoặc có thể là enum/integer tùy nhu cầu
             $table->integer('role')->default(0);

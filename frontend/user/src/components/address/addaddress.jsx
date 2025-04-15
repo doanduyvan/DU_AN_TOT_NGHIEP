@@ -9,6 +9,10 @@ const { Option } = Select;
 
 const urlAddAddress = "customer/profile/add-address";
 
+const urlGetProvinces = "provinces";
+const urlGetDistricts = "districts/";
+const urlGetWards = "wards/";
+
 const AddAddress = ({ open, onClose, onSuccess }) => {
     const navigate = useNavigate();
   const [form] = Form.useForm();
@@ -22,18 +26,20 @@ const AddAddress = ({ open, onClose, onSuccess }) => {
     const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    axios.get("https://provinces.open-api.vn/api/p").then((res) => {
-      setProvinces(res.data);
+    AxiosUser.get(urlGetProvinces).then((res) => {
+      console.log(res);
+      setProvinces(res);
     });
   }, []);
 
   const handleProvinceChange = (value) => {
+
     const province = provinces.find((item) => item.code === value);
     setSelectedProvince(province);
     setSelectedDistrict(null);
     setWards([]);
-    axios.get(`https://provinces.open-api.vn/api/p/${value}?depth=2`).then((res) => {
-      setDistricts(res.data.districts);
+    AxiosUser.get(urlGetDistricts + value).then((res) => {
+      setDistricts(res);
     });
     form.setFieldsValue({ districts: undefined, wards: undefined });
   };
@@ -41,8 +47,8 @@ const AddAddress = ({ open, onClose, onSuccess }) => {
   const handleDistrictChange = (value) => {
     const district = districts.find((item) => item.code === value);
     setSelectedDistrict(district);
-    axios.get(`https://provinces.open-api.vn/api/d/${value}?depth=2`).then((res) => {
-      setWards(res.data.wards);
+    AxiosUser.get(urlGetWards + value).then((res) => {
+      setWards(res);
     });
     form.setFieldsValue({ wards: undefined });
   };
@@ -71,9 +77,9 @@ const AddAddress = ({ open, onClose, onSuccess }) => {
     form.validateFields().then(async (values) => {
       const payload = {
         ...values,
-        provinces: selectedProvince.name,
-        districts: selectedDistrict.name,
-        wards: wards.find(w => w.code === values.wards)?.name,
+        provinces: selectedProvince.full_name,
+        districts: selectedDistrict.full_name,
+        wards: wards.find(w => w.code === values.wards)?.full_name,
       };
 
       const check = await sendToServer(payload);
@@ -140,7 +146,7 @@ const AddAddress = ({ open, onClose, onSuccess }) => {
             >
               {provinces.map((item) => (
                 <Option key={item.code} value={item.code}>
-                  {item.name}
+                  {item.full_name}
                 </Option>
               ))}
             </Select>
@@ -160,7 +166,7 @@ const AddAddress = ({ open, onClose, onSuccess }) => {
             >
               {districts.map((item) => (
                 <Option key={item.code} value={item.code}>
-                  {item.name}
+                  {item.full_name}
                 </Option>
               ))}
             </Select>
@@ -179,7 +185,7 @@ const AddAddress = ({ open, onClose, onSuccess }) => {
             >
               {wards.map((item) => (
                 <Option key={item.code} value={item.code}>
-                  {item.name}
+                  {item.full_name}
                 </Option>
               ))}
             </Select>

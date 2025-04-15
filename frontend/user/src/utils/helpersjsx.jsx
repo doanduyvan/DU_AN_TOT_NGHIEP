@@ -16,8 +16,8 @@ const FullScreenLoader = ({ visible = false, tip = "Đang tải..." }) => {
 
   return show ? (
     <div
-      className={`fixed inset-0 bg-black/50 bg-opacity-40 z-50 flex items-center justify-center transition-opacity duration-[500ms] ${
-        visible ? "opacity-100" : "opacity-0 pointer-events-none"
+      className={`fixed inset-0 bg-black/50 bg-opacity-40 flex items-center justify-center transition-opacity duration-[500ms] ${
+        visible ? "opacity-100 z-[10000]" : "opacity-0 pointer-events-none"
       }`}
     >
       <div className="bg-white rounded-md px-6 py-4 shadow-lg flex items-center flex-col gap-2 min-w-[180px]">

@@ -151,6 +151,9 @@ Route::group(['prefix' => 'customer'],function(){
     Route::get('newsdetail/getnewsrelated/{id}',[NewsdetailController::class, 'getNewsRelated']);
     Route::post('profile/update-avatar', [ProfileController::class, 'updateAvatar'])->middleware('auth:sanctum');
     Route::post('profile/update-info', [ProfileController::class, 'updateInfo'])->middleware('auth:sanctum');
+    Route::get('profile/get-address', [ProfileController::class, 'getAddress'])->middleware('auth:sanctum');
+    Route::post('profile/add-address', [ProfileController::class, 'addAddress'])->middleware('auth:sanctum');
+    Route::post('profile/delete-address/{id}', [ProfileController::class, 'deleteAddress'])->middleware('auth:sanctum');
     Route::get('cart/checkqtyproductvariant/{id}',[CartController::class, 'checkQtyProductVariant']);
     Route::post('cart/getcart',[CartController::class, 'getCart']);
 

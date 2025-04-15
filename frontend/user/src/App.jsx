@@ -61,6 +61,7 @@ import { Update_CommentProduct } from "./pages/admin/comment_products/update";
 import { Comment_News } from "./pages/admin/comment_news";
 import { Create_CommentNews } from "./pages/admin/comment_news/create";
 import { Update_CommentNews } from "./pages/admin/comment_news/update";
+import Checkout from "./pages/user/checkout/checkout";
 
 function App() {
   const Pages = [
@@ -76,7 +77,8 @@ function App() {
     { path: 'news/:idcategorynews', element: <News /> },
     { path: 'news', element: <News /> },
     { path: 'news/:id/:categoryname', element: <NewsDetail /> },
-    { path: 'contact', element: <ContactPage /> }
+    { path: 'contact', element: <ContactPage /> },
+    { path: 'checkout',element: <Checkout />}
   ];
 
 

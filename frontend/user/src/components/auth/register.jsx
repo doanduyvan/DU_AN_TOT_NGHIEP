@@ -17,16 +17,19 @@ const RegisterForm = () => {
       if (response.status === 200) {
         localStorage.setItem("token", response.token);
         message.success("Đăng ký, đăng nhập thành công");
-        window.location.href = "/";
+        navigate('/');
       }else if (response.status === 500) {
         Notification.error({
           message: "Đăng ký không thành công",
           description: response.data.message,
         });
       }
+      console.log(response);
     } catch (error) {
       console.log(error.response.data);
       setError(error.response.data.errors);
+      setTimeout(()=> { setError('') },2000)
+      console.log(error);
     }
 
   };

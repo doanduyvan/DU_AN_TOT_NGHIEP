@@ -28,7 +28,7 @@ const ShopCategory = () => {
 
   return (
     <>
-        <ul className="mt-3 max-h-[100px] md:max-h-[500px] overflow-y-auto text-black">
+        <ul className="mt-3 max-h-[100px] md:max-h-[300px] overflow-y-auto text-black">
               <li className={`text-gray-600 hover:bg-gray-300 pl-3 py-1 ${!idcategory && "bg-gray-300"} `}>
                 <Link to={`/shop`} className="text-gray-600 block"> Tất cả </Link>
               </li>

@@ -11,7 +11,7 @@ class NewsController extends Controller
 {
     function getCategoryNews()
     {
-        $categories = CategoryNews::select('id', 'category_news_name')->get();
+        $categories = CategoryNews::select('id', 'category_news_name','img')->get();
         return response()->json([
             'categories' => $categories
         ]);

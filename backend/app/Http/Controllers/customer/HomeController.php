@@ -4,6 +4,7 @@ namespace App\Http\Controllers\customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\News;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -121,7 +122,17 @@ class HomeController extends Controller
         return response()->json([
             'categories' => $categories
         ], 200);
+    }
 
-        // return response()->json(['check' => ' vao duoc action categories'], 200);
+    public function get3News(){
+        $news = News::select('id', 'title', 'avatar')
+            ->whereNull('deleted_at')
+            ->orderBy('created_at', 'desc')
+            ->take(3)
+            ->get();
+
+        return response()->json([
+            'news' => $news
+        ], 200);
     }
 }

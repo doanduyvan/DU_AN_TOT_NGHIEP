@@ -66,6 +66,7 @@ import { Update_CommentProduct } from "./pages/admin/comment_products/update";
 import { Comment_News } from "./pages/admin/comment_news";
 import { Create_CommentNews } from "./pages/admin/comment_news/create";
 import { Update_CommentNews } from "./pages/admin/comment_news/update";
+import Checkout from "./pages/user/checkout/checkout";
 
 import ProductStatsChart from "./components/chart/product";
 import ProductStatusChart from "./components/chart/status";
@@ -86,11 +87,11 @@ function App() {
     { path: 'shop/:categoryname/:idcategory', element: <Shop /> },
     { path: 'shop', element: <Shop /> },
     { path: 'profile', element: <Profile /> },
-    { path: 'profile', element: <Profile /> },
     { path: 'news/:idcategorynews', element: <News /> },
     { path: 'news', element: <News /> },
     { path: 'news/:id/:categoryname', element: <NewsDetail /> },
-    { path: 'contact', element: <ContactPage /> }
+    { path: 'contact', element: <ContactPage /> },
+    { path: 'checkout',element: <Checkout />}
   ];
 
 

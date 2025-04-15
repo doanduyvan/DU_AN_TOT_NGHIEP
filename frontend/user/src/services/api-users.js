@@ -5,14 +5,22 @@ const apiPost = async (url, data) => {
   return response;
 };
 
-const apiGet = async (url) => {
-    const response = await axios.get(url);
-    return response;
-};
+const apiDelete = async (url, data) => {
+  const response = await axios.delete(url, data);
+  return response;
+}
 
+const apiGet = async (url, options = {}) => {
+  const response = await axios.get(url, {
+    ...options,
+  });
+  return response;
+};
 const UsersService = {
-  getAllUsers: async () => {
-    return apiGet("/users");
+  getAllUsers: async ({ page, per_page, sortorder, keyword }) => {
+    return apiGet("/users", {
+      params: { page, per_page, sortorder, keyword },
+    });
   },
   login: async (credentials) => {
     return apiPost("/login", credentials);
@@ -26,11 +34,22 @@ const UsersService = {
   showRoles: async () => {
     return apiGet("/users/showroles");
   },
-  destroy: async (id) => {
-    return apiPost(`/users/destroy/${id}`);
+  destroy: async (ids) => {
+    return apiPost('/users/destroy', { ids });
   },
   getUserById: async (id) => {
     return apiGet(`/users/${id}`);
+  },
+  userTrash: async ({ page, per_page, sortorder, keyword }) => {
+      return apiGet('users/trash', {
+          params: { page, per_page, sortorder, keyword},
+      });
+  },
+  restore: async (ids) => {
+      return apiPost("/users/restore", { ids });
+  },
+  forceDelete: async (id) => {
+      return apiDelete(`/users/force-delete/${id}`);
   },
 };
 export { UsersService };

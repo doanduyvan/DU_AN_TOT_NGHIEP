@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Permission;
+use App\Models\Permission;
 use Spatie\Permission\Models\Role;
 use App\Http\Requests\PermissionRequest;
 use Illuminate\Database\QueryException;
@@ -17,9 +17,10 @@ class PermissionController extends Controller
     }
     public function index()
     {
-        return response()->json([
-            'permissions' => Permission::orderBy('id', 'desc')->get(),
-        ]);
+        $filters = request()->only(['per_page', 'sortorder', 'keyword']);
+        $permissions = Permission::search($filters['keyword'] ?? null)
+        ->applyFilters($filters);
+        return response()->json($permissions);
     }
     public function update(PermissionRequest $request, $id){
         $request->validate([

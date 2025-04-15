@@ -39,7 +39,12 @@ export const AdminSidebar = () => {
                 {
                     id: "2.2",
                     name: "Danh sách",
-                    link: "/admin/categories/list"
+                    link: "/admin/categories"
+                },
+                {
+                    id: "2.3",
+                    name: "Danh sách đã xóa",
+                    link: "/admin/categories/trash"
                 },
             ]
         },
@@ -59,6 +64,11 @@ export const AdminSidebar = () => {
                     name: "Danh sách",
                     link: "/admin/products"
                 },
+                {
+                    id: "3.4",
+                    name: "Danh sách đã xóa",
+                    link: "/admin/products/trash"
+                },
             ]
         },
         {
@@ -76,6 +86,11 @@ export const AdminSidebar = () => {
                     id: "4.2",
                     name: "Danh sách",
                     link: "/admin/orders"
+                },
+                {
+                    id: "4.3",
+                    name: "Danh sách đã xóa",
+                    link: "/admin/orders/trash"
                 },
             ]
         },
@@ -95,6 +110,11 @@ export const AdminSidebar = () => {
                     name: "Danh sách",
                     link: "/admin/category-news",
                 },
+                {
+                    id: "5.3",
+                    name: "Danh sách đã xóa",
+                    link: "/admin/category-news/trash",
+                },
             ]
         },
         {
@@ -112,6 +132,11 @@ export const AdminSidebar = () => {
                     id: "6.2",
                     name: "Danh sách",
                     link: "/admin/news",
+                },
+                {
+                    id: "6.3",
+                    name: "Danh sách đã xóa",
+                    link: "/admin/news/trash",
                 },
             ]
         },
@@ -167,6 +192,11 @@ export const AdminSidebar = () => {
                     name: "Danh sách",
                     link: "/admin/accounts",
                 },
+                {
+                    id: "9.3",
+                    name: "Danh sách đã xóa",
+                    link: "/admin/accounts/trash",
+                },
             ]
         },
         {
@@ -185,6 +215,11 @@ export const AdminSidebar = () => {
                     name: "Danh sách",
                     link: "/admin/roles",
                 },
+                {
+                    id: "10.3",
+                    name: "Danh sách đã xóa",
+                    link: "/admin/roles/trash",
+                },
             ]
         },
         {
@@ -200,6 +235,29 @@ export const AdminSidebar = () => {
                 },
                 {
                     id: "11.2",
+                    name: "Danh sách",
+                    link: "/admin/permissions",
+                },
+                {
+                    id: "11.3",
+                    name: "Danh sách dã xóa",
+                    link: "/admin/permissions/trash",
+                },
+            ]
+        },
+        {
+            id: "12",
+            name: "Thống kê",
+            link: "/admin/statisticals",
+            svg: <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" d="M22 22H2"/><path d="M21 22v-7.5a1.5 1.5 0 0 0-1.5-1.5h-3a1.5 1.5 0 0 0-1.5 1.5V22"/><path strokeLinecap="round" strokeLinejoin="round" d="M15 22V9M9 22V5c0-1.414 0-2.121.44-2.56C9.878 2 10.585 2 12 2c1.414 0 2.121 0 2.56.44C15 2.878 15 3.585 15 5v0"/><path strokeLinecap="round" d="M9 22V9.5A1.5 1.5 0 0 0 7.5 8h-3A1.5 1.5 0 0 0 3 9.5V16m0 6v-2.25"/></g></svg>,
+            sub_menu: [
+                {
+                    id: "12.1",
+                    name: "Hiệu suất sản phẩm theo danh mục",
+                    link: "/admin/statisticals",
+                },
+                {
+                    id: "12.2",
                     name: "Danh sách",
                     link: "/admin/permissions",
                 },

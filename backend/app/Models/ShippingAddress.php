@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class ShippingAddress extends Model
 {
+    use HasFactory;
+    public $timestamps = false;
     protected $table = 'shipping_address';
+
     protected $fillable = [
         'fullname',
         'phone',
@@ -17,11 +20,12 @@ class ShippingAddress extends Model
         'addresses',
         'user_id',
     ];
-
-    public $timestamps = false;
-
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
     }
 }

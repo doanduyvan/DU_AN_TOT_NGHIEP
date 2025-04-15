@@ -1,18 +1,20 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { callPermissions, destroy } from "../../../services/api-permissions";
+import { PermissionsService } from "../../../services/api-permissions";
 import { AntNotification } from "../../../components/notification";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
-
+import { Pagination } from 'antd';
 
 export const Permissions = () => {
     const [permissions, setPermission] = useState([]);
     const [selectedPermiss, setselectedPermiss] = useState([]);
-    const [filter, setFilter] = useState(""); // lưu trạng thái lọc
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalItems, setTotalItems] = useState(0);
+    const [sortorder, setSortOrder] = useState(null);
+    const [keyword, setKeyword] = useState("");
+    const [inputValue, setInputValue] = useState('');
 
-    const filterdPermiss = filter
-        ? permissions.filter((permiss) => permiss.status === filter)
-        : permissions;
     const checkPermission = (e, id) => {
         setselectedPermiss((prevSelect) => {
             if (e.target.checked) {
@@ -29,7 +31,7 @@ export const Permissions = () => {
             return;
         }
         try {
-            const res = await destroy(selectedPermiss);
+            const res = await PermissionsService.destroy(selectedPermiss);
             if (res?.status === 200) {
                 setPermission((prevPermission) => {
                     return prevPermission.filter(
@@ -53,9 +55,16 @@ export const Permissions = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await callPermissions();
+                const res = await PermissionsService.callPermissions({
+                    page: currentPage,
+                    per_page: pageSize,
+                    sortorder: sortorder,
+                    keyword: keyword,
+                });
                 if (res) {
-                    setPermission(res.permissions);
+                    setPermission(res.data);
+                    setTotalItems(res.total || 0);
+                    console.log(res);
                 } else {
                     AntNotification.showNotification("Lỗi", "Không thể lấy danh sách quyền hạn", "error");
                 }
@@ -64,8 +73,30 @@ export const Permissions = () => {
             }
         };
         fetchData();
-    }, []);
-    console.log("select", permissions);
+    }, [currentPage, pageSize, sortorder, keyword]);
+
+    useEffect(() => {
+        const debounceTimer = setTimeout(() => {
+            if (inputValue !== "") {
+                setCurrentPage(1);
+                setKeyword(inputValue);
+            } else {
+                setKeyword("");
+            }
+        }, 400);
+        return () => clearTimeout(debounceTimer);
+    }, [inputValue]);
+
+    const handlePageChange = async (page, size) => {
+        console.log(page);
+        setCurrentPage(page);
+        setPageSize(size);
+    }
+    const handleFilterChange = async (e) => {
+        const value = e.target.value;
+        const sortOrder = value === "asc" ? "asc" : "desc";
+        setSortOrder(sortOrder);
+    };
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <div className="bg-white shadow rounded-lg mb-4 p-4 sm:p-6 h-full">
@@ -107,23 +138,13 @@ export const Permissions = () => {
                             <div>
                                 <select
                                     className="cursor-pointer items-center text-black bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 font-medium rounded-lg text-sm px-3 py-1.5 "
-                                // value={filter}
-                                // onChange={handleFilterChange}
+                                    onChange={handleFilterChange}
                                 >
-                                    <option value="">
-                                        Lọc Trạng Thái
+                                    <option value="desc">
+                                        Mới nhất
                                     </option>
-                                    <option value="draft">
-                                        Bản Nháp
-                                    </option>
-                                    <option value="pending">
-                                        Chờ duyệt
-                                    </option>
-                                    <option value="approved">
-                                        Đã xuất bản
-                                    </option>
-                                    <option value="rejected">
-                                        Loại Bỏ
+                                    <option value="asc">
+                                        Cũ Nhất
                                     </option>
                                 </select>
                             </div>
@@ -135,7 +156,7 @@ export const Permissions = () => {
                                     /> : null
                                 }
                                 <label htmlFor="table-search" className="sr-only">
-                                    Search
+                                    Tìm kiếm
                                 </label>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
@@ -159,7 +180,9 @@ export const Permissions = () => {
                                         type="text"
                                         id="table-search-users"
                                         className="block pt-2 ps-10 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-950 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        placeholder="Search for users"
+                                        placeholder="Tìm kiếm..."
+                                        value={inputValue}
+                                        onChange={(e) => setInputValue(e.target.value)}
                                     />
                                 </div>
                             </div>
@@ -170,13 +193,13 @@ export const Permissions = () => {
                                     <th scope="col" className="p-4">
                                         <div className="flex items-center">
                                             <input
-                                                checked={(selectedPermiss?.length ?? 0) === (filterdPermiss?.length ?? 0)}
+                                                checked={selectedPermiss.length === permissions.length}
                                                 onChange={() => {
-                                                    if ((selectedPermiss?.length ?? 0) === (filterdPermiss?.length ?? 0)) {
+                                                    if (selectedPermiss.length === permissions.length) {
                                                         setselectedPermiss([]); // Bỏ chọn tất cả
                                                     } else {
                                                         setselectedPermiss(
-                                                            filterdPermiss.map((permiss) => permiss.id)
+                                                            permissions.map((permiss) => permiss.id)
                                                         ); // Chọn tất cả
                                                     }
                                                 }}
@@ -208,7 +231,7 @@ export const Permissions = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {(filterdPermiss ?? []).map((permiss) => (
+                                {permissions.map((permiss) => (
                                     <tr
                                         key={permiss.id}
                                         className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
@@ -258,6 +281,14 @@ export const Permissions = () => {
                                 ))}
                             </tbody>
                         </table>
+                        <div className="flex justify-end p-4">
+                            <Pagination className=""
+                                current={currentPage}
+                                defaultCurrent={1}
+                                total={totalItems}
+                                onShowSizeChange={handlePageChange}
+                                onChange={handlePageChange} />
+                        </div>
                     </div>
                 </div>
             </div>

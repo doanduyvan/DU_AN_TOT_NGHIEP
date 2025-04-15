@@ -8,6 +8,7 @@ use Illuminate\Database\QueryException;
 use App\Http\Requests\ProductRequest;
 use App\Http\Requests\ProductImageRequest;
 use App\Http\Requests\ProductVariantRequest;
+use App\Models\Category;
 use Illuminate\Support\Facades\Storage;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
@@ -19,8 +20,11 @@ class ProductsController extends Controller
     //
     public function index()
     {
-        $Products = Product::orderBy('id', 'desc')->get();
-        return response()->json($Products);
+        $filters = request()->only(['per_page', 'sortorder', 'keyword', 'filter_category']);
+        $products = Product::search($filters['keyword'] ?? null)
+        ->filterCategory($filters['filter_category'] ?? null)
+        ->applyFilters($filters);
+        return response()->json($products);
     }
 
     public function getProductById($id)
@@ -32,6 +36,12 @@ class ProductsController extends Controller
             'product' => $product,
             'variant' => $variant,
         ]);
+    }
+
+    public function getAllCategories()
+    {
+        $categories = Category::orderBy('id', 'desc')->get();
+        return response()->json($categories);
     }
 
     public function create(ProductRequest $productRequest, ProductImageRequest $imageRequest, ProductVariantRequest $variantRequest)

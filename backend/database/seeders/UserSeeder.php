@@ -10,15 +10,16 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
-        $adminRole = Role::firstOrCreate(['name' => 'Admin']);
+        // $adminRole = Role::firstOrCreate(['name' => 'Admin']);
 
-        $user = User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@gmail.com',
-            'password' => Hash::make('123123'),
-        ]);
+        // $user = User::create([
+        //     'name' => 'Admin User',
+        //     'email' => 'admin@gmail.com',
+        //     'password' => Hash::make('123123'),
+        // ]);
 
-        $user->assignRole($adminRole);
+        // $user->assignRole($adminRole);
+        User::factory()->count(20)->create();
 
     }
 }

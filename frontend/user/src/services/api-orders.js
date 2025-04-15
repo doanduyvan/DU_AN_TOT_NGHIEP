@@ -5,8 +5,10 @@ const apiPost = async (url, data) => {
   return response;
 };
 
-const apiGet = async (url) => {
-  const response = await axios.get(url);
+const apiGet = async (url, options = {}) => {
+  const response = await axios.get(url, {
+    ...options,
+  });
   return response;
 };
 const apiDelete = async (id) => {
@@ -50,6 +52,14 @@ const OrderService = {
   },
   create: async (formData) => {
     return apiPost(`/orders/create`,  formData);
+  },
+  createUser: async (formData) => {
+    return apiPost(`/orders/create-user`,  formData);
+  },
+  searchByPhone: async (phone) => {
+    return apiPost(`/orders/search-by-phone`,
+      phone,
+    );
   },
 };
 export { OrderService };

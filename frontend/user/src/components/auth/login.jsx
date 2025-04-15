@@ -39,10 +39,16 @@ const LoginForm = () => {
         });
       }
     } catch (error) {
-      setError(error.response.data.errors);
+      setError(error?.response?.data?.errors);
       setTimeout(() => {
         setError("");
       }, 2000);
+
+    Notification.warning({
+    message: "Có lỗi xảy ra",
+    description: error?.response?.message || "Vui lòng thử lại sau",
+    duration: 5,
+    });
     }finally{
       setLoading(false);
     }

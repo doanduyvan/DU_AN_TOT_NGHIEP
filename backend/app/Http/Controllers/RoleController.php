@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Http\Requests\RoleRequest;
 use Illuminate\Database\QueryException;
@@ -18,10 +18,10 @@ class RoleController extends Controller
 
     public function index()
     {
-        $roles = Role::orderBy('id', 'desc')->get();
-        return response()->json([
-            'roles' => $roles,
-        ]);
+        $filters = request()->only(['per_page', 'sortorder', 'keyword']);
+        $roles = Role::search($filters['keyword'] ?? null)
+        ->applyFilters($filters);
+        return response()->json($roles);
     }
     public function create(RoleRequest $request)
     {
@@ -65,10 +65,10 @@ class RoleController extends Controller
         ]);
     }
 
-    public function update(Request $request, $roleId)
+    public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:roles,name,' . $roleId,
+            'name' => 'required|string|max:255|unique:roles,name,' . $id,
             'guard_name' => 'required|string|max:255',
             'permissions' => 'nullable|array',
             'permissions.*' => 'exists:permissions,id',
@@ -76,12 +76,12 @@ class RoleController extends Controller
     
         $superAdminRole = Role::where('name', $this->super_admin)->first();
         
-        if ($superAdminRole && $roleId == $superAdminRole->id) {
+        if ($superAdminRole && $id == $superAdminRole->id) {
             return response()->json(['message' => 'Thất bại: Không thể cập nhật các vai trò đặc biệt']);
         }
     
         try {
-            $role = Role::findOrFail($roleId);
+            $role = Role::findOrFail($id);
             $role->update([
                 'name' => $request->name,
                 'guard_name' => $request->guard_name,
@@ -94,10 +94,10 @@ class RoleController extends Controller
             } else {
                 $role->syncPermissions([]);
             }
-    
             return response()->json([
                 'status' => 200,
                 'role' => $role,
+                'permissions' => $request->has('permissions'),
                 'assigned_permissions' => $request->has('permissions') ? $role->permissions : [],
             ]);
         } catch (\Exception $e) {

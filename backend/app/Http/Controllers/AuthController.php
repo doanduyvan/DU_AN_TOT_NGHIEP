@@ -57,7 +57,6 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Kiểm tra email
         $user = User::where('email', $request->email)->first();
 
         if($user->status == 0){
@@ -66,10 +65,9 @@ class AuthController extends Controller
                 'message' => 'Tài khoản của bạn đã bị khóa'
             ]);
         }
-        // Kiểm tra user và password
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
+                'email' => ['Thông tin đăng nhập được cung cấp không chính xác.'],
             ]);
         }
 

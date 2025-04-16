@@ -22,6 +22,7 @@ class CreateShippingAddressTable extends Migration
             $table->string('wards');
             $table->string('addresses');
             $table->unsignedBigInteger('user_id');
+            $table->boolean('is_default')->default(false);
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }

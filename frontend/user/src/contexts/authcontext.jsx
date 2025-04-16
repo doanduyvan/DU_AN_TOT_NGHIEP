@@ -49,6 +49,7 @@ export const AuthProvider = ({ children }) => {
         hasPermission,
         hasRole,
         isAuthenticated: AuthService.isAuthenticated(),
+        setCurrentUser
     };
 
     return (

@@ -1,10 +1,10 @@
 import React, { useState, useEffect} from "react";
 import { Pagination, Empty } from "antd";
 import Sidebar from "./sidebar";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import AxiosUser from "../../../utils/axios_user";
 import { FullScreenLoader } from "../../../utils/helpersjsx";
-
+import { toSlug } from "../../../utils/helpers";
 
 const urlGetNews = "/customer/news/getnews";
 const baseUrlImg = import.meta.env.VITE_URL_IMG;
@@ -70,30 +70,9 @@ const News = () => {
         <Sidebar />
 
         {/* News content */}
-        <main className="md:col-span-9 bg-white p-4 rounded shadow h-fit">
+        <main className="md:col-span-12 bg-white p-4 rounded shadow h-fit">
           <h1 className="text-2xl font-bold mb-6"> {categoryName} </h1>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {news.map((news, i) => (
-              <div
-                key={`news1${i}`}
-                className="bg-white rounded shadow hover:shadow-md transition overflow-hidden"
-              >
-                <img
-                  src={baseUrlImg + news.avatar}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-4">
-                  <p className="text-xs text-gray-500 mb-1">
-                    {news.created_at}
-                  </p>
-                  <h2 className="text-base font-semibold mb-2">{news.title}</h2>
-                  <button className="text-blue-500 hover:underline text-sm">
-                    Xem thêm
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ContentY data={news} />
 
           {news.length <= 0 && (
             <div className="flex justify-center items-center">
@@ -122,3 +101,73 @@ const News = () => {
 };
 
 export default News;
+
+
+
+const ContentY = ({data}) => {
+
+
+  return (
+    <>
+          <div className="grid grid-cols-1 gap-4">
+            {data.map((news, i) => (
+              <div
+                key={`news1${i}`}
+                className="bg-white rounded shadow hover:shadow-md flex"
+              >
+                <Link to={`/news/${news.id}/${toSlug(news.title)}`}>
+                  <img
+                    src={baseUrlImg + news.avatar}
+                    className="max-w-32 md:max-w-48 aspect-square object-cover"
+                  />
+                </Link>
+                <div className="p-4 flex-1 flex flex-col justify-between">
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">
+                    {news.created_at}
+                  </p>
+                  <Link to={`/news/${news.id}/${toSlug(news.title)}`} className="block text-base font-semibold mb-2">{news.title}</Link>
+                </div>
+                  <Link to={`/news/${news.id}/${toSlug(news.title)}`} className="block text-blue-500 hover:underline text-sm">
+                    Xem thêm
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+    </>
+  )
+}
+
+
+const ContentX = ({data}) => {
+
+  return (
+    <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {data.map((news, i) => (
+              <div
+                key={`news1${i}`}
+                className="bg-white rounded shadow hover:shadow-md transition overflow-hidden"
+              >
+                <Link to={`/news/${news.id}/${toSlug(news.title)}`}>
+                  <img
+                    src={baseUrlImg + news.avatar}
+                    className="w-full h-48 object-cover"
+                  />
+                </Link>
+                <div className="p-4">
+                  <p className="text-xs text-gray-500 mb-1">
+                    {news.created_at}
+                  </p>
+                  <Link to={`/news/${news.id}/${toSlug(news.title)}`} className="block text-base font-semibold mb-2">{news.title}</Link>
+                  <Link to={`/news/${news.id}/${toSlug(news.title)}`} className="block text-blue-500 hover:underline text-sm">
+                    Xem thêm
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+    </>
+  )
+}

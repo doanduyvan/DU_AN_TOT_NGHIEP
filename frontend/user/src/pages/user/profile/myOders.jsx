@@ -20,36 +20,73 @@ const MyOrders = () => {
     return orders.filter(order => status === "all" ? true : order.status === status);
   };
 
+  const statusTabs = [
+    { key: 'all', label: 'Tất cả đơn hàng' },
+    { key: 'processing', label: 'Đang xử lý' },
+    { key: 'shipping', label: 'Vận chuyển' },
+    { key: 'success', label: 'Hoàn thành' },
+    { key: 'canceled', label: 'Đã hủy' },
+  ];
+
   return (
     <div className="bg-gray-100 p-4 rounded">
       <h2 className="text-lg font-semibold mb-4">Đơn hàng của tôi</h2>
-      <Tabs defaultActiveKey="all">
-        {['all', 'processing', 'shipping', 'success', 'canceled'].map(status => (
-          <TabPane 
-            tab={status === 'all' ? 'Tất cả đơn hàng' : status === 'processing' ? 'Đang xử lý' : status === 'shipping' ? 'Vận chuyển' : status === 'success' ? 'Hoàn thành' : 'Đã hủy'} 
-            key={status}
-          >
-            {filterOrders(status).map((order) => (
-              <div key={order.id} className="bg-white p-4 rounded shadow w-full flex flex-col mb-4">
-                {order.items.map((item, index) => (
-                  <div key={index} className="flex justify-between border-b pb-2 mb-2">
-                    <div>
-                      <p className="font-semibold">{item.name}</p>
-                      <p>Số lượng: {item.quantity}</p>
+      <Tabs
+        defaultActiveKey="all"
+        items={statusTabs.map(({ key, label }) => ({
+          key,
+          label,
+          children: (
+            <>
+              {filterOrders(key).map((order) => (
+                <div key={order.id} className="bg-white p-4 rounded shadow w-full flex flex-col mb-4">
+                  {order.items.map((item, index) => (
+                    <div key={index} className="flex justify-between border-b pb-2 mb-2">
+                      <div>
+                        <p className="font-semibold">{item.name}</p>
+                        <p>Số lượng: {item.quantity}</p>
+                      </div>
+                      <p className="text-red-500">{item.price}đ</p>
                     </div>
-                    <p className="text-red-500">{item.price}đ</p>
+                  ))}
+                  <div className="flex justify-end items-center mt-2">
+                    <p className="text-lg font-semibold">Thành tiền: <span className="text-red-500">{order.total}đ</span></p>
                   </div>
-                ))}
-                <div className="flex justify-end items-center mt-2">
-                  <p className="text-lg font-semibold">Thành tiền: <span className="text-red-500">{order.total}đ</span></p>
                 </div>
-              </div>
-            ))}
-          </TabPane>
-        ))}
-      </Tabs>
+              ))}
+            </>
+          ),
+        }))}
+      />
     </div>
   );
 };
 
 export default MyOrders;
+
+
+{/* <Tabs defaultActiveKey="all">
+{['all', 'processing', 'shipping', 'success', 'canceled'].map(status => (
+  <TabPane 
+    tab={status === 'all' ? 'Tất cả đơn hàng' : status === 'processing' ? 'Đang xử lý' : status === 'shipping' ? 'Vận chuyển' : status === 'success' ? 'Hoàn thành' : 'Đã hủy'} 
+    key={status}
+  >
+    {filterOrders(status).map((order) => (
+      <div key={order.id} className="bg-white p-4 rounded shadow w-full flex flex-col mb-4">
+        {order.items.map((item, index) => (
+          <div key={index} className="flex justify-between border-b pb-2 mb-2">
+            <div>
+              <p className="font-semibold">{item.name}</p>
+              <p>Số lượng: {item.quantity}</p>
+            </div>
+            <p className="text-red-500">{item.price}đ</p>
+          </div>
+        ))}
+        <div className="flex justify-end items-center mt-2">
+          <p className="text-lg font-semibold">Thành tiền: <span className="text-red-500">{order.total}đ</span></p>
+        </div>
+      </div>
+    ))}
+  </TabPane>
+))}
+</Tabs> */}

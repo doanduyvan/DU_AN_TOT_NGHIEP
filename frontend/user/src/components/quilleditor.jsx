@@ -16,6 +16,7 @@ export const QuillEditor = ({ dataEditor, onChange }) => {
                         ['bold', 'italic', 'underline', 'strike'],
                         [{ list: 'ordered' }, { list: 'bullet' }],
                         ['link', 'image'],
+                        [{ align: [] }],
                         ['clean']
                     ]
                 },

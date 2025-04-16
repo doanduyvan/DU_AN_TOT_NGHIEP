@@ -23,7 +23,9 @@ AxiosUser.interceptors.request.use(
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }else{
-        return Promise.reject(new Error("Bạn cần đăng nhập để thực hiện yêu cầu này."));
+        const error = new Error("Bạn cần đăng nhập để thực hiện yêu cầu này.");
+        error.status = 401; 
+        return Promise.reject(error);
       }
     }
 

@@ -17,6 +17,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CommentProductController;
 use App\Http\Controllers\CommentNewsController;
+use App\Http\Controllers\customer\CartController;
+use App\Http\Controllers\customer\NewsdetailController;
+use App\Http\Controllers\customer\ProfileController;
 use App\Http\Controllers\ChartDataController;
 use App\Http\Controllers\Trashed\TrashedCategoryController;
 use App\Http\Controllers\Trashed\TrashedCategoryNewsController;
@@ -194,11 +197,28 @@ Route::get('/testapi', function () {
 // route cho người dùng  
 
 Route::group(['prefix' => 'customer'],function(){
+    Route::get('checklogin', function (Request $request) {
+        return response()->json(['message' => 'Token hợp lệ'], 200);
+    })->middleware('auth:sanctum');
     Route::get('home/getnewproducts', [HomeController::class, 'getNewProducts']);
     Route::get('home/getcategory', [HomeController::class, 'getCategory']);
+    Route::get('home/get3news', [HomeController::class, 'get3News']);
     Route::get('shop/getcategory',[ShopController::class, 'getCategory']);
     Route::get('shop/getproducts',[ShopController::class, 'getProducts']);
+    Route::get('shop/getvariantfilter', [ShopController::class, 'getVariantFilter']);
     Route::get('productdetail/getproductbyid/{id}',[ProductdetailController::class, 'getProductById']);
+    Route::get('productdetail/getrelatedproducts/{id}',[ProductdetailController::class, 'getRelatedProducts']);
     Route::get('news/categorynews',[CustomerNewsController::class, 'getCategoryNews']);
     Route::get('news/getnews',[CustomerNewsController::class, 'getNews']);
+    Route::get('newsdetail/getnewsbyid/{id}',[NewsdetailController::class, 'getNewsById']);
+    Route::get('newsdetail/getnewsrelated/{id}',[NewsdetailController::class, 'getNewsRelated']);
+    Route::post('profile/update-avatar', [ProfileController::class, 'updateAvatar'])->middleware('auth:sanctum');
+    Route::post('profile/update-info', [ProfileController::class, 'updateInfo'])->middleware('auth:sanctum');
+    Route::get('profile/get-address', [ProfileController::class, 'getAddress'])->middleware('auth:sanctum');
+    Route::post('profile/add-address', [ProfileController::class, 'addAddress'])->middleware('auth:sanctum');
+    Route::post('profile/delete-address/{id}', [ProfileController::class, 'deleteAddress'])->middleware('auth:sanctum');
+    Route::get('cart/checkqtyproductvariant/{id}',[CartController::class, 'checkQtyProductVariant']);
+    Route::post('cart/getcart',[CartController::class, 'getCart']);
+
+
 });

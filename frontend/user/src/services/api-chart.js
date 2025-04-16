@@ -5,14 +5,22 @@ const apiPost = async (url, data) => {
   return response;
 };
 
-const apiGet = async (url) => {
-  const response = await axios.get(url);
+const apiGet = async (url, options = {}) => {
+  const response = await axios.get(url, {
+    ...options,
+  });
   return response;
 };
 
 const ChartService = {
     getProductPerformance: async () => {
-    return apiGet("/product-performance");
+    return apiGet("/statisticals/product-performance");
+  },
+  getOrderYear: async () => {
+    return apiGet("/statisticals/get-order-year");
+  },
+  getOrderStatistics: async (year) => {
+    return apiGet(`/statisticals/get-order-statistics/${year}`);
   },
 };
 export { ChartService };

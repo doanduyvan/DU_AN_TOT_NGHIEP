@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Order;
+use Illuminate\Support\Facades\DB;
 
 class ChartDataController extends Controller
 {
@@ -29,5 +31,24 @@ class ChartDataController extends Controller
         });
 
         return response()->json($chartData);
+    }
+    public function getOrderYear(){
+        $orders = Order::selectRaw('YEAR(created_at) as year, COUNT(*) as count')
+            ->groupBy('year')
+            ->orderBy('year', 'desc')
+            ->get();
+        return response()->json($orders);
+    }
+    public function getOrderStatistics($year){
+        $data = DB::table('orders')
+        ->select(DB::raw('YEAR(created_at) as year'),
+        DB::raw('MONTH(created_at) as month'),
+        DB::raw('COUNT(id) as total_order'),
+        DB::raw('SUM(total_amount) as total_revenue'))
+        ->whereYear('created_at', $year)
+        ->groupBy(DB::raw('YEAR(created_at), MONTH(created_at)'))
+        ->orderBy('month', 'asc')
+        ->get();
+        return response()->json($data);
     }
 }

@@ -13,6 +13,7 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Models\Category;
 class OrderController extends Controller
 {
     //
@@ -26,6 +27,23 @@ class OrderController extends Controller
         $order = Order::with('orderDetails.productvariant.product')->find($id);
         return response()->json($order);
     }
+
+    public function getProductVariant()
+    {
+        $filters = request()->only(['per_page', 'sortorder', 'keyword', 'filter_category']);
+        $products = Product::search($filters['keyword'] ?? null)
+        ->filterCategory($filters['filter_category'] ?? null)
+        ->applyFilters($filters);
+        $products->load('variants');
+        return response()->json($products);
+    }
+
+    public function getCategoryProducts()
+    {
+        $categories = Category::orderBy('id', 'desc')->get();
+        return response()->json($categories);
+    }
+
     public function create(CreateOrderRequest $request)
     {
         $validateData = $request->validated();

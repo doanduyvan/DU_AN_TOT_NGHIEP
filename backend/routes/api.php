@@ -81,10 +81,14 @@ route::post('/categories/restore', [TrashedCategoryController::class, 'restore']
 route::delete('/categories/force-delete/{id}', [TrashedCategoryController::class, 'forceDelete']);
 
 
-Route::get('/product-performance', [ChartDataController::class, 'getProductPerformance']);
+Route::get('/statisticals/product-performance', [ChartDataController::class, 'getProductPerformance']);
+Route::get('/statisticals/get-order-year', [ChartDataController::class, 'getOrderYear']);
+Route::get('/statisticals/get-order-statistics/{year}', [ChartDataController::class, 'getOrderStatistics']);
 
 
 Route::get('orders', [OrderController::class, 'index']);
+Route::get('orders/get-product-variant', [OrderController::class, 'getProductVariant']);
+Route::get('orders/category-products', [OrderController::class, 'getCategoryProducts']);
 Route::post('orders/update/{id}', [OrderController::class, 'update']);
 Route::post('orders/destroy', [OrderController::class, 'destroy']);
 Route::post('orders/create', [OrderController::class, 'create']);
@@ -159,6 +163,7 @@ route::get('/products/{id}', [ProductsController::class, 'getProductById'])->mid
 
 
 route::get('/news', [NewsController::class, 'index']);
+route::get('/news/get-category-news', [NewsController::class, 'getCategoryNews']);
 route::post('/news/update/{id}', [NewsController::class, 'update'])->middleware('check.permission:update-news');
 route::post('/news/create', [NewsController::class, 'create'])->middleware('check.permission:create-news');
 route::post('/news/destroy', [NewsController::class, 'destroy'])->middleware('check.permission:delete-news');

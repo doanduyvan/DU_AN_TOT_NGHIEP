@@ -72,7 +72,7 @@ import ProductStatusChart from "./components/chart/status";
 import ProductPerformanceChart from "./components/chart/productper";
 import MyChart from "./components/chart/test1";
 import OrdersChart from "./components/chart/test2";
-import ProductsChart from "./components/chart/test3";
+import Revenue from "./components/chart/revenue";
 import VouchersChart from "./components/chart/voucher";
 
 function App() {
@@ -140,11 +140,11 @@ function App() {
 
     { path: 'chart', element: < ProductStatsChart /> },
     { path: 'status', element: < ProductStatusChart /> },
-    { path: 'statisticals', element: < ProductPerformanceChart /> },
+    { path: 'statisticals/productper', element: < ProductPerformanceChart /> },
+    { path: 'statisticals/revenue', element: < Revenue/> },
     
     { path: 'test1', element: < MyChart /> },
     { path: 'test2', element: < OrdersChart /> },
-    { path: 'test3', element: < ProductsChart /> },
     { path: 'voucher', element: < VouchersChart /> },
   ];
 

@@ -82,7 +82,7 @@ export const Products = () => {
                 AntNotification.handleError(error);
             }
         };
-        fetchData();    
+        fetchData();
     }, [currentPage, pageSize, sortorder, keyword, filterCategory]);
 
     useEffect(() => {
@@ -154,15 +154,12 @@ export const Products = () => {
                     <h5 className="text-xl font-medium leading-tight text-primary">
                         Quản Lý Sản Phẩm
                     </h5>
-                    {
-                        permissions.includes("create-product") &&
-                        <Link
-                            to="/admin/products/create"
-                            className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
-                        >
-                            Thêm Sản Phẩm
-                        </Link>
-                    }
+                    <Link
+                        to="/admin/products/create"
+                        className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
+                    >
+                        Thêm Sản Phẩm
+                    </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
                     <div className="flex items-center space-x-4">

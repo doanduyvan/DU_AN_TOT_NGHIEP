@@ -7,8 +7,11 @@ import { OrderStatusSelect } from "../../../components/admin/orders/order_status
 import { PaymentStatusSelect } from "../../../components/admin/orders/payment_status";
 import { ShippingStatusSelect } from "../../../components/admin/orders/shipping_status";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import ProductSelector from "../../../components/admin/orders/product_selector";
+import { Pagination } from 'antd';
 import Select from 'react-select';
 export const Create_Order = () => {
+    const [isProductSelectorVisible, setIsProductSelectorVisible] = useState(false);
     const Navigate = useNavigate();
     const [isClearable, setIsClearable] = useState(true);
     const [provinces, setProvinces] = useState([]);
@@ -17,6 +20,7 @@ export const Create_Order = () => {
     const [selectedProvince, setSelectedProvince] = useState(null);
     const [selectedDistrict, setSelectedDistrict] = useState(null);
     const [selectedWard, setSelectedWard] = useState(null);
+
     const [order, setOrderId] = useState({
         shipping_status: "1",
         payment_status: "1",
@@ -80,7 +84,7 @@ export const Create_Order = () => {
             setSearchUsers([]);
             setIsUserResultVisible(false);
         }
-        
+
         if (!isUserResultVisible) {
             setSearchUsers([]);
             setUsercheck([]);
@@ -92,7 +96,7 @@ export const Create_Order = () => {
             setOrderId(prev => ({
                 ...prev,
                 user_id: null,
-                addresses: "",   
+                addresses: "",
             }));
         }
     };
@@ -323,7 +327,7 @@ export const Create_Order = () => {
             [name]: value
         }));
     };
-console.log(order.user_id);
+    // console.log(order.user_id);
     const handleSubmitOrder = async () => {
         let userId = order.user_id;
         try {
@@ -354,7 +358,7 @@ console.log(order.user_id);
                             ...prev,
                             user_id: userId
                         }));
-                    }else {
+                    } else {
                         AntNotification.showNotification('Lỗi', 'Không thể tạo người dùng mới', 'error');
                         return;
                     }
@@ -403,7 +407,42 @@ console.log(order.user_id);
         setOrderDetails(updatedOrderDetails);
         AntNotification.showNotification("Xóa sản phẩm thành công", "", "success");
     };
-    console.log(usercheck);
+    // Lấy danh sách sản phẩm
+
+    const handleAddProduct = ({ product, variant }) => {
+        console.log(product, variant);
+        const variantId = variant.id;
+        if (orderDetails.some(order => order.productvariant.id === variantId)) {
+            AntNotification.showNotification('Tồn tại', 'Sản phẩm đã có trong đơn hàng', 'error');
+            return;
+        }
+        product.variants.forEach(variant => {
+            if (variant.id === variantId) {
+                setOrderDetails(prev => [
+                    ...prev,
+                    {
+                        product_variant_id: variant.id,
+                        product_id: product.id,
+                        productvariant: {
+                            id: variant.id,
+                            product: {
+                                id: product.id,
+                                product_name: product.product_name,
+                                sku: variant.sku,
+                                size: variant.size,
+                            },
+                            size: variant.size,
+                            price: variant.price,
+                            quantity: tempQuantities[variant.id] || 0,
+                        },
+                        quantity: 1,
+                        price: variant.price,
+                    }
+                ]);
+            }
+        });
+        // setIsProductSelectorVisible(false);
+    };
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <nav className="rounded-md w-full pb-4">
@@ -484,7 +523,7 @@ console.log(order.user_id);
                                     <p className="text-sm font-medium">Người dùng đã chọn: <span className="text-blue-700">{usercheck.fullname}</span></p>
                                 </div>
                             )}
-                            
+
                             {userLoading && (
                                 <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 z-50 p-4 text-center">
                                     <svg className="h-5 w-5 text-blue-500 animate-spin mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -536,6 +575,7 @@ console.log(order.user_id);
                                     setSelectedProvince(selectedOption);
                                     if (selectedOption) {
                                         fetchDistricts(selectedOption.code);
+                                        setSelectedDistrict([]);
                                     } else {
                                         setDistricts([]);
                                     }
@@ -569,6 +609,7 @@ console.log(order.user_id);
 
                                     if (selectedOption) {
                                         fetchWards(selectedOption.code);
+                                        setSelectedWard([]);
                                     } else {
                                         setWards([]);
                                     }
@@ -690,57 +731,72 @@ console.log(order.user_id);
 
                 {/* Product Details Section */}
                 <div className="mb-6">
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="mb-4">
                         <h6 className="text-md font-medium text-gray-700">Chi tiết sản phẩm</h6>
-                        <div className="w-full md:w-1/2 lg:w-1/4">
-                            <div className="relative" ref={searchRef}>
-                                <form onSubmit={handleSearchSubmit} className="flex items-center border border-gray-300 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
-                                    <input
-                                        type="text"
-                                        value={searchQuery}
-                                        onChange={handleSearchChange}
-                                        onFocus={handleInputFocus}
-                                        placeholder="Thêm sản phẩm"
-                                        className="flex-grow px-3 outline-none text-gray-700"
-                                    />
-                                    <button
-                                        type="submit"
-                                        disabled={loading}
-                                        className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 min-w-24 h-10 flex items-center justify-center"
-                                    >
-                                        {loading ? (
-                                            <svg className="h-5 w-5 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                        ) : 'Search'}
-                                    </button>
-                                </form>
-                                {isResultVisible && search_products.length > 0 && (
-                                    <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden max-h-64 overflow-y-auto">
-                                        <ul className="divide-y divide-gray-100">
-                                            {search_products.map((product) => (
-                                                product.variants.map((variant) => (
-                                                    <li key={variant.id} className="flex items-center justify-between gap-2 p-3 hover:bg-gray-50 cursor-pointer">
-                                                        <div className="flex flex-col gap-1 w-full">
-                                                            <h3 className="text-gray-800 text-sm font-medium">{product.product_name}</h3>
-                                                            <div className="flex items-center text-gray-600 text-xs">
-                                                                <span className="inline-block bg-gray-100 px-2 py-1 rounded mr-2">Mã: {variant.sku}</span>
-                                                                <span className="inline-block bg-gray-100 px-2 py-1 rounded">Size: {variant.size}</span>
+                        <div className="flex justify-between items-center my-4">
+                            <button
+                                onClick={() => setIsProductSelectorVisible(true)}
+                                className="bg-blue-500 text-white px-4 py-2 rounded"
+                            >
+                                Thêm sản phẩm
+                            </button>
+                            {isProductSelectorVisible && (
+                                <ProductSelector
+                                    onSelectProduct={handleAddProduct}
+                                    onClose={() => setIsProductSelectorVisible(false)}
+                                />
+                            )}
+
+                            <div className="w-full md:w-1/2 lg:w-1/4">
+                                <div className="relative" ref={searchRef}>
+                                    <form onSubmit={handleSearchSubmit} className="flex items-center border border-gray-300 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+                                        <input
+                                            type="text"
+                                            value={searchQuery}
+                                            onChange={handleSearchChange}
+                                            onFocus={handleInputFocus}
+                                            placeholder="Tìm kiếm mã sản phẩm..."
+                                            className="flex-grow px-3 outline-none text-gray-700"
+                                        />
+                                        <button
+                                            type="submit"
+                                            disabled={loading}
+                                            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 min-w-24 h-10 flex items-center justify-center"
+                                        >
+                                            {loading ? (
+                                                <svg className="h-5 w-5 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            ) : 'Search'}
+                                        </button>
+                                    </form>
+                                    {isResultVisible && search_products.length > 0 && (
+                                        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden max-h-64 overflow-y-auto">
+                                            <ul className="divide-y divide-gray-100">
+                                                {search_products.map((product) => (
+                                                    product.variants.map((variant) => (
+                                                        <li key={variant.id} className="flex items-center justify-between gap-2 p-3 hover:bg-gray-50 cursor-pointer">
+                                                            <div className="flex flex-col gap-1 w-full">
+                                                                <h3 className="text-gray-800 text-sm font-medium">{product.product_name}</h3>
+                                                                <div className="flex items-center text-gray-600 text-xs">
+                                                                    <span className="inline-block bg-gray-100 px-2 py-1 rounded mr-2">Mã: {variant.sku}</span>
+                                                                    <span className="inline-block bg-gray-100 px-2 py-1 rounded">Size: {variant.size}</span>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                        <button
-                                                            className="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded transition-colors"
-                                                            onClick={() => handleProductSelect(variant.id)}
-                                                        >
-                                                            Thêm
-                                                        </button>
-                                                    </li>
-                                                ))
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
+                                                            <button
+                                                                className="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded transition-colors"
+                                                                onClick={() => handleProductSelect(variant.id)}
+                                                            >
+                                                                Thêm
+                                                            </button>
+                                                        </li>
+                                                    ))
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>

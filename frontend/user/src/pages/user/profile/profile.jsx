@@ -13,7 +13,7 @@ const Profile = () => {
 
   const { isLoggedIn,user } = useUserContext();
   const [activeTab, setActiveTab] = useState("1");
-  if (!isLoggedIn) return <Navigate to="/login" />;
+  // if (!isLoggedIn) return <Navigate to="/login" />;
   return (
     <>
       <div className="pt-[70px]"></div>
@@ -31,7 +31,7 @@ const Profile = () => {
             ):(
               <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
             )}
-              <h3 className="mt-2 font-semibold">Chào {user.fullname}</h3>
+              <h3 className="mt-2 font-semibold">Chào {user?.fullname}</h3>
               <p className="text-gray-500 text-sm">Thông tin tài khoản</p>
             </div>
             <ul className="space-y-2 cursor-pointer hidden md:block">

@@ -27,7 +27,6 @@ const AddAddress = ({ open, onClose, onSuccess }) => {
 
   useEffect(() => {
     AxiosUser.get(urlGetProvinces).then((res) => {
-      console.log(res);
       setProvinces(res);
     });
   }, []);
@@ -56,16 +55,17 @@ const AddAddress = ({ open, onClose, onSuccess }) => {
   const sendToServer = async (payload) => {
     try {
         setLoading(true);
-      const response = await AxiosUser.post(urlAddAddress, payload, { useToken: true });
-      return true;
+      const res = await AxiosUser.post(urlAddAddress, payload, { useToken: true });
+      const newAddress = res?.address;
+      return newAddress;
     } catch (error) {
-        console.log(error);
         const status = error?.status;
       if (status === 401) {
         message.error("Vui lòng đăng nhập để thực hiện thao tác này.");
         navigate("/login");
       }else {
-          message.error("Có lỗi xảy ra khi thêm địa chỉ.");
+        const message2 = error.response?.data?.message || "Có lỗi xảy ra khi thêm địa chỉ.";
+          message.error(message2);
       }
         return false;
     }finally{
@@ -88,7 +88,7 @@ const AddAddress = ({ open, onClose, onSuccess }) => {
       form.resetFields();
       onClose();
       if (onSuccess) {
-        onSuccess(payload);
+        onSuccess(check);
      }
     });
   };
@@ -105,6 +105,7 @@ const AddAddress = ({ open, onClose, onSuccess }) => {
       open={open}
       onCancel={handleCancel}
       onOk={handleSubmit}
+      confirmLoading={loading}
       okText="Lưu"
       cancelText="Hủy"
       className="md:max-w-[700px]"
@@ -200,7 +201,6 @@ const AddAddress = ({ open, onClose, onSuccess }) => {
         </Form.Item>
       </Form>
     </Modal>
-    <FullScreenLoader visible={loading} tip="Vui lòng chờ..." />
     </>
   );
 };

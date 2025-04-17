@@ -28,11 +28,14 @@ class CartController extends Controller
     $selectVariant = ['id', 'product_id', 'size', 'price', 'promotional_price', 'stock_quantity'];
 
     $result = [];
+    $error = [];
 
     foreach ($cart as $item) {
         $variant = ProductVariant::select($selectVariant)
             ->with(['product' => function ($query) use ($selectProduct) {
-                $query->select($selectProduct);
+                $query->select($selectProduct)
+                ->where('status', 1)
+                ->whereNull('deleted_at');
             }])
             ->where('id', $item['variant_id'])
             ->first();
@@ -49,10 +52,18 @@ class CartController extends Controller
                 'qty'          => $item['qty'],
                 'stock'        => $variant->stock_quantity,
             ];
+            if($variant->stock_quantity < $item['qty']){
+                $index = count($result) - 1;
+                $result[$index]['error'] = 'Số lượng sản phẩm không đủ trong kho';
+                $error[] = [
+                    'variant_id' => $variant->id,
+                    'message' => 'Số lượng sản phẩm không đủ trong kho',
+                ];
+            }
         }
     }
 
-    return response()->json(['data' => $result], 200);
+    return response()->json(['data' => $result, 'error' => $error], 200);
 }
     
 }

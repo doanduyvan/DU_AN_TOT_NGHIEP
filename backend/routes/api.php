@@ -21,6 +21,7 @@ use App\Http\Controllers\customer\CartController;
 use App\Http\Controllers\customer\NewsdetailController;
 use App\Http\Controllers\customer\ProfileController;
 use App\Http\Controllers\ChartDataController;
+use App\Http\Controllers\Customer\CheckoutController;
 use App\Http\Controllers\Trashed\TrashedCategoryController;
 use App\Http\Controllers\Trashed\TrashedCategoryNewsController;
 use App\Http\Controllers\Trashed\TrashedUserController;
@@ -40,7 +41,7 @@ use App\Http\Controllers\LocationController;
 | routes are loaded by the RouteServiceProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
 |
-*/
+*/ 
 Route::get('/provinces', [LocationController::class, 'getProvinces']);
 Route::get('/districts/{provinceCode}', [LocationController::class, 'getDistrictsByProvince']);
 Route::get('/wards/{districtCode}', [LocationController::class, 'getWardsByDistrict']);
@@ -118,6 +119,11 @@ Route::post('permissions/destroy', [PermissionController::class, 'destroy'])->mi
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/verify-email', [AuthController::class, 'verifyEmail']);
+Route::post('/forgot-password', [AuthController::class, 'sendResetPasswordEmail']);
+Route::get('/check-reset-token', [AuthController::class, 'checkResetToken']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
 
 // Route được bảo vệ bởi Sanctum
 Route::middleware('auth:sanctum')->group(function () {
@@ -191,6 +197,8 @@ Route::get('/testapi', function () {
 
 // route cho người dùng  
 
+Route::get('/vnpay/ipn',[CheckoutController::class, 'VnPay_IPN']);
+
 Route::group(['prefix' => 'customer'],function(){
     Route::get('checklogin', function (Request $request) {
         return response()->json(['message' => 'Token hợp lệ'], 200);
@@ -212,8 +220,16 @@ Route::group(['prefix' => 'customer'],function(){
     Route::get('profile/get-address', [ProfileController::class, 'getAddress'])->middleware('auth:sanctum');
     Route::post('profile/add-address', [ProfileController::class, 'addAddress'])->middleware('auth:sanctum');
     Route::post('profile/delete-address/{id}', [ProfileController::class, 'deleteAddress'])->middleware('auth:sanctum');
+    Route::post('profile/set-default-address/{id}', [ProfileController::class, 'setDefaultAddress'])->middleware('auth:sanctum'); 
+    Route::get('profile/getorders',[ProfileController::class, 'getOrders'])->middleware('auth:sanctum');
+    Route::post('profile/cancel-order/{id}',[ProfileController::class, 'CancelOrder'])->middleware('auth:sanctum');
+    Route::post('profile/payment-again/{id}',[CheckoutController::class, 'PaymentAgain'])->middleware('auth:sanctum');
     Route::get('cart/checkqtyproductvariant/{id}',[CartController::class, 'checkQtyProductVariant']);
     Route::post('cart/getcart',[CartController::class, 'getCart']);
+    Route::post('checkout',[CheckoutController::class, 'Store'])->middleware('auth:sanctum');
 
 
 });
+
+
+// testapi

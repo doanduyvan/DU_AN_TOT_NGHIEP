@@ -1,4 +1,4 @@
-import { Button, Input } from "antd";
+import { Button, Input,Modal, Form, notification} from "antd";
 import { GoogleOutlined } from "@ant-design/icons";
 import { AuthService } from "../../services/api-auth";
 import { useState, useEffect } from "react";
@@ -7,6 +7,9 @@ import { notification as Notification, message } from "antd";
 import { useAuth } from "../../contexts/authcontext";
 import { FullScreenLoader } from "../../utils/helpersjsx";
 import { useUserContext } from "../../context/user/userContext";
+import AxiosUser from "../../utils/axios_user";
+
+const urlForgotPassword = "forgot-password";
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -14,6 +17,8 @@ const LoginForm = () => {
   const { setCurrentUser } = useAuth();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [openforgotpasss, setOpenforgotpasss] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,15 +69,15 @@ const LoginForm = () => {
 
         <form className="mt-6 text-left form" onSubmit={handleSubmit}>
           <label className="block text-sm font-medium text-gray-700">Email</label>
-          {error && <p className="error text-red-500">{error.email}</p>}
           <Input className="mt-1 text-lg" name="email" placeholder="Example@gmail.com" />
+          {error && <p className="error text-red-500">{error.email}</p>}
 
           <div className="flex justify-between items-center mt-4">
             <label className="block text-sm font-medium text-gray-700">Mật khẩu</label> <br />
-            {error && <p className="error text-red-500">{error.password}</p>}
-            <a href="#" className="text-sm text-blue-500">Forgot Password?</a>
+            <button type="button" className="text-sm text-blue-500" onClick={()=> setOpenforgotpasss(true)}>Quên mật khẩu?</button>
           </div>
           <Input.Password className="mt-1 text-lg" name="password" />
+            {error && <p className="error text-red-500">{error.password}</p>}
 
           <button type="submit" className="w-full p-2 rounded-lg mt-6 bg-yellow-400 hover:bg-yellow-500">
             Đăng nhập
@@ -95,8 +100,62 @@ const LoginForm = () => {
       </div>
     </div>
     <FullScreenLoader visible={loading} tip="Đang tải..." />
+    <ForgotPasswordModal open={openforgotpasss} onClose={setOpenforgotpasss} />
     </>
   );
 };
 
 export default LoginForm;
+
+
+const ForgotPasswordModal = ({ open, onClose }) => {
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+
+  const handleOk = async () => {
+    const values = await form.validateFields();
+    try {
+      setLoading(true);
+      const response = await AxiosUser.post(urlForgotPassword, values);
+      message.success("Đã gửi yêu cầu quên mật khẩu thành công");
+      form.resetFields();
+      onClose();
+    } catch (error) {
+      const emailError = error?.response?.data?.errors?.email;
+      const message2 = Array.isArray(emailError) ? emailError[0] : "Lỗi khi gửi yêu cầu quên mật khẩu.";
+      notification.error({
+        message: "Lỗi",
+        description: message2,
+      });
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Modal
+      title="Quên mật khẩu"
+      open={open}
+      onCancel={()=> onClose(false)}
+      maskClosable={true}
+      onOk={handleOk}
+      confirmLoading={loading}
+      okText="Gửi"
+      cancelText="Hủy"
+    >
+      <Form form={form} layout="vertical" name="forgot_password_form">
+        <Form.Item
+          name="email"
+          label="Email"
+          rules={[
+            { required: true, message: "Vui lòng nhập email!" },
+            { type: "email", message: "Email không hợp lệ!" },
+          ]}
+        >
+          <Input placeholder="example@gmail.com" />
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+};

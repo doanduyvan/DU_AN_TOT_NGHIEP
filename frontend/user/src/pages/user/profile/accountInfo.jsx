@@ -12,8 +12,8 @@ const baseUrlImg = import.meta.env.VITE_URL_IMG;
 const AccountInfo = () => {
 
   const { user, setUser, isLoggedIn } = useUserContext();
-  const [fullname, setFullname] = useState(user.fullname || "");
-  const [phone, setPhone] = useState(user.phone || "");
+  const [fullname, setFullname] = useState(user?.fullname || "");
+  const [phone, setPhone] = useState(user?.phone || "");
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
@@ -83,7 +83,7 @@ const AccountInfo = () => {
       <input type="file" id="info-avatar" hidden onChange={handleAvatarChange} />
       <div htmlFor="info-avatar" className="flex items-center justify-center mb-4">
       <label htmlFor="info-avatar" className="flex flex-col items-center justify-center cursor-pointer">
-      {user.avatar ? (
+      {user?.avatar ? (
         <img
           src={baseUrlImg + user.avatar}
           alt="Avatar"
@@ -96,7 +96,7 @@ const AccountInfo = () => {
       </label>
       </div>
       <label htmlFor="" className="font-medium">Email</label>
-      <Input className="mb-2" placeholder={user.email} disabled />
+      <Input className="mb-2" placeholder={user?.email} disabled />
       <label htmlFor="" className="block font-medium mt-1">Họ và Tên</label>
       <Input className="mb-2" placeholder="" value={fullname} onChange={e => setFullname(e.target.value)} />
       <label htmlFor="" className="block font-medium mt-1">Số điện thoại</label>

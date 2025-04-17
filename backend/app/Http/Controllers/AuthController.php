@@ -10,14 +10,17 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\RegisterUserRequest;
-
+use App\Mail\ResetPasswordMail;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerifyEmail;
+use App\Models\EmailVerification;
 
 class AuthController extends Controller
 {
     //
     public function register(RegisterUserRequest $request)
     {
-        $validated = $request->validated();
         DB::beginTransaction();
         try {
             $user = User::create([
@@ -26,21 +29,24 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password),
             ]);
             $user->assignRole('Users');
-            $token = $user->createToken('auth_token')->plainTextToken;
+
+            $token = Str::random(64);
+            EmailVerification::updateOrCreate(
+                ['email' => $user->email],
+                ['token' => $token, 'created_at' => now()]
+            );
+            Mail::to($user->email)->send(new VerifyEmail($token));
             DB::commit();
+
             return response()->json([
                 'status' => 200,
-                'message' => 'User registered successfully',
-                'user' => $user,
-                'permissions' => $user->getAllPermissions()->pluck('name'),
-                'roles' => $user->getRoleNames(),
-                'token' => $token
+                'message' => 'Đăng ký thành công. Vui lòng kiểm tra email để xác nhận tài khoản.',
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'status' => 500,
-                'message' => 'An error occurred while registering the user.',
+                'message' => 'Có một số lỗi trong quá trình đăng kí, vui lòng thử lại sau.',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -52,12 +58,36 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+
+        $messages = [
+            'email.required' => 'Email không được để trống.',
+            'email.email' => 'Vui lòng nhập đúng định dạng email.',
+            'password.required' => 'Mật khẩu không được để trống.',
+            'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
+            'password.max' => 'Mật khẩu không được vượt quá 255 ký tự.',
+        ];
+
         $request->validate([
             'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
+            'password' => 'required|string|min:6|max:255',
+        ], $messages);
 
         $user = User::where('email', $request->email)->first();
+
+        if ($user) {
+            if ($user->is_verify == 0) {
+                $token = Str::random(64);
+                EmailVerification::updateOrCreate(
+                    ['email' => $user->email],
+                    ['token' => $token, 'created_at' => now()]
+                );
+                Mail::to($user->email)->send(new VerifyEmail($token));
+                return response()->json([
+                    'status' => 401,
+                    'message' => 'Tài khoản của bạn chưa được xác nhận. Vui lòng kiểm tra email để xác nhận tài khoản.'
+                ]);
+            }
+        }
 
 
         if (!$user || !Hash::check($request->password, $user->password)) {
@@ -72,6 +102,7 @@ class AuthController extends Controller
                 'message' => 'Tài khoản của bạn đã bị khóa'
             ]);
         }
+
         
         $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -131,5 +162,109 @@ class AuthController extends Controller
             'status' => true,
             'message' => 'Successfully logged out from all devices'
         ]);
+    }
+
+    public function verifyEmail(Request $request)
+    {
+        $token = $request->query('token');
+        if (!$token) {
+            return response()->json(['message' => 'Thiếu token xác nhận.'], 400);
+        }
+
+        $verification = EmailVerification::where('token', $token)->first();
+        if (!$verification) {
+            return response()->json(['message' => 'Token không hợp lệ hoặc đã được sử dụng.'], 400);
+        }
+
+        $user = User::where('email', $verification->email)->first();
+        if (!$user) {
+            return response()->json(['message' => 'Không tìm thấy tài khoản tương ứng.'], 404);
+        }
+
+        $user->is_verify = 1;
+        $user->save();
+
+        $verification->delete(); // Xóa token sau khi dùng
+
+        return response()->json(['message' => 'Xác nhận email thành công.'], 200);
+    }
+
+    public function sendResetPasswordEmail(Request $request){
+
+        $messages = [
+            'email.required' => 'Email không được để trống.',
+            'email.email' => 'Vui lòng nhập đúng định dạng email.',
+            'email.exists' => 'Email không tồn tại trong hệ thống.',
+        ];
+
+        $request->validate([
+            'email' => 'required|email|exists:users,email'
+        ], $messages);
+
+        $token = Str::random(64);
+
+        DB::table('password_resets')->updateOrInsert(
+            ['email' => $request->email],
+            ['token' => $token, 'created_at' => now()]
+        );
+        Mail::to($request->email)->send(new ResetPasswordMail($token));
+        return response()->json(['message' => 'Đã gửi email đặt lại mật khẩu.']);
+    }
+
+    public function checkResetToken(Request $request)
+    {
+        $token = $request->query('token');
+
+        if (!$token) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Thiếu token xác nhận.'
+            ], 400);
+        }
+
+        $row = DB::table('password_resets')->where('token', $token)->first();
+
+        if (!$row) {
+            return response()->json(['valid' => false], 404);
+        }
+
+        return response()->json(['valid' => true]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+
+        $message = [
+            'token.required' => 'Token không được để trống.',
+            'password.required' => 'Mật khẩu không được để trống.',
+            'password.confirmed' => 'Xác nhận mật khẩu không khớp.',
+            'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
+            'password.max' => 'Mật khẩu không được vượt quá 255 ký tự.',
+        ];
+
+        $request->validate([
+            'token' => 'required|string',
+            'password' => 'required|confirmed|min:6|max:255',
+        ], $message);
+    
+        $row = DB::table('password_resets')->where('token', $request->token)->first();
+    
+        if (!$row) {
+            return response()->json(['message' => 'Token không hợp lệ hoặc đã hết hạn.'], 400);
+        }
+    
+        $user = User::where('email', $row->email)->first();
+        if (!$user) {
+            return response()->json(['message' => 'Không tìm thấy người dùng.'], 404);
+        }
+    
+        // cập nhật mật khẩu mới
+        $user->password = Hash::make($request->password);
+        $user->save();
+    
+        // xoá token reset sau khi dùng
+        DB::table('password_resets')->where('email', $row->email)->delete();
+    
+        return response()->json(['message' => 'Đặt lại mật khẩu thành công.']);
     }
 }

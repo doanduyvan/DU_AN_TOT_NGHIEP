@@ -39,13 +39,13 @@ class RegisterUserRequest extends FormRequest
     public function messages()
     {
         return [
-            'fullname.required' => 'Full name is required.',
-            'email.required' => 'Email is required.',
-            'email.email' => 'Please provide a valid email address.',
-            'email.unique' => 'This email is already registered.',
-            'password.required' => 'Password is required.',
-            'password.min' => 'Password must be at least 6 characters.',
-            'password.confirmed' => 'Password confirmation does not match.',
+            'fullname.required' => 'Họ tên không được để trống.',
+            'email.required' => 'Email không được để trống.',
+            'email.email' => 'Vui lòng nhập đúng định dạng email.',
+            'email.unique' => 'Email này đã được đăng ký.',
+            'password.required' => 'Mật khẩu không được để trống.',
+            'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
+            'password.confirmed' => 'Xác nhận mật khẩu không khớp.',
         ];
     }
 }

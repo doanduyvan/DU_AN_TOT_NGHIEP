@@ -13,7 +13,7 @@ class Order extends Model
     protected $table = 'orders';
     protected $fillable = ['order_date', 'total_amount', 'status', 
     'payment_method', 'shipping_address', 'user_id', 'fullname', 
-    'phone', 'carrier', 'tracking_number', 'shipping_fee', 'payment_status', 'shipping_status'];
+    'phone', 'carrier', 'tracking_number', 'shipping_fee', 'payment_status', 'shipping_status','note'];
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -61,5 +61,10 @@ class Order extends Model
         return $query->withTrashed()
             ->where('id', $id)
             ->forceDelete();
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(OrderPayment::class, 'order_id', 'id');
     }
 }

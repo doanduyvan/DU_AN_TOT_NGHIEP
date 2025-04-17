@@ -75,6 +75,9 @@ import MyChart from "./components/chart/test1";
 import OrdersChart from "./components/chart/test2";
 import ProductsChart from "./components/chart/test3";
 import VouchersChart from "./components/chart/voucher";
+import VnpayReturnPage from "./pages/user/vnpay/vnpayreturn";
+import VerifyEmail from "./pages/user/VerifyEmail";
+import ResetPassword from "./pages/user/ResetPassword";
 
 function App() {
   const Pages = [
@@ -91,7 +94,11 @@ function App() {
     { path: 'news', element: <News /> },
     { path: 'news/:id/:categoryname', element: <NewsDetail /> },
     { path: 'contact', element: <ContactPage /> },
-    { path: 'checkout',element: <Checkout />}
+    { path: 'checkout',element: <Checkout />},
+    { path: 'vnpay-return', element: <VnpayReturnPage />},
+    { path: 'verify-email', element: <VerifyEmail />},
+    { path: 'reset-password', element: <ResetPassword />},
+
   ];
 
 

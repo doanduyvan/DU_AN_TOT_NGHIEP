@@ -67,6 +67,10 @@ import { Update_CommentProduct } from "./pages/admin/comment_products/update";
 import { Comment_News } from "./pages/admin/comment_news";
 import { Create_CommentNews } from "./pages/admin/comment_news/create";
 import { Update_CommentNews } from "./pages/admin/comment_news/update";
+
+import { Vouchers } from "./pages/admin/vouchers";
+import { Create_Voucher } from "./pages/admin/vouchers/create";
+
 import Checkout from "./pages/user/checkout/checkout";
 
 import ProductStatsChart from "./components/chart/product";
@@ -76,6 +80,7 @@ import MyChart from "./components/chart/test1";
 import OrdersChart from "./components/chart/test2";
 import Revenue from "./components/chart/revenue";
 import VouchersChart from "./components/chart/voucher";
+
 
 function App() {
   const Pages = [
@@ -145,7 +150,10 @@ function App() {
     { path: 'status', element: < ProductStatusChart /> },
     { path: 'statisticals/productper', element: < ProductPerformanceChart /> },
     { path: 'statisticals/revenue', element: < Revenue/> },
-    
+
+    { path: 'vouchers', element: < Vouchers/> },
+    { path: 'vouchers/create', element: < Create_Voucher/> },
+
     { path: 'test1', element: < MyChart /> },
     { path: 'test2', element: < OrdersChart /> },
     { path: 'voucher', element: < VouchersChart /> },

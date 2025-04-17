@@ -30,6 +30,7 @@ use App\Http\Controllers\Trashed\TrashedProductController;
 use App\Http\Controllers\Trashed\TrashedOrderController;
 use App\Http\Controllers\Trashed\TrashedNewsController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\VoucherController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,13 +42,18 @@ use App\Http\Controllers\LocationController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+route::group(['prefix' => 'vouchers'], function (){
+    Route::get('/', [VoucherController::class, 'index']);
+    Route::post('/updatestatus', [VoucherController::class, 'updateStatus']);
+    Route::post('/create', [VoucherController::class, 'create']);
+
+});
+
 Route::get('/provinces', [LocationController::class, 'getProvinces']);
 Route::get('/districts/{provinceCode}', [LocationController::class, 'getDistrictsByProvince']);
 Route::get('/wards/{districtCode}', [LocationController::class, 'getWardsByDistrict']);
 
-
 route::post('orders/search-by-phone', [OrderController::class, 'searchByPhone']);
-
 
 
 route::get('/users/trash', [TrashedUserController::class, 'index']);
@@ -128,7 +134,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/logout-all', [AuthController::class, 'logoutAll']);
     Route::get('/me', [AuthController::class, 'me']);
-
     Route::get('/users', [UserController::class, 'index']);
 });
 route::post('/users/destroy', [UserController::class, 'destroy'])->middleware('check.permission:delete-customer');

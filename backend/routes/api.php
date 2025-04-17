@@ -136,6 +136,7 @@ route::post('/users/destroy', [UserController::class, 'destroy'])->middleware('c
 Route::middleware('check.permission:update-customer')->group(function () {
     route::post('/users/search-users', [UserController::class, 'searchUser']);
     Route::post('/users/updatestatus', [UserController::class, 'updateStatus']);
+    Route::post('/users/rolelevel/{id}', [UserController::class, 'roleLevel']);
     Route::post('/users/update/{id}', [UserController::class, 'updateUser']);
     Route::get('/users/showroles', [UserController::class, 'showRoles']);
     route::get('/users/{id}', [UserController::class, 'getUserById']);

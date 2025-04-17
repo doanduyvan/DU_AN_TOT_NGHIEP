@@ -28,6 +28,9 @@ const UsersService = {
   upadteStatus: async (data) => {
     return apiPost("/users/updatestatus", data);
   },
+  roleLevel: async (formdata, id) => {
+    return apiPost(`/users/rolelevel/${id}`, formdata);
+  },
   updateUser: async (formdata, id) => {
     return apiPost(`/users/update/${id}`, formdata);
   },

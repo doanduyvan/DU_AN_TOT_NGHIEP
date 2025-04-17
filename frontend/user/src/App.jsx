@@ -38,7 +38,8 @@ import RegisterForm from './components/auth/register';
 import CartPage from "./components/cartPage/cartPage";
 
 import { Users } from "./pages/admin/accounts";
-import { Set_User_Role } from "./pages/admin/accounts/update";
+import { Set_User_Role } from "./pages/admin/accounts/rolelevel";
+import { UpdateAccount } from "./pages/admin/accounts/update";
 import { UsersTrash } from "./pages/admin/accounts/trash";
 
 import { Orders } from "./pages/admin/orders";
@@ -107,7 +108,8 @@ function App() {
     { path: 'permissions/trash', element: < PermissionsTrash /> },
 
     { path: 'accounts/', element: < Users /> },
-    { path: 'accounts/update/:userId', element: < Set_User_Role /> },
+    { path: 'accounts/rolelevel/:userId', element: < Set_User_Role /> },
+    { path: 'accounts/update/:userId', element: < UpdateAccount /> },
     { path: 'accounts/trash', element: < UsersTrash /> },
 
     { path: 'categories', element: < Categories /> },

@@ -1,6 +1,7 @@
 name: Deploy Laravel + ReactJS to VPS
 
 on:
+  workflow_dispatch:
   push:
     branches: ['main']
   pull_request:

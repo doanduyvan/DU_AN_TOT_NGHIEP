@@ -227,7 +227,6 @@ export const Create_Product = () => {
                     <div className="mb-5 w-auto">
                         <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Mô tả sản phẩm</label>
                         <QuillEditor
-                            dataEditor={editorData}
                             onChange={handleEditorChange}
                         />
                     </div>

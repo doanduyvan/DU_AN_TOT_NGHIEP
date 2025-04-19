@@ -22,7 +22,7 @@ const AuthService = {
     try {
       const response = await apiPost("/logout");
       localStorage.removeItem("token");
-      window.location.href = "/login";
+      // window.location.href = "/login";
       return response;
     } catch (error) {
       localStorage.removeItem("token");

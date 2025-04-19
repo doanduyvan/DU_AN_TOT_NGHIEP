@@ -1,128 +1,145 @@
 import { useState } from "react";
-import { Button, Select } from "antd";
+import { Button, message } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
+import { useUserContext } from "../../context/user/userContext";
+import { Link } from "react-router-dom";
+import { formatCurrency, toSlug } from "../../utils/helpers";
+import { FullScreenLoader } from "../../utils/helpersjsx";
+import { useNavigate } from "react-router-dom";
+
+
+const baseUrlImg = import.meta.env.VITE_URL_IMG;
 
 const CartPage = () => {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Coffee Beans - Espresso Arabica and Robusta Beans",
-      price: 47.0,
-      img: "/images/home/img1.png",
-      stock: "In Stock",
-      brand: "LavAzza",
-      quantity: 1,
-    },
-    {
-      id: 2,
-      name: "Lavazza Coffee Blends - Try the Italian Espresso",
-      price: 53.0,
-      img: "/images/home/img1.png",
-      stock: "In Stock",
-      brand: "LavAzza",
-      quantity: 2,
-    },
-    {
-      id: 3,
-      name: "Qualità Oro Mountain Grown - Espresso Coffee Beans",
-      price: 38.65,
-      img: "/images/home/img1.png",
-      stock: "In Stock",
-      brand: "LavAzza",
-      quantity: 1,
-    },
-  ]);
+  const navigate = useNavigate();
+  const {cartItems, addToCart, removeFromCart, decreaseQty, loadingCartContext, onToCheckout} = useUserContext();
 
-  const handleDelete = (id) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
+  const [loading, setLoading] = useState(false);
+  const [loadingItems, setLoadingItems] = useState([]);
+
+  const handleQuantityChange = async (product_id, variant_id, delta) => {
+    if (loadingItems.includes(variant_id)) return;
+  
+    const currentItem = cartItems.find(item => item.variant_id === variant_id);
+    if (!currentItem) return;
+  
+    if (delta === -1 && currentItem.qty <= 1) return; // Không cho giảm dưới 1
+  
+    setLoadingItems(prev => [...prev, variant_id]);
+    setLoading(true);
+    if (delta === 1) {
+      await addToCart(product_id, variant_id);
+    } else if (delta === -1) {
+      await decreaseQty(variant_id);
+    }
+    setLoading(false);
+    setLoadingItems(prev => prev.filter(id => id !== variant_id));
   };
+  
 
-  const handleQuantityChange = (id, delta) => {
-    setCartItems(
-      cartItems.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
-      )
-    );
-  };
+  const total = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
 
-  const total = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+
 
   return (
     <>
-      <div className="pt-[100px]"></div>
-      <div className="lg: p-3">
-        <div className="max-w-4xl mx-auto p-4 bg-white shadow-md rounded-lg w-full">
-          <h2 className="text-lg font-semibold">Giỏ hàng</h2>
-          <p className="text-gray-500">{cartItems.length} items</p>
+      <div className="pt-[90px] pb-8 px-2">
+        <div className="max-w-5xl mx-auto bg-white shadow-md rounded-lg p-5">
+          <h2 className="text-xl font-semibold mb-1">Giỏ hàng</h2>
+          <p className="text-gray-500 mb-4">{cartItems.length} sản phẩm</p>
 
-          <div className="mt-4 space-y-4">
-            {cartItems.map((item) => (
-              <div
-                key={item.id}
-                className="relative flex flex-col sm:flex-row items-center border-b py-4 sm:space-x-4 w-full gap-4 sm:items-center"
-              >
-                <Button
-                  icon={<CloseOutlined />}
-                  type="text"
-                  danger
-                  onClick={() => handleDelete(item.id)}
-                  className="absolute top-2 right-2"
-                />
-                <img
-                  src={item.img}
-                  alt={item.name}
-                  className="w-16 h-16 rounded-lg object-cover"
-                />
-                <div className="flex-1 text-center sm:text-left">
-                  <p className="font-medium">{item.name}</p>
-                  <p className="text-gray-500">
-                    ${item.price.toFixed(2)} |{" "}
-                    <span className="text-green-500">{item.stock}</span>
-                  </p>
-                  <div className="flex items-center space-x-4">
-                    <Select
-                      defaultValue={item.brand}
-                      className="mt-1 w-full sm:w-auto"
-                    >
-                      <Select.Option value="LavAzza">LavAzza</Select.Option>
-                    </Select>
-                    <div className="flex items-center space-x-2">
-                      <Button onClick={() => handleQuantityChange(item.id, -1)}>
-                        -
-                      </Button>
-                      <span className="text-lg font-medium w-8 text-center">
-                        {item.quantity}
-                      </span>
-                      <Button onClick={() => handleQuantityChange(item.id, 1)}>
-                        +
-                      </Button>
+          {cartItems.length === 0 ? (
+            <p className="text-center text-gray-400">Giỏ hàng trống.</p>
+          ) : (
+            <div className="space-y-4">
+              {cartItems.map((item) => (
+                <div
+                  key={item.variant_id}
+                  className="relative grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] gap-3 border rounded-lg p-3 items-stretch"
+                >
+                <Link to={`/product/${item.product_id}/${toSlug(item.product_name)}`}>
+                  <img
+                    src={`${baseUrlImg}${item.image}`}
+                    alt={item.product_name}
+                    className="w-20 h-20 rounded object-cover border mx-auto sm:mx-0"
+                  />
+                </Link>
+                  <div className="flex flex-col gap-1 w-full">
+                    <Link 
+                    to={`/product/${item.product_id}/${toSlug(item.product_name)}`}
+                    title={item.product_name} 
+                    className="font-medium text-sm sm:text-base md:line-clamp-2">
+                      {item.product_name}
+                    </Link>
+                    <div className="flex gap-1 items-center">
+                    <p className="text-xs text-gray-500">Size: {item.size}</p>
+                    <div className="w-[1px] h-full bg-black"></div>
+                    <p className="text-xs text-gray-500">Kho: {item.stock} </p>
                     </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-red-600 font-semibold text-sm">
+                        {formatCurrency(item.price)}
+                      </span>
+                      {item.price_delete && (
+                        <span className="text-sm line-through text-gray-400">
+                          {formatCurrency(item.price_delete)}
+                        </span>
+                      )}
+                    </div>
+                    {item?.error && (
+                    <p className="text-red-600 text-xs text-center">sản phẩm không đủ số lượng</p>
+                    )}
                   </div>
-                </div>
-                <p className="font-semibold text-lg sm:self-center">
-                  ${(item.price * item.quantity).toFixed(2)}
-                </p>
-              </div>
-            ))}
-          </div>
 
-          <div className="flex justify-between items-center mt-4">
-            <Button type="link">&larr; Continue Shopping</Button>
+                  <div className="flex gap-2 justify-center items-end">
+                    <Button
+                      size="small"
+                      onClick={() => handleQuantityChange(item.product_id, item.variant_id, -1)}
+                      disabled={item.qty <= 1}
+                      loading={loadingItems.includes(item.variant_id)}
+                    >
+                      -
+                    </Button>
+                    <span className="w-8 text-center">{item.qty}</span>
+                    <Button
+                      size="small"
+                      onClick={() => handleQuantityChange(item.product_id, item.variant_id, 1)}
+                      disabled={item.qty >= item.stock}
+                      loading={loadingItems.includes(item.variant_id)}
+                    >
+                      +
+                    </Button>
+                  </div>
+
+                  <Button
+                    icon={<CloseOutlined />}
+                    type="text"
+                    danger
+                    onClick={() => removeFromCart(item.variant_id)}
+                    className="absolute top-1 right-1"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex justify-between items-center mt-6">
+            {/* <Button type="link" to='/'>&larr; Tiếp tục mua hàng</Button> */}
+            <Link to="/shop" className="text-sm text-blue-400 hover:text-blue-500 whitespace-nowrap">&larr; Tiếp tục mua hàng</Link>
             <Button
               type="primary"
-              className="bg-yellow-400 hover:bg-yellow-500"
+              className="bg-yellow-500 hover:!bg-yellow-600"
+              disabled={cartItems.length === 0}
+              loading={loading}
+              onClick={onToCheckout}
             >
-              All Check Out (${total.toFixed(2)})
+              Thanh toán ({formatCurrency(total)})
             </Button>
           </div>
         </div>
       </div>
-      <div className="pb-6"></div>
+
+      <FullScreenLoader visible={loadingCartContext} tip="Đang tải giỏ hàng..." />
     </>
   );
 };

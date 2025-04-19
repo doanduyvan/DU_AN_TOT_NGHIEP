@@ -1,26 +1,49 @@
+import React, {useState, useEffect} from "react";
+import AxiosUser from "../../utils/axios_user";
+import { Link } from "react-router-dom";
+import { toSlug } from "../../utils/helpers";
+
+const urlGet3News = "/customer/home/get3news";
+const baseUrlImg = import.meta.env.VITE_URL_IMG;
 
 const HomeSection7 = () => {
+
+ const [news, setNews] = useState([]);
+
+ useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const response = await AxiosUser.get(urlGet3News);
+        const data = response.news;
+        setNews(data);
+      } catch (error) {
+        console.error("Error fetching news:", error);
+      }
+    };
+  
+    fetchNews();
+ },[])
+
+ if(news.length === 0) return null;
+
   return (
     <div className="bg-[#FAF3EB] py-12 text-center">
       <h2 className="text-3xl font-bold text-gray-900">
-        Read Our Latest Articles
+      Đọc những bài viết mới nhất của chúng tôi
       </h2>
       <p className="text-gray-700 mt-2 mb-6">
-        See what weve been up to at Labelle! Blog posts are written by our team
-        and guests.
+      Khám phá những hoạt động mới tại MesSkin Các bài viết được chia sẻ bởi đội ngũ và khách mời của chúng tôi.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto px-6">
-        <Item />
-        <Item />
-        <Item />
-
+        {news.map((item, i) => (
+          <Item key={`homenews${i}`} data={item} />
+        ))}
       </div>
-
       <div className="mt-6">
-        <a href="#" className="text-gray-900 font-semibold hover:underline">
-          View All Articles →
-        </a>
+        <Link to="/news" className="text-gray-900 font-semibold hover:underline">
+          Xem tất cả tin tức →
+        </Link>
       </div>
     </div>
   );
@@ -28,23 +51,28 @@ const HomeSection7 = () => {
 
 export default HomeSection7;
 
-const Item = () => {
+const Item = ({data}) => {
+
+  const linkChange = `/news/${data.id}/${toSlug(data.title)}`;
+
   return (
     <div className="border rounded-lg overflow-hidden bg-white shadow-md">
-      <img
-        src="/images/home/t3.png"
-        className="w-full h-56 object-cover"
-      />
+      <Link to={linkChange}>
+        <img src={baseUrlImg + data.avatar} className="w-full h-56 object-cover" />
+      </Link>
       <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-900">
-          Better Global Buying Experience with Duties
-        </h3>
-        <a
-          href=""
+        <Link
+          to={linkChange}
+          className="block text-lg font-semibold text-gray-900"
+        >
+          {data.title}
+        </Link>
+        <Link
+          to={linkChange}
           className={`block mt-4 px-4 py-2 text-center font-semibold bg-black hover:bg-yellow-500 text-white`}
         >
-          Read More
-        </a>
+          Đọc thêm
+        </Link>
       </div>
     </div>
   );

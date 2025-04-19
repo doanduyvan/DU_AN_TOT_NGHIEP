@@ -28,6 +28,7 @@ class CreateOrdersTable extends Migration
             $table->decimal('shipping_fee', 12, 2)->nullable();
             $table->integer('payment_status')->default(0);
             $table->integer('shipping_status')->default(0);
+            $table->text('note')->nullable();
             $table->timestamps();
 
             // Khóa ngoại

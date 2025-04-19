@@ -190,7 +190,7 @@ export const Update_News = () => {
                     <div className="mb-5 w-auto">
                         <label htmlFor="content" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Nội dung</label>
                         <QuillEditor
-                            dataEditor={editorData}
+                            dataEditor={news.content}
                             onChange={handleEditorChange}
                         />
                     </div>

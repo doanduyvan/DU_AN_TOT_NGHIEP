@@ -9,7 +9,11 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use App\Models\ProductVariant;
 use App\Http\Requests\CreateOrderRequest;
-
+use App\Models\Product;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use App\Models\Category;
 class OrderController extends Controller
 {
     //
@@ -23,6 +27,23 @@ class OrderController extends Controller
         $order = Order::with('orderDetails.productvariant.product')->find($id);
         return response()->json($order);
     }
+
+    public function getProductVariant()
+    {
+        $filters = request()->only(['per_page', 'sortorder', 'keyword', 'filter_category']);
+        $products = Product::search($filters['keyword'] ?? null)
+        ->filterCategory($filters['filter_category'] ?? null)
+        ->applyFilters($filters);
+        $products->load('variants');
+        return response()->json($products);
+    }
+
+    public function getCategoryProducts()
+    {
+        $categories = Category::orderBy('id', 'desc')->get();
+        return response()->json($categories);
+    }
+
     public function create(CreateOrderRequest $request)
     {
         $validateData = $request->validated();
@@ -283,6 +304,62 @@ class OrderController extends Controller
             return response()->json([
                 'message' => 'Cập nhật thất bại: ' . $e->getMessage(),
                 'status' => 'error'
+            ], 500);
+        }
+    }
+    public function searchByPhone(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|string|max:255',
+        ]);
+        $user = User::where('phone', 'LIKE', '%' . $request->phone . '%')
+        ->with('shippingAddresses')
+        ->limit(5)->get();
+            return response()->json($user);
+    }
+
+    public function createUser(Request $request)
+    {
+        $request->validate( [
+            'fullname' => 'required|string|max:255',
+            'phone' => 'required|string',
+            'provinces' => 'required|string|max:255',
+            'districts' => 'required|string|max:255',
+            'wards' => 'required|string|max:255',
+            'addresses' => 'required|string|max:255',
+        ]);
+        DB::beginTransaction();
+        try {
+            $user = User::where('phone', $request->phone)->first();
+            if (!$user) {
+                $user = User::create([
+                    'fullname' => $request->fullname,
+                    'phone' => $request->phone,
+                    'password' => Hash::make(Str::random(10))
+                ]);
+            }
+            if ($user->shippingAddresses()->count() === 0) {
+                $user->shippingAddresses()->create([
+                    'fullname' => $request->fullname,
+                    'phone' => $request->phone,
+                    'provinces' => $request->provinces,
+                    'districts' => $request->districts,
+                    'wards' => $request->wards,
+                    'addresses' => $request->addresses,
+                ]);
+            }
+            $user->assignRole('Users');
+            DB::commit();
+            return response()->json([
+                'user' => $user,
+                'status' => 201,
+                'message' => 'Thành công',
+        ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Đã xảy ra lỗi khi tạo người dùng: ' . $e->getMessage(),
+                'status' => 500
             ], 500);
         }
     }

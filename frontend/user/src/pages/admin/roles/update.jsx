@@ -1,7 +1,7 @@
 import { AntNotification } from '../../../components/notification';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { showRole, showPermission, update } from "../../../services/api-roles";
+import { RolesService } from "../../../services/api-roles";
 
 export const Update_Role = () => {
     const Navigate = useNavigate();
@@ -13,7 +13,7 @@ export const Update_Role = () => {
     useEffect(() => {
         (async () => {
             try {
-                const res = await showPermission();
+                const res = await RolesService.showPermission();
                 setPermissions(res?.permissions || []);
             } catch (error) {
                 AntNotification.handleError(error);
@@ -30,7 +30,7 @@ export const Update_Role = () => {
     useEffect(() => {
         (async () => {
             try {
-                const res = await showRole(roleId);
+                const res = await RolesService.showRole(roleId);
                 if (res.status === 200) {
                     setRole(res.role);
                     setSelectPermiss(res.role.permissions.map((permiss) => permiss.id));
@@ -64,7 +64,7 @@ export const Update_Role = () => {
             });
         }
         try {
-            const res = await update(formData, roleId);
+            const res = await RolesService.update(formData, roleId);
             if (res?.status === 200) {
                 AntNotification.showNotification("Cập nhật thành công", res.message, "success");
                 Navigate('/admin/roles');

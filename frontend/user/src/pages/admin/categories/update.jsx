@@ -1,4 +1,4 @@
-import { update, callCategories } from "../../../services/api-categories";
+import { update, getById } from "../../../services/api-categories";
 import { AntNotification } from "../../../components/notification";
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -9,7 +9,7 @@ export const Update_Category = () => {
     const [category, setCategoryId] = useState({});
     useEffect(() => {
         const fetchCategory = async () => {
-            const res = await callCategories(id);
+            const res = await getById(id);
             setCategoryId(res.category);
         }
         fetchCategory();

@@ -12,7 +12,9 @@ class CategoryNewsController extends Controller
     //
     public function index()
     {
-        $categories = CategoryNews::orderBy('id', 'desc')->get();
+        $filters = request()->only(['per_page', 'sortorder', 'keyword']);
+        $categories = CategoryNews::search($filters['keyword'] ?? null)
+        ->applyFilters($filters);
         return response()->json($categories);
     }
     public function getCategoyById($id)
@@ -51,12 +53,12 @@ class CategoryNewsController extends Controller
         $ids = $request->ids;
         if (is_array($ids) && !empty($ids)) {
             try {
-                $categories = CategoryNews::whereIn('id', $ids)->get();
-                foreach ($categories as $category) {
-                    if ($category->img) {
-                        Storage::disk('public')->delete($category->img);
-                    }
-                }
+                // $categories = CategoryNews::whereIn('id', $ids)->get();
+                // foreach ($categories as $category) {
+                //     if ($category->img) {
+                //         Storage::disk('public')->delete($category->img);
+                //     }
+                // }
                 CategoryNews::whereIn('id', $ids)->delete();
                 return response()->json(['message' => 'Xóa Danh Mục thành công', 'status' => 200], 200);
             } catch (QueryException $e) {

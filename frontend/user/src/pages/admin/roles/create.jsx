@@ -1,14 +1,14 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { AntNotification } from "../../../components/notification";
-import { createRole, showPermission } from "../../../services/api-roles";
+import { RolesService } from "../../../services/api-roles";
 export const Create_Role = () => {
     const [permissions, setPermissions] = useState([]);
     const navigate = useNavigate();
     useEffect(() => {
         (async () => {
             try {
-                const res = await showPermission();
+                const res = await RolesService.showPermission();
                 setPermissions(res?.permissions || []);
             } catch (error) {
                 AntNotification.handleError(error);
@@ -20,7 +20,7 @@ export const Create_Role = () => {
         e.preventDefault();
         const formData = new FormData(e.target);
         try {
-            const res = await createRole(formData);
+            const res = await RolesService.create(formData);
             if (res?.status === 200) {
                 AntNotification.showNotification("Thêm thành công", res.message, "success");
                 navigate("/admin/roles");

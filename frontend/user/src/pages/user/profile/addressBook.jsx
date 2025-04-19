@@ -1,72 +1,160 @@
-import React, { useState } from "react";
-import { Input, Button, List, Card, Select } from "antd";
-
+import React, { useState,useEffect } from "react";
+import { Popconfirm, Button, List, Card, Select, message } from "antd";
+import  AddAddress  from "/src/components/address/addaddress";
+import AxiosUser from "../../../utils/axios_user";
+import { FullScreenLoader } from "../../../utils/helpersjsx";
 const { Option } = Select;
 
-const AddressBook = () => {
-  const [addresses, setAddresses] = useState([
-    { id: 1, name: "Duy Văn Đoàn", phone: "0123456789", address: "123 Đường ABC, Quận 1, TP.HCM" },
-    { id: 2, name: "Nguyễn Văn A", phone: "0987654321", address: "456 Đường XYZ, Quận 2, TP.HCM" },
-  ]);
-  
-  const [newAddress, setNewAddress] = useState({ name: "", phone: "", province: "", district: "", ward: "", address: "" });
-  const [showForm, setShowForm] = useState(false);
+const urlAddAddress = "customer/profile/get-address";
+const urlDeleteAddress = "customer/profile/delete-address/";
+const urlSetDefaultAddress = "customer/profile/set-default-address/";
 
-  const handleAddAddress = () => {
-    if (newAddress.name && newAddress.phone && newAddress.province && newAddress.district && newAddress.ward && newAddress.address) {
-      setAddresses([...addresses, { id: addresses.length + 1, ...newAddress }]);
-      setNewAddress({ name: "", phone: "", province: "", district: "", ward: "", address: "" });
-      setShowForm(false);
-    }
+const AddressBook = () => {
+
+    const [showModal, setShowModal] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [forceReload, setForceReload] = useState(false);
+    const [handleDefaultLoading, setHandleDefaultLoading] = useState(false);
+
+
+  const [addresses, setAddresses] = useState([]);
+  
+
+  const handleFomatAddress = (item) => {
+    const dataFormatted = {
+      id: item.id,
+      name: item.fullname,
+      phone: item.phone,
+      address: `${item.addresses}, ${item.wards}, ${item.districts}, ${item.provinces}`,
+      is_default: item.is_default
+    };
+    return dataFormatted;
   };
 
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      try {
+        setLoading(true);
+        const res = await AxiosUser.get(urlAddAddress, { useToken: true });
+        const data = res.addresses;
+        const dataFormatted = data.map((item) => handleFomatAddress(item));
+        setAddresses(dataFormatted);
+      } catch (error) {
+        const message = error.response?.data?.message || "Có lỗi xảy ra khi tải địa chỉ.";
+        message.error(message);
+      }finally{
+        setLoading(false);
+      }
+    };
+    fetchAddresses();
+  },[forceReload]);
+
+  const handleDeleteAddress = async (id) => {
+    try {
+      setLoading(true);
+      await AxiosUser.post(urlDeleteAddress + id,{},{ useToken: true });
+      setAddresses((prev) => prev.filter((item) => item.id !== id));
+      message.success("Xoá địa chỉ thành công!");
+    }
+    catch (error) {
+      message.error("Có lỗi xảy ra khi xoá địa chỉ.");
+    }finally{
+      setLoading(false);
+    }
+  }
+
+  const handleSetDefaultAddress = async (id) => {
+    try {
+      setHandleDefaultLoading(true);
+      const res = await AxiosUser.post(urlSetDefaultAddress + id,{}, { useToken: true });
+      setAddresses(prev =>
+        prev.map(item => ({
+          ...item,
+          is_default: item.id === id,
+        }))
+      );
+      message.success("Đặt địa chỉ mặc định thành công!");
+    } catch (error) {
+      console.log(error);
+      message.error("Có lỗi xảy ra khi đặt địa chỉ mặc định.");
+    } finally {
+      setHandleDefaultLoading(false);
+    }
+  }
+
+  const onSuccess = (address) => {
+    const newAddress = handleFomatAddress(address);
+    setAddresses((prev) => [...prev, newAddress]);
+  }
+
   return (
-    <div className="bg-gray-100 p-4 rounded">
-      <h2 className="text-lg font-semibold mb-4">Sổ địa chỉ nhận hàng</h2>
-      
-      {/* Nút mở form thêm địa chỉ */}
-      <Button type="primary" className="mb-4" onClick={() => setShowForm(!showForm)}>
-        {showForm ? "Đóng" : "Thêm địa chỉ mới"}
-      </Button>
-      
-      {showForm && (
-        <div className="bg-white p-4 rounded shadow mb-4">
-          <h3 className="text-md font-semibold mb-2">Thêm địa chỉ mới</h3>
-          <Input className="mb-2" placeholder="Họ và tên" value={newAddress.name} onChange={(e) => setNewAddress({ ...newAddress, name: e.target.value })} />
-          <Input className="mb-2" placeholder="Số điện thoại" value={newAddress.phone} onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })} />
-          <Select className="mb-2 w-full" placeholder="Tỉnh/Thành phố" value={newAddress.province} onChange={(value) => setNewAddress({ ...newAddress, province: value })}>
-            <Option value="TP.HCM">TP.HCM</Option>
-            <Option value="Hà Nội">Hà Nội</Option>
-          </Select>
-          <Select className="mb-2 w-full" placeholder="Quận/Huyện" value={newAddress.district} onChange={(value) => setNewAddress({ ...newAddress, district: value })}>
-            <Option value="Quận 1">Quận 1</Option>
-            <Option value="Quận 2">Quận 2</Option>
-          </Select>
-          <Select className="mb-2 w-full" placeholder="Phường/Xã" value={newAddress.ward} onChange={(value) => setNewAddress({ ...newAddress, ward: value })}>
-            <Option value="Phường 1">Phường 1</Option>
-            <Option value="Phường 2">Phường 2</Option>
-          </Select>
-          <Input className="mb-2" placeholder="Địa chỉ cụ thể" value={newAddress.address} onChange={(e) => setNewAddress({ ...newAddress, address: e.target.value })} />
-          <Button type="primary" className="w-full bg-green-600" onClick={handleAddAddress}>Thêm địa chỉ</Button>
-        </div>
-      )}
-      
-      {/* Danh sách địa chỉ đã có */}
-      <List
-        className="bg-white p-4 rounded shadow"
-        header={<h3 className="text-md font-semibold">Danh sách địa chỉ</h3>}
-        dataSource={addresses}
-        renderItem={(item) => (
-          <List.Item>
-            <Card className="w-full">
-              <p className="font-semibold">{item.name}</p>
-              <p>{item.phone}</p>
-              <p>{item.address}</p>
-            </Card>
-          </List.Item>
-        )}
+    <>
+      <div className="bg-gray-100 p-4 rounded">
+        <h2 className="text-lg font-semibold mb-4">Sổ địa chỉ nhận hàng</h2>
+
+        {/* Nút mở form thêm địa chỉ */}
+        <Button
+          type="primary"
+          className="mb-4"
+          onClick={() => setShowModal(true)}
+        >
+          Thêm địa chỉ mới
+        </Button>
+
+        <AddAddress
+          open={showModal}
+          onClose={setShowModal}
+          onSuccess={onSuccess}
+        />
+
+        {/* Danh sách địa chỉ đã có */}
+        <List
+          className="bg-white p-4 rounded shadow"
+          header={<h3 className="text-md font-semibold">Danh sách địa chỉ</h3>}
+          dataSource={addresses}
+          renderItem={(item, i) => (
+            <List.Item key={`address-${i}`}>
+              <Card className="w-full relative">
+                {/* Nút Xoá đặt góc trên phải */}
+                <Popconfirm
+                  title="Bạn có chắc muốn xoá địa chỉ này không?"
+                  okText="Xoá"
+                  cancelText="Hủy"
+                  onConfirm={() => handleDeleteAddress(item.id)}
+                >
+                  <Button
+                    danger
+                    type="text"
+                    size="small"
+                    className="absolute top-2 right-2"
+                  >
+                    Xoá
+                  </Button>
+                </Popconfirm>
+
+                {/* Nội dung địa chỉ */}
+                <p className="font-semibold">{item.name}</p>
+                <p>{item.phone}</p>
+                <p>{item.address}</p>
+                <div className="mt-2">
+                  {item.is_default ? (
+                    <Button type="primary" color="green" variant="filled">
+                      Mặc định
+                    </Button>
+                  ) : (
+                    <Button type="primary" loading={handleDefaultLoading} onClick={()=>{handleSetDefaultAddress(item.id)}}>Đặt làm địa chỉ mặc định</Button>
+                  )}
+                </div>
+              </Card>
+            </List.Item>
+          )}
+        />
+      </div>
+      <FullScreenLoader
+        visible={loading}
+        tip="Vui lòng đợi trong giây lát..."
       />
-    </div>
+    </>
   );
 };
 

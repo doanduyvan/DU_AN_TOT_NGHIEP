@@ -1,13 +1,16 @@
-import React from "react";
+import React,{useRef } from "react";
 import ShopCategory from "./shopcategory";
 import AxiosUser from "../../../utils/axios_user";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
 import { formatCurrency,toSlug } from "../../../utils/helpers";
-import { FullScreenLoader } from "../../../utils/helpersjsx";
-import { notification,Empty,Pagination } from 'antd';
+import { FullScreenLoader, FlyToCart } from "../../../utils/helpersjsx";
+import { notification,Empty,Pagination,Checkbox, Button, message  } from 'antd';
+import { useUserContext } from "../../../context/user/userContext";
+
 const baseUrlImg = import.meta.env.VITE_URL_IMG;
 const urlProducts = "/customer/shop/getproducts";
+const urlGetVariantsFilter = "/customer/shop/getvariantfilter";
 
 const menuSort = [
   { sortBy: "sold_qty", name: "Bán chạy" },
@@ -29,10 +32,11 @@ const Shop = () => {
   const [limit, setLimit] = useState(9);
   const [sortBy, setSortBy] = useState("sold_qty");
   const [isLoading, setLoading] = useState(false);
-
   const [filterPrice, setFilterPrice] = useState({price_min: null, price_max: null});
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+  const [variantsFilter, setVariantsFilter] = useState([]);
+  const [isVariantsFilter, setIsVariantsFilter] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async (params = {}) => {
@@ -43,9 +47,6 @@ const Shop = () => {
         setTotalItems(response.total);
         setProducts(data);
 
-        // chechk
-        const sql = response.sql;
-        const stringSort = response.sortname;
       } catch (error) {
         console.error("Error fetching products:", error);
       }finally{
@@ -75,10 +76,40 @@ const Shop = () => {
     params.sort_by = sortBy;
     params.page = currentPage;
     params.limit = limit;
+    params.variants = isVariantsFilter;
   
     fetchProducts(params);
 
-  }, [idcategory,currentPage,limit,navigate,keyword,sortBy,filterPrice]);
+  }, [idcategory,currentPage,limit,navigate,keyword,sortBy,filterPrice,isVariantsFilter]);
+
+  // get variants  
+
+  useEffect(() => {
+
+    const fetchVariants = async () => {
+      try {
+        const response = await AxiosUser.get(urlGetVariantsFilter);
+        const data = response.variants;
+        setVariantsFilter(data);
+      } catch (error) {
+        console.error("Error fetching variants:", error);
+      }
+    };
+
+    fetchVariants();
+  },[]) 
+
+  const hanldeVariantFilter = (e,value) => {
+    const checked = e.target.checked;
+    setIsVariantsFilter(prev => {
+      if (checked) {
+        return prev.includes(value) ? prev : [...prev, value];
+      } else {
+        return prev.filter(item => item !== value);
+      }
+    });
+  }
+
 
   const handlePageChange = (page, pageSize) => {
     setCurrentPage(page);
@@ -134,7 +165,7 @@ const Shop = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [idcategory, keyword, sortBy, limit, filterPrice]);
+  }, [idcategory, keyword, sortBy, limit, filterPrice, isVariantsFilter]);
 
 
 
@@ -224,6 +255,24 @@ const Shop = () => {
                 </button>
               )}
             </div>
+
+            {/* filter Dung tích */}
+
+            <div className="mt-3">
+              <h4 className="font-semibold text-lg">Dung tích</h4>
+              <div className="flex flex-col gap-2 mt-2 pl-2 max-h-[100px] md:max-h-[300px] overflow-auto">
+                {variantsFilter.map((item, i) => (
+                    <Checkbox
+                      key={`filter${i}`}
+                      checked={isVariantsFilter.includes(item)}
+                      onChange={(e) => hanldeVariantFilter(e, item)}
+                    >
+                      {item}
+                    </Checkbox>
+                ))}
+
+              </div>
+            </div>
           </aside>
 
           {/* Main Content */}
@@ -250,7 +299,7 @@ const Shop = () => {
             </div>
 
             {/* Product Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 [grid-auto-rows:1fr]">
               {products.map((product, i) => (
                 <Item key={`shopitem${i}`} item={product} sortBy={sortBy} />
               ))}
@@ -290,6 +339,11 @@ export default Shop;
 
 const Item = ({item,sortBy}) => {
 
+  const buttonRef = useRef();
+  const flyRef = useRef();
+
+  const { cart , addToCart } = useUserContext();
+
   const rating = item.rating_avg || 0; 
   const ratingStars = Math.round(rating); 
 
@@ -298,7 +352,9 @@ const Item = ({item,sortBy}) => {
 
   const [variantsSorted, setVariantsSorted] = useState([]);
 
-const [currentVariant, setCurrentVariant] = useState(variants[0]);
+  const [currentVariant, setCurrentVariant] = useState(variants[0]);
+
+  const [loadingBtn, setLoadingBtn] = useState(false);
 
 useEffect(() => {
   if (variants.length > 0) {
@@ -326,70 +382,107 @@ const price_delete = currentVariant.promotional_price ? currentVariant.price : n
   const slug = toSlug(item.product_name);
   const changeLink = `/product/${item.id}/${slug}`;
 
+  const handleAddToCart = async () => {
+    setLoadingBtn(true);
+    const check = await addToCart(currentVariant.product_id, currentVariant.id, 1);
+    setLoadingBtn(false);
+    if(!check) return;
+    requestAnimationFrame(() => {
+      flyRef.current.fly();
+    });
+  }
+
+  
+
     return (
-      <div className="p-0">
-        <div className="max-w-full bg-stone-50 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-          <Link to={changeLink} className="flex justify-center">
-            <img
-              src={`${baseUrlImg}${item.avatar}`}
-              alt="Soy pH-Balanced Hydrating Face Wash Jumbo"
-              className="w-full aspect-square object-cover"
-            />
-          </Link>
-          <div className="p-3">
-
-            <div className="flex justify-between items-center">
-            <p className="text-[#ff6600] text-base font-medium"> { formatCurrency(price)} </p>
-            {price_delete && (
-              <p className="text-gray-400 text-base font-medium line-through">
-                { formatCurrency(price_delete) }
-              </p>
-            )}
-            </div>
-
-            <Link to={changeLink} className="text-gray-800 text-sm md:text-base font-serif font-medium block">
-              {item.product_name}
+      <>
+        <div className="p-0 h-full">
+          <div className="flex flex-col bg-stone-50 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+            <Link to={changeLink} className="flex justify-center">
+              <img
+                src={`${baseUrlImg}${item.avatar}`}
+                alt="Soy pH-Balanced Hydrating Face Wash Jumbo"
+                className="w-full aspect-square object-cover"
+              />
             </Link>
+            <div className="p-3">
+              <div className="flex justify-between items-center">
+                <p className="text-[#ff6600] text-base font-medium">
+                  {" "}
+                  {formatCurrency(price)}{" "}
+                </p>
+                {price_delete && (
+                  <p className="text-gray-400 text-base font-medium line-through">
+                    {formatCurrency(price_delete)}
+                  </p>
+                )}
+              </div>
 
-            <div className="flex items-center mb-1">
-              <div className="flex">
-                {[...Array(5)].map((_, i) => (
-                  <svg
-                    key={i}
-                    className={`w-4 h-4 fill-current ${
-                      i < ratingStars ? "text-yellow-500" : "text-gray-300"
+              <Link
+                to={changeLink}
+                className="text-gray-800 text-sm md:text-base font-serif font-medium block"
+              >
+                {item.product_name}
+              </Link>
+
+              <div className="flex items-center mb-1">
+                <div className="flex">
+                  {[...Array(5)].map((_, i) => (
+                    <svg
+                      key={i}
+                      className={`w-4 h-4 fill-current ${
+                        i < ratingStars ? "text-yellow-500" : "text-gray-300"
+                      }`}
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                    </svg>
+                  ))}
+                </div>
+                <span className="text-gray-600 text-sm ml-2">
+                  ({totalSold})
+                </span>
+              </div>
+
+              <div className="text-xs md:text-sm grid grid-cols-2 md:grid-cols-3 gap-2 mb-2">
+                {variantsSorted.map((variant, i) => (
+                  <button
+                    className={`block p-1 border hover:bg-gray-300 ${
+                      currentVariant.id === variant.id ? "bg-gray-300" : ""
                     }`}
-                    viewBox="0 0 24 24"
+                    key={`shopitemvariant${i}`}
+                    onClick={() => setCurrentVariant(variant)}
                   >
-                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                  </svg>
+                    {variant.size}
+                  </button>
                 ))}
               </div>
-              <span className="text-gray-600 text-sm ml-2">({totalSold})</span>
-            </div>
 
-            <div className="text-xs md:text-sm grid grid-cols-2 md:grid-cols-3 gap-2">
-              {variantsSorted.map((variant, i) => (
-                <button
-                  className={`block p-1 border hover:bg-gray-300 ${
-                    currentVariant.id === variant.id ? "bg-gray-300" : ""
-                  }`}
-                  key={`shopitemvariant${i}`}
-                  onClick={() => setCurrentVariant(variant)}
-                >
-                  {variant.size}
-                </button>
-              ))}
-            </div>
-
-            <button className="mt-3 flex bg-black text-white hover:bg-yellow-500 w-full justify-center py-2">
-              <span className="font-normal md:font-medium inline-block text-sm md:text-base">
+              <Button
+                type="text"
+                loading={loadingBtn}
+                onClick={handleAddToCart}
+                ref={buttonRef}
+                className="hover:!bg-yellow-500 mt-auto py-2"
+                style={{
+                  backgroundColor: "#000",
+                  color: "#fff",
+                  width: "100%",
+                  border: "none",
+                }}
+              >
                 Thêm Giỏ hàng
-              </span>
-            </button>
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+        <FlyToCart
+          ref={flyRef}
+          imageSrc={`${baseUrlImg}${item.avatar}`}
+          startRef={buttonRef}
+          endId="cart-icon"
+        />
+      </>
     );
   };
   

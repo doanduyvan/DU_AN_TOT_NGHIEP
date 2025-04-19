@@ -5,23 +5,35 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\QueryException;
+use App\Http\Requests\UpdateAccountRequest;
 
 class UserController extends Controller
 {
     public function index()
     {
-        $users = User::orderBy('id', 'desc')->get();
+        $filters = request()->only(['per_page', 'sortorder', 'keyword']);
+        $users = User::search($filters['keyword'])->applyFilters($filters);
         return response()->json($users);
     }
-
-    public function destroy($id)
+    public function test1(){
+        $users = User::with('shippingAddresses')->get();
+        return response()->json($users);
+    }
+    public function destroy(Request $request)
     {
-        $user = User::find($id);
-        if ($user) {
-            $user->delete();
-            return response()->json(['message' => 'Xóa người dùng thành công', 'status' => 200], 200);
+        $ids = $request->ids;
+        if (is_array($ids) && !empty($ids)) {
+            try {
+                User::whereIn('id', $ids)->delete();
+                return response()->json(['message' => 'Xóa người dùng thành công', 'status' => 200], 200);
+            } catch (QueryException $e) {
+                return response()->json(['message' => 'Xóa người dùng thất bại: ' . $e->getMessage(), 'status' => 500], 500);
+            }
+        }else {
+            return response()->json(['message' => 'Xóa người dùng thất bại', 'status' => 404], 404);
         }
-        return response()->json(['message' => 'Không tìm thấy người dùng', 'status' => 404], 404);
     }
     public function updateStatus(request $request)
     {
@@ -34,7 +46,7 @@ class UserController extends Controller
         $posts->update(['status' => $data]);
         return response()->json(['message' => 'Cập nhật trạng thái thành công', 'status' => 200], 200);
     }
-    public function updateUser(Request $request, $id)
+    public function roleLevel(Request $request, $id)
     {
         $validatedData = $request->validate([
             'roles' => 'required|array',
@@ -65,7 +77,29 @@ class UserController extends Controller
             ], 500);
         }
     }
-
+    public function updateUser(UpdateAccountRequest $request, $id)
+    {
+        $validatedData = $request->validated();
+        try {
+            $user = User::findOrFail($id);
+            if ($user) {
+                $user->update($validatedData);
+                return response()->json(['message' => 'Cập nhật thành công', 'status' => 200]);
+            }
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Không tìm thấy người dùng',
+                'status' => 404,
+                'error' => $e->getMessage(),
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Có lỗi xảy ra',
+                'status' => 500,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
     public function getUserById($id)
     {
 

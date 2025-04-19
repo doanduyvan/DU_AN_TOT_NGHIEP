@@ -1,16 +1,19 @@
 import { useState, useEffect, useRef } from "react";
-import { callRoles, destroyRole } from "../../../services/api-roles";
+import { RolesService } from "../../../services/api-roles";
 import { AntNotification } from "../../../components/notification";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import { Pagination } from 'antd';
 export const Roles = () => {
     const [roles, setRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
-    const [filter, setFilter] = useState(""); // lưu trạng thái lọc
+        const [currentPage, setCurrentPage] = useState(1);
+        const [pageSize, setPageSize] = useState(10);
+        const [totalItems, setTotalItems] = useState(0);
+        const [sortorder, setSortOrder] = useState(null);
+        const [keyword, setKeyword] = useState("");
+        const [inputValue, setInputValue] = useState('');
 
-    const filterdRoles = filter
-        ? roles.filter((role) => role.status === filter)
-        : roles;
     const checkRoles = (e, id) => {
         setSelectedRoles((prevSelect) => {
             if (e.target.checked) {
@@ -26,7 +29,7 @@ export const Roles = () => {
             return;
         }
         try {
-            const res = await destroyRole(selectedRoles);
+            const res = await RolesService.destroy(selectedRoles);
             if (res?.status === 200) {
                 setRoles((prevRole) => {
                     return prevRole.filter(
@@ -46,9 +49,16 @@ export const Roles = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await callRoles();
+                const res = await RolesService.callRoles({
+                    page: currentPage,
+                    per_page: pageSize,
+                    sortorder: sortorder,
+                    keyword: keyword,
+                });
                 if (res) {
-                    setRoles(res.roles); 
+                    setRoles(res.data);
+                    setTotalItems(res.total || 0);
+                    console.log(res);
                 } else {
                     AntNotification.showNotification("Lỗi", "Không thể tải dữ liệu", "error");
                 }
@@ -57,8 +67,29 @@ export const Roles = () => {
             }
         };
         fetchData();
-    }, []);
-    console.log("select", selectedRoles);
+    }, [currentPage, pageSize, sortorder, keyword]);
+    useEffect(() => {
+        const debounceTimer = setTimeout(() => {
+            if (inputValue !== "") {
+                setCurrentPage(1);
+                setKeyword(inputValue);
+            } else {
+                setKeyword("");
+            }
+        }, 400);
+        return () => clearTimeout(debounceTimer);
+    }, [inputValue]);
+
+    const handlePageChange = async (page, size) => {
+        console.log(page);
+        setCurrentPage(page);
+        setPageSize(size);
+    }
+    const handleFilterChange = async (e) => {
+        const value = e.target.value;
+        const sortOrder = value === "asc" ? "asc" : "desc";
+        setSortOrder(sortOrder);
+    };
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <div className="bg-white shadow rounded-lg mb-4 p-4 sm:p-6 h-full">
@@ -97,26 +128,16 @@ export const Roles = () => {
 
                     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                         <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
-                            <div>
+                        <div>
                                 <select
                                     className="cursor-pointer items-center text-black bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 font-medium rounded-lg text-sm px-3 py-1.5 "
-                                // value={filter}
-                                // onChange={handleFilterChange}
+                                    onChange={handleFilterChange}
                                 >
-                                    <option value="">
-                                        Lọc Trạng Thái
+                                    <option value="desc">
+                                        Mới nhất
                                     </option>
-                                    <option value="draft">
-                                        Bản Nháp
-                                    </option>
-                                    <option value="pending">
-                                        Chờ duyệt
-                                    </option>
-                                    <option value="approved">
-                                        Đã xuất bản
-                                    </option>
-                                    <option value="rejected">
-                                        Loại Bỏ
+                                    <option value="asc">
+                                        Cũ Nhất
                                     </option>
                                 </select>
                             </div>
@@ -128,7 +149,7 @@ export const Roles = () => {
                                     /> : null
                                 }
                                 <label htmlFor="table-search" className="sr-only">
-                                    Search
+                                    Tìm kiếm
                                 </label>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
@@ -152,7 +173,9 @@ export const Roles = () => {
                                         type="text"
                                         id="table-search-users"
                                         className="block pt-2 ps-10 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-950 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        placeholder="Search for users"
+                                        placeholder="Tìm kiếm..."
+                                        value={inputValue}
+                                        onChange={(e) => setInputValue(e.target.value)}
                                     />
                                 </div>
                             </div>
@@ -163,13 +186,13 @@ export const Roles = () => {
                                     <th scope="col" className="p-4">
                                         <div className="flex items-center">
                                             <input
-                                                checked={selectedRoles.length === filterdRoles.length}
+                                                checked={selectedRoles.length === roles.length}
                                                 onChange={() => {
-                                                    if (selectedRoles.length === filterdRoles.length) {
+                                                    if (selectedRoles.length === roles.length) {
                                                         setSelectedRoles([]); // bo chon tat ca
                                                     } else {
                                                         setSelectedRoles(
-                                                            filterdRoles.map((role) => role.id)
+                                                            roles.map((role) => role.id)
                                                         ); // chon tat ca
                                                     }
                                                 }}
@@ -200,7 +223,7 @@ export const Roles = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filterdRoles.map((role) => (
+                                {roles.map((role) => (
                                     <tr
                                         key={role.id}
                                         className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
@@ -250,6 +273,14 @@ export const Roles = () => {
                                 ))}
                             </tbody>
                         </table>
+                        <div className="flex justify-end p-4">
+                            <Pagination className=""
+                                current={currentPage}
+                                defaultCurrent={1}
+                                total={totalItems}
+                                onShowSizeChange={handlePageChange}
+                                onChange={handlePageChange} />
+                        </div>
                     </div>
                 </div>
             </div>

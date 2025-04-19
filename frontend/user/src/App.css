@@ -462,3 +462,7 @@
     clip-path: inset(0 0 0 100%);
   }
 }
+canvas {
+  max-width: 100% !important; /* Xung đột với responsive */
+}
+

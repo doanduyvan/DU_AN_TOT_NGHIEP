@@ -4,11 +4,19 @@ import { AntNotification } from "../../../components/notification";
 import { ImageModal } from "../../../components/admin/imgmodal";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import { Pagination } from 'antd';
+
 
 export const Categories = () => {
     const [imageSrc, setImageSrc] = useState(null);
     const [categories, setCategories] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalItems, setTotalItems] = useState(0);
+    const [sortorder, setSortOrder] = useState(null);
+    const [keyword, setKeyword] = useState("");
+    const [inputValue, setInputValue] = useState('');
 
     const openModal = (src) => {
         setImageSrc(src);
@@ -62,12 +70,19 @@ export const Categories = () => {
             AntNotification.handleError(error);
         }
     };
+    console.log(selectedCategories);
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await callCategories();
+                const res = await callCategories({
+                    page: currentPage,
+                    per_page: pageSize,
+                    sortorder: sortorder,
+                    keyword: keyword,
+                });
                 if (res) {
-                    setCategories(Array.isArray(res) ? res : []);
+                    setCategories(Array.isArray(res.data) ? res.data : []);
+                    setTotalItems(res.total || 0);
                     console.log(res);
                 } else {
                     AntNotification.showNotification(
@@ -81,14 +96,36 @@ export const Categories = () => {
             }
         };
         fetchData();
-    }, []);
+    }, [currentPage, pageSize, sortorder, keyword]);
+    
+    useEffect(() => {
+        const debounceTimer = setTimeout(() => {
+            if (inputValue !== "") {
+                setCurrentPage(1); 
+                setKeyword(inputValue);
+            }else {
+                setKeyword("");
+            }
+        }, 400);
+        return () => clearTimeout(debounceTimer);
+    }, [inputValue]);
 
+    const handlePageChange = async (page, size) => {
+        console.log(page);
+        setCurrentPage(page);
+        setPageSize(size);
+    }
+    const handleFilterChange = async (e) => {
+        const value = e.target.value;
+        const sortOrder = value === "asc" ? "asc" : "desc";
+        setSortOrder(sortOrder);
+    };
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <nav className="rounded-md w-full">
                 <ol className="list-reset flex">
                     <li>
-                    <Link
+                        <Link
                             to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
@@ -119,30 +156,17 @@ export const Categories = () => {
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
                     <div>
-                        <button
-                            id="dropdownActionButton"
-                            data-dropdown-toggle="dropdownAction"
-                            className="inline-flex items-center text-gray-500 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700"
-                            type="button"
+                        <select
+                            className="cursor-pointer items-center text-black bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 font-medium rounded-lg text-sm px-3 py-1.5 "
+                            onChange={handleFilterChange}
                         >
-                            <span className="sr-only">Action button</span>
-                            Action
-                            <svg
-                                className="w-2.5 h-2.5 ms-2.5"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 10 6"
-                            >
-                                <path
-                                    stroke="currentColor"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="m1 1 4 4 4-4"
-                                />
-                            </svg>
-                        </button>
+                            <option value="desc">
+                                Mới nhất
+                            </option>
+                            <option value="asc">
+                                Cũ Nhất
+                            </option>
+                        </select>
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
                         {(selectedCategories.length > 0) ?
@@ -153,7 +177,7 @@ export const Categories = () => {
                         }
 
                         <label htmlFor="table-search" className="sr-only">
-                            Search
+                            Tìm kiếm
                         </label>
                         <div className="relative">
                             <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
@@ -177,7 +201,9 @@ export const Categories = () => {
                                 type="text"
                                 id="table-search-users"
                                 className="block pt-2 ps-10 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-950 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Search for users"
+                                placeholder="Tìm kiếm..."
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
                             />
                         </div>
                     </div>
@@ -279,6 +305,14 @@ export const Categories = () => {
                         ))}
                     </tbody>
                 </table>
+                <div className="flex justify-end p-4">
+                    <Pagination className=""
+                        current={currentPage}
+                        defaultCurrent={1}
+                        total={totalItems}
+                        onShowSizeChange={handlePageChange}
+                        onChange={handlePageChange} />
+                </div>
             </div>
         </div>
     );

@@ -79,12 +79,7 @@ class UserController extends Controller
     }
     public function updateUser(UpdateAccountRequest $request, $id)
     {
-        $validatedData = $request->validate([
-            'fullname' => 'required|string',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'phone' => 'required|numeric',
-            'status' => 'required|numeric',
-        ]);
+        $validatedData = $request->validated();
         try {
             $user = User::findOrFail($id);
             if ($user) {

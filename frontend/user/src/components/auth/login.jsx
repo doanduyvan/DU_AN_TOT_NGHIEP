@@ -25,7 +25,14 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
+
+    const rawForm = new FormData(e.target);
+    const formData = new FormData();
+
+    for (const [key, value] of rawForm.entries()) {
+      formData.append(key, typeof value === "string" ? value.trim() : value);
+    }
+
     try {
       setLoading(true);
       const response = await AuthService.login(formData);

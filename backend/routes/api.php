@@ -236,6 +236,7 @@ Route::group(['prefix' => 'customer'],function(){
     Route::get('profile/getorders',[ProfileController::class, 'getOrders'])->middleware('auth:sanctum');
     Route::post('profile/cancel-order/{id}',[ProfileController::class, 'CancelOrder'])->middleware('auth:sanctum');
     Route::post('profile/payment-again/{id}',[CheckoutController::class, 'PaymentAgain'])->middleware('auth:sanctum');
+    Route::post('profile/change-password',[ProfileController::class, 'ChangePassword'])->middleware('auth:sanctum');
     Route::get('cart/checkqtyproductvariant/{id}',[CartController::class, 'checkQtyProductVariant']);
     Route::post('cart/getcart',[CartController::class, 'getCart']);
     Route::post('checkout',[CheckoutController::class, 'Store'])->middleware('auth:sanctum');

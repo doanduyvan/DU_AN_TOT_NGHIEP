@@ -12,7 +12,7 @@ const maxQtyInCart = 20;
 export const UserContext = ({ children }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
 
   const [cart, setCart] = useState([]); // Chỉ chứa id & qty
   const [cartItems, setCartItems] = useState([]); // Chi tiết từ server
@@ -31,7 +31,14 @@ export const UserContext = ({ children }) => {
         setIsLoggedIn(false);
       }
     };
-    checkLoggedIn();
+    
+    const token = localStorage.getItem("token");
+    if(token){
+      checkLoggedIn();
+    }else{
+      setIsLoggedIn(false);
+    }
+
   }, []);
 
   // Load cart từ localStorage khi khởi động
@@ -113,7 +120,7 @@ export const UserContext = ({ children }) => {
   
     const totalQtyInCartLocal = cart.reduce((sum, item) => sum + (item.variant_id === variant_id ? item.qty : 0) , 0);
 
-    if (availableQty < totalQtyInCartLocal) {
+    if (availableQty <= totalQtyInCartLocal) {
       message.error(`Chỉ còn ${availableQty} sản phẩm trong kho.`);
       return false;
     }

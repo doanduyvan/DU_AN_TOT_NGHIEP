@@ -29,6 +29,10 @@ class Voucher extends Model
         'discount_value' => 'float',
         'user_id' => 'integer'
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
     public function scopePaginate($query, $perPage)
     {
         return $query->paginate($perPage);

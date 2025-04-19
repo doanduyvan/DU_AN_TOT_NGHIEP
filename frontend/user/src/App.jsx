@@ -70,6 +70,10 @@ import { Update_CommentNews } from "./pages/admin/comment_news/update";
 
 import { Vouchers } from "./pages/admin/vouchers";
 import { Create_Voucher } from "./pages/admin/vouchers/create";
+import { Update_Voucher } from "./pages/admin/vouchers/update";
+
+import { Banners } from "./pages/admin/banners";
+import { Create_Banner } from "./pages/admin/banners/create";
 
 import Checkout from "./pages/user/checkout/checkout";
 
@@ -153,6 +157,10 @@ function App() {
 
     { path: 'vouchers', element: < Vouchers/> },
     { path: 'vouchers/create', element: < Create_Voucher/> },
+    { path: 'vouchers/update/:voucherId', element: < Update_Voucher/> },
+
+    {path: 'banners', element: <Banners />},
+    {path: 'banners/create', element: <Create_Banner />},
 
     { path: 'test1', element: < MyChart /> },
     { path: 'test2', element: < OrdersChart /> },

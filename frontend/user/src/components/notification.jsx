@@ -22,9 +22,9 @@ export const AntNotification = {
             for (let field in errors) {
                 errorMessage += `${errors[field].join(', ')}\n`;
             }
-            AntNotification.showNotification("Không thành công", errorMessage, "error");
+            AntNotification.showNotification("Không thành công", errorMessage, "warning");
         } else if (error.response?.data?.message) {
-            AntNotification.showNotification("Lỗi trong quá trình gọi API", error.response.data.message, "error");
+            AntNotification.showNotification("Không thành công", error.response.data.message, "error");
         } else {
             AntNotification.showNotification("Lỗi không xác định", "Vui lòng thử lại sau", "error");
         }

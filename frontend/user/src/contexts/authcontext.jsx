@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
         };
         checkLoggedIn();
     }, []);
-
+    console.log('permissions', permissions);
     // Kiểm tra quyền
     const hasPermission = (permission) => {
         return permissions.includes(permission);

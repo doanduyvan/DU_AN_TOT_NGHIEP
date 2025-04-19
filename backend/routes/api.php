@@ -42,12 +42,23 @@ use App\Http\Controllers\VoucherController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-route::group(['prefix' => 'vouchers'], function (){
-    Route::get('/', [VoucherController::class, 'index']);
-    Route::post('/updatestatus', [VoucherController::class, 'updateStatus']);
-    Route::post('/create', [VoucherController::class, 'create']);
 
+route::group(['prefix' => 'vouchers'], function () {
+    Route::get('/', [VoucherController::class, 'index'])->middleware('auth:sanctum');
+    Route::get('/get-voucher/{id}', [VoucherController::class, 'getVoucherById'])->middleware('auth:sanctum');
+    Route::post('/updatestatus', [VoucherController::class, 'updateStatus'])->middleware('check.permission:update-voucher');
+    Route::post('/update/{id}', [VoucherController::class, 'update'])->middleware('check.permission:update-voucher');
+    Route::post('/create', [VoucherController::class, 'create'])->middleware('check.permission:create-voucher');
+    route::post('/destroy', [VoucherController::class, 'destroy'])->middleware('check.permission:delete-voucher');
 });
+
+route::group(['prefix' => 'banners'], function () {
+    Route::get('/', [\App\Http\Controllers\BannerController::class, 'index'])->middleware('auth:sanctum');
+    Route::post('/create', [\App\Http\Controllers\BannerController::class, 'create'])->middleware('check.permission:create-banner');
+    Route::post('/update/{id}', [\App\Http\Controllers\BannerController::class, 'update'])->middleware('check.permission:update-banner');
+    Route::post('/destroy', [\App\Http\Controllers\BannerController::class, 'destroy'])->middleware('check.permission:delete-banner');
+});
+
 
 Route::get('/provinces', [LocationController::class, 'getProvinces']);
 Route::get('/districts/{provinceCode}', [LocationController::class, 'getDistrictsByProvince']);
@@ -136,8 +147,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::get('/users', [UserController::class, 'index']);
 });
-route::post('/users/destroy', [UserController::class, 'destroy'])->middleware('check.permission:delete-customer');
 
+route::post('/users/destroy', [UserController::class, 'destroy'])->middleware('check.permission:delete-customer');
 Route::middleware('check.permission:update-customer')->group(function () {
     route::post('/users/search-users', [UserController::class, 'searchUser']);
     Route::post('/users/updatestatus', [UserController::class, 'updateStatus']);
@@ -202,29 +213,27 @@ Route::get('/testapi', function () {
 
 // route cho người dùng  
 
-Route::group(['prefix' => 'customer'],function(){
+Route::group(['prefix' => 'customer'], function () {
     Route::get('checklogin', function (Request $request) {
         return response()->json(['message' => 'Token hợp lệ'], 200);
     })->middleware('auth:sanctum');
     Route::get('home/getnewproducts', [HomeController::class, 'getNewProducts']);
     Route::get('home/getcategory', [HomeController::class, 'getCategory']);
     Route::get('home/get3news', [HomeController::class, 'get3News']);
-    Route::get('shop/getcategory',[ShopController::class, 'getCategory']);
-    Route::get('shop/getproducts',[ShopController::class, 'getProducts']);
+    Route::get('shop/getcategory', [ShopController::class, 'getCategory']);
+    Route::get('shop/getproducts', [ShopController::class, 'getProducts']);
     Route::get('shop/getvariantfilter', [ShopController::class, 'getVariantFilter']);
-    Route::get('productdetail/getproductbyid/{id}',[ProductdetailController::class, 'getProductById']);
-    Route::get('productdetail/getrelatedproducts/{id}',[ProductdetailController::class, 'getRelatedProducts']);
-    Route::get('news/categorynews',[CustomerNewsController::class, 'getCategoryNews']);
-    Route::get('news/getnews',[CustomerNewsController::class, 'getNews']);
-    Route::get('newsdetail/getnewsbyid/{id}',[NewsdetailController::class, 'getNewsById']);
-    Route::get('newsdetail/getnewsrelated/{id}',[NewsdetailController::class, 'getNewsRelated']);
+    Route::get('productdetail/getproductbyid/{id}', [ProductdetailController::class, 'getProductById']);
+    Route::get('productdetail/getrelatedproducts/{id}', [ProductdetailController::class, 'getRelatedProducts']);
+    Route::get('news/categorynews', [CustomerNewsController::class, 'getCategoryNews']);
+    Route::get('news/getnews', [CustomerNewsController::class, 'getNews']);
+    Route::get('newsdetail/getnewsbyid/{id}', [NewsdetailController::class, 'getNewsById']);
+    Route::get('newsdetail/getnewsrelated/{id}', [NewsdetailController::class, 'getNewsRelated']);
     Route::post('profile/update-avatar', [ProfileController::class, 'updateAvatar'])->middleware('auth:sanctum');
     Route::post('profile/update-info', [ProfileController::class, 'updateInfo'])->middleware('auth:sanctum');
     Route::get('profile/get-address', [ProfileController::class, 'getAddress'])->middleware('auth:sanctum');
     Route::post('profile/add-address', [ProfileController::class, 'addAddress'])->middleware('auth:sanctum');
     Route::post('profile/delete-address/{id}', [ProfileController::class, 'deleteAddress'])->middleware('auth:sanctum');
-    Route::get('cart/checkqtyproductvariant/{id}',[CartController::class, 'checkQtyProductVariant']);
-    Route::post('cart/getcart',[CartController::class, 'getCart']);
-
-
+    Route::get('cart/checkqtyproductvariant/{id}', [CartController::class, 'checkQtyProductVariant']);
+    Route::post('cart/getcart', [CartController::class, 'getCart']);
 });

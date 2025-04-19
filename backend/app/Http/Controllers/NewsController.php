@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\NewsRequest;
 use App\Models\News;
+use App\Models\CategoryNews;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Storage;
+
 class NewsController extends Controller
 {
     public function index()
@@ -14,7 +16,11 @@ class NewsController extends Controller
         $news = News::orderBy('id', 'desc')->get();
         return response()->json($news);
     }
-
+    public function getCategoryNews()
+    {
+        $categoryNews = CategoryNews::orderBy('id', 'desc')->get();
+        return response()->json($categoryNews);
+    }
     public function getNewsById($id)
     {
         $news = News::where('id', $id)->first();
@@ -97,7 +103,4 @@ class NewsController extends Controller
             ], 500);
         }
     }
-
-
-
 }

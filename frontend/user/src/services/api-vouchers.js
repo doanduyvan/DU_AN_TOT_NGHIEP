@@ -16,17 +16,17 @@ const apiGet = async (url, options = {}) => {
   });
   return response;
 };
-const UsersService = {
-  getAllUsers: async ({ page, per_page, sortorder, keyword }) => {
-    return apiGet("/users", {
+const VoucherService = {
+  getVouchers: async ({ page, per_page, sortorder, keyword }) => {
+    return apiGet("/vouchers", {
       params: { page, per_page, sortorder, keyword },
     });
   },
-  login: async (credentials) => {
-    return apiPost("/login", credentials);
+  create: async (formData) => {
+    return apiPost("/vouchers/create", formData);
   },
-  upadteStatus: async (data) => {
-    return apiPost("/users/updatestatus", data);
+  updateStatus: async (data) => {
+    return apiPost("/vouchers/updatestatus", data);
   },
   roleLevel: async (formdata, id) => {
     return apiPost(`/users/rolelevel/${id}`, formdata);
@@ -55,4 +55,4 @@ const UsersService = {
       return apiDelete(`/users/force-delete/${id}`);
   },
 };
-export { UsersService };
+export { VoucherService };

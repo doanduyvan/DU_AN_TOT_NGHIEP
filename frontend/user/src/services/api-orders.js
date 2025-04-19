@@ -61,5 +61,13 @@ const OrderService = {
       phone,
     );
   },
+  getAllProducts: async ({page, per_page, sortorder, keyword, filter_category}) => {
+    return apiGet("/orders/get-product-variant", {
+      params: { page, per_page, sortorder, keyword, filter_category },
+    });
+  },
+  categories: async () => {
+    return apiGet("/orders/category-products");
+  },
 };
 export { OrderService };

@@ -7,6 +7,7 @@ use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\QueryException;
+use App\Http\Requests\UpdateAccountRequest;
 
 class UserController extends Controller
 {
@@ -45,7 +46,7 @@ class UserController extends Controller
         $posts->update(['status' => $data]);
         return response()->json(['message' => 'Cập nhật trạng thái thành công', 'status' => 200], 200);
     }
-    public function updateUser(Request $request, $id)
+    public function roleLevel(Request $request, $id)
     {
         $validatedData = $request->validate([
             'roles' => 'required|array',
@@ -76,7 +77,29 @@ class UserController extends Controller
             ], 500);
         }
     }
-
+    public function updateUser(UpdateAccountRequest $request, $id)
+    {
+        $validatedData = $request->validated();
+        try {
+            $user = User::findOrFail($id);
+            if ($user) {
+                $user->update($validatedData);
+                return response()->json(['message' => 'Cập nhật thành công', 'status' => 200]);
+            }
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Không tìm thấy người dùng',
+                'status' => 404,
+                'error' => $e->getMessage(),
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Có lỗi xảy ra',
+                'status' => 500,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
     public function getUserById($id)
     {
 

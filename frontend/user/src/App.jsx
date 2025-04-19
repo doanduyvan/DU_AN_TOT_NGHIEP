@@ -38,7 +38,8 @@ import RegisterForm from './components/auth/register';
 import CartPage from "./components/cartPage/cartPage";
 
 import { Users } from "./pages/admin/accounts";
-import { Set_User_Role } from "./pages/admin/accounts/update";
+import { Set_User_Role } from "./pages/admin/accounts/rolelevel";
+import { UpdateAccount } from "./pages/admin/accounts/update";
 import { UsersTrash } from "./pages/admin/accounts/trash";
 
 import { Orders } from "./pages/admin/orders";
@@ -66,6 +67,10 @@ import { Update_CommentProduct } from "./pages/admin/comment_products/update";
 import { Comment_News } from "./pages/admin/comment_news";
 import { Create_CommentNews } from "./pages/admin/comment_news/create";
 import { Update_CommentNews } from "./pages/admin/comment_news/update";
+
+import { Vouchers } from "./pages/admin/vouchers";
+import { Create_Voucher } from "./pages/admin/vouchers/create";
+
 import Checkout from "./pages/user/checkout/checkout";
 
 import ProductStatsChart from "./components/chart/product";
@@ -73,11 +78,12 @@ import ProductStatusChart from "./components/chart/status";
 import ProductPerformanceChart from "./components/chart/productper";
 import MyChart from "./components/chart/test1";
 import OrdersChart from "./components/chart/test2";
-import ProductsChart from "./components/chart/test3";
+import Revenue from "./components/chart/revenue";
 import VouchersChart from "./components/chart/voucher";
 import VnpayReturnPage from "./pages/user/vnpay/vnpayreturn";
 import VerifyEmail from "./pages/user/VerifyEmail";
 import ResetPassword from "./pages/user/ResetPassword";
+
 
 function App() {
   const Pages = [
@@ -114,7 +120,8 @@ function App() {
     { path: 'permissions/trash', element: < PermissionsTrash /> },
 
     { path: 'accounts/', element: < Users /> },
-    { path: 'accounts/update/:userId', element: < Set_User_Role /> },
+    { path: 'accounts/rolelevel/:userId', element: < Set_User_Role /> },
+    { path: 'accounts/update/:userId', element: < UpdateAccount /> },
     { path: 'accounts/trash', element: < UsersTrash /> },
 
     { path: 'categories', element: < Categories /> },
@@ -148,11 +155,14 @@ function App() {
 
     { path: 'chart', element: < ProductStatsChart /> },
     { path: 'status', element: < ProductStatusChart /> },
-    { path: 'statisticals', element: < ProductPerformanceChart /> },
-    
+    { path: 'statisticals/productper', element: < ProductPerformanceChart /> },
+    { path: 'statisticals/revenue', element: < Revenue/> },
+
+    { path: 'vouchers', element: < Vouchers/> },
+    { path: 'vouchers/create', element: < Create_Voucher/> },
+
     { path: 'test1', element: < MyChart /> },
     { path: 'test2', element: < OrdersChart /> },
-    { path: 'test3', element: < ProductsChart /> },
     { path: 'voucher', element: < VouchersChart /> },
   ];
 

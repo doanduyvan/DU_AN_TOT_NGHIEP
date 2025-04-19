@@ -1,103 +1,126 @@
 import { useState, useEffect, useRef } from "react";
-import { productService } from "../../../services/api-products";
-import { AntNotification } from "../../../components/notification";
-import { ImageModal } from "../../../components/admin/imgmodal";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../../contexts/authcontext";
+import { VoucherService } from "../../../services/api-vouchers";
+import { AntNotification } from "../../../components/notification";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
-import { Pagination } from 'antd';
+import { Pagination, Select } from 'antd';
 
-export const Products = () => {
-
-    const [imageSrc, setImageSrc] = useState(null);
-    const [products, setProducts] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [selectedProducts, setselectedProducts] = useState([]);
-    const { permissions } = useAuth();
+export const Vouchers = () => {
+    const [voucher, setVoucher] = useState([]);
+    const [selectedVoucher, setSelectedVoucher] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
     const [sortorder, setSortOrder] = useState(null);
-    const [filterCategory, setFilterCategory] = useState(null);
     const [keyword, setKeyword] = useState("");
     const [inputValue, setInputValue] = useState('');
+    const { Option } = Select;
 
-    const openModal = (src) => {
-        setImageSrc(src);
-    };
-
-    const closeModal = () => {
-        setImageSrc(null);
-    };
-    const checkProduct = (e, id) => {
-        setselectedProducts((prevselectedProducts) => {
+    const checkVoucher = (e, id) => {
+        setSelectedVoucher((prevselectedVoucher) => {
             if (e.target.checked) {
-                return [...prevselectedProducts, id];
+                return [...prevselectedVoucher, id];
             } else {
-                return prevselectedProducts.filter((item) => item !== id);
+                return prevselectedVoucher.filter((item) => item !== id);
             }
         });
     };
+    const VoucherStatus = [
+        { id: 0, name: "Hết hạn" },
+        { id: 1, name: "Đang hoat động" },
+        { id: 2, name: "Hêt số lượt sử dụng" },
+        { id: 3, name: "Tạm dừng hoạt động" },
+    ]
     const hanDleDelete = async () => {
-        if (selectedProducts.length === 0) {
-            AntNotification.showNotification("Lỗi", "Không có sản phẩm nào được chọn", "error");
+        if (selectedVoucher.length === 0) {
+            AntNotification.showNotification(
+                "Chưa có Voucher nào được chọn",
+                "Vui lòng chọn ít nhất một voucher",
+                "warning"
+            );
             return;
         }
         try {
-            const res = await productService.destroy(selectedProducts);
-            console.log(selectedProducts);
+            const res = await UsersService.destroy(selectedVoucher);
             if (res?.status === 200) {
-                setProducts((prevProducts) => {
-                    return prevProducts.filter(
-                        (product) => !selectedProducts.includes(product.id)
+                setVoucher((prevvoucher) => {
+                    return prevvoucher.filter(
+                        (user) => !selectedVoucher.includes(user.id)
                     );
                 });
-                setselectedProducts([]);
-                AntNotification.showNotification("Xóa sản phẩm thành công", res?.message, "success");
+                setSelectedVoucher([]);
+                AntNotification.showNotification(
+                    "Xóa thành công",
+                    res?.message,
+                    "success"
+                );
             } else {
-                AntNotification.showNotification("Xóa sản phẩm thất bại", res?.message, "error");
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
             }
         } catch (error) {
             AntNotification.handleError(error);
         }
     };
+    console.log(selectedVoucher);
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await productService.getAllProducts({
+                const res = await VoucherService.getVouchers({
                     page: currentPage,
                     per_page: pageSize,
                     sortorder: sortorder,
                     keyword: keyword,
-                    filter_category: filterCategory,
                 });
                 if (res) {
-                    setProducts(Array.isArray(res.data) ? res.data : []);
+                    setVoucher(Array.isArray(res.data) ? res.data : []);
                     setTotalItems(res.total || 0);
                     console.log(res);
                 } else {
-                    AntNotification.showNotification("Lỗi", "Không thể lấy danh sách sản phẩm", "error");
+                    AntNotification.showNotification(
+                        "Có lỗi xảy ra",
+                        res?.message || "Vui lòng thử lại sau",
+                        "error"
+                    );
                 }
             } catch (error) {
                 AntNotification.handleError(error);
             }
         };
         fetchData();
-    }, [currentPage, pageSize, sortorder, keyword, filterCategory]);
+    }, [currentPage, pageSize, sortorder, keyword]);
 
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const res = await productService.categories();
-                if (res) {
-                    setCategories(Array.isArray(res) ? res : []);
-                }
-            } catch (error) {
-                console.error(error.message)
+    const handleStatusChange = async (id, status) => {
+        try {
+            const res = await VoucherService.updateStatus({ id, status });
+            if (res?.status === 200) {
+                setVoucher((prevvoucher) => {
+                    return prevvoucher.map((item) => {
+                        if (item.id === id) {
+                            return { ...item, status };
+                        }
+                        return item;
+                    });
+                });
+                AntNotification.showNotification(
+                    "Cập nhật thành công",
+                    res?.message,
+                    "success"
+                );
+            } else {
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
             }
-        };
-        fetchCategories();
-    }, []);
+        } catch (error) {
+            AntNotification.handleError(error);
+        }
+    }
 
     useEffect(() => {
         const debounceTimer = setTimeout(() => {
@@ -112,7 +135,6 @@ export const Products = () => {
     }, [inputValue]);
 
     const handlePageChange = async (page, size) => {
-        console.log(page);
         setCurrentPage(page);
         setPageSize(size);
     }
@@ -120,12 +142,6 @@ export const Products = () => {
         const value = e.target.value;
         const sortOrder = value === "asc" ? "asc" : "desc";
         setSortOrder(sortOrder);
-    };
-
-    const handleFilterCategoryChange = async (e) => {
-        const value = e.target.value;
-        console.log(value);
-        setFilterCategory(value);
     };
     return (
         <div className="pt-20 px-4 lg:ml-64">
@@ -145,24 +161,22 @@ export const Products = () => {
                         </span>
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Quản Lý Sản Phẩm
+                        Quản Lý Mã Giảm Giá
                     </li>
                 </ol>
             </nav>
             <div className="relative overflow-x-auto shadow-md my-4 sm:rounded-lg bg-white">
                 <div className="flex justify-between items-center p-4">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Quản Lý Sản Phẩm
+                        Quản Lý Mã Giảm Giá
                     </h5>
-                    <Link
-                        to="/admin/products/create"
-                        className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
-                    >
-                        Thêm Sản Phẩm
+                    <Link to="/admin/vouchers/create"
+                        className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto">
+                        Thêm Mã giảm giá
                     </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
-                    <div className="flex items-center space-x-4">
+                    <div>
                         <select
                             className="cursor-pointer items-center text-black bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 font-medium rounded-lg text-sm px-3 py-1.5 "
                             onChange={handleFilterChange}
@@ -174,25 +188,11 @@ export const Products = () => {
                                 Cũ Nhất
                             </option>
                         </select>
-                        <select
-                            className="cursor-pointer text-black bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 font-medium rounded-lg text-sm px-3 py-1.5 overflow-y-auto"
-                            onChange={handleFilterCategoryChange}
-                        >
-                            <option value="">
-                                Tất cả danh mục
-                            </option>
-                            {categories.map((category) =>
-                                <option key={category.id} value={category.id}>
-                                    {category.category_name}
-                                </option>
-                            )}
-                        </select>
                     </div>
-
                     <div className="py-1 flex flex-wrap-reverse">
-                        {(selectedProducts.length > 0) ?
+                        {(selectedVoucher.length > 0) ?
                             <DeleteConfirmationModal
-                                data={`Bạn có chắc chắn muốn xóa ${selectedProducts.length} sản phẩm này không?`}
+                                data={`Bạn có chắc chắn muốn xóa ${selectedVoucher.length} Voucher này không?`}
                                 onDelete={hanDleDelete}
                             /> : null
                         }
@@ -219,9 +219,9 @@ export const Products = () => {
                             </div>
                             <input
                                 type="text"
-                                id="table-search-users"
+                                id="table-search-voucher"
                                 className="block pt-2 ps-10 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-950 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Tìm kiếm..."
+                                placeholder="Tìm kiếm tiêu đề hoặc mã giảm giá"
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                             />
@@ -234,19 +234,19 @@ export const Products = () => {
                             <th scope="col" className="p-4">
                                 <div className="flex items-center">
                                     <input
-                                        checked={selectedProducts.length === products.length}
+                                        checked={selectedVoucher.length === voucher.length}
                                         onChange={() => {
-                                            if (selectedProducts.length === products.length) {
-                                                setselectedProducts([]); // bo chon tat ca
+                                            if (selectedVoucher.length === voucher.length) {
+                                                setSelectedVoucher([]);
                                             } else {
-                                                setselectedProducts(
-                                                    products.map((product) => product.id)
+                                                setSelectedVoucher(
+                                                    voucher.map((user) => user.id)
                                                 ); // chon tat ca
                                             }
                                         }}
                                         id="checkbox-all-search"
                                         type="checkbox"
-                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                        className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                     />
                                     <label htmlFor="checkbox-all-search" className="sr-only">
                                         checkbox
@@ -254,16 +254,22 @@ export const Products = () => {
                                 </div>
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Tên
+                                Tiêu đề
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Danh mục
+                                Mã giảm giá
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Hình ảnh
+                                Trạng thái
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Thời gian tạo
+                                Thời gian sử dụng
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Số lượng
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Số lượng đã sử dụng
                             </th>
                             <th scope="col" className="px-6 py-3">
                                 Action
@@ -271,19 +277,19 @@ export const Products = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {products.map((product) => (
+                        {voucher.map((item) => (
                             <tr
-                                key={product.id}
+                                key={item.id}
                                 className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                             >
                                 <td className="w-4 p-4">
                                     <div className="flex items-center">
                                         <input
                                             id="checkbox-table-search-1"
-                                            onChange={(e) => checkProduct(e, product.id)}
-                                            checked={selectedProducts.includes(product.id)}
+                                            onChange={(e) => checkVoucher(e, item.id)}
+                                            checked={selectedVoucher.includes(item.id)}
                                             type="checkbox"
-                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                            className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
                                         />
                                         <label
                                             htmlFor="checkbox-table-search-1"
@@ -297,37 +303,38 @@ export const Products = () => {
                                     scope="row"
                                     className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                 >
-                                    <div className="ps-3">
-                                        <div className="text-base font-semibold truncate">
-                                            {product.product_name}
-                                        </div>
+                                    <div className="text-base font-semibold">
+                                        {item.title}
                                     </div>
                                 </th>
-                                <td className="px-6 py-4 text-gray-700 tracking-wide">
-                                    {categories.find((cat) =>
-                                        cat.id === product.category_id)?.category_name || 'Không có danh mục'}
-                                </td>
+                                <td className="px-6 py-4 text-gray-700">{item.code}</td>
                                 <td className="px-6 py-4">
-                                    <a
-                                        className="underline cursor-pointer"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            openModal(product.avatar);
-                                        }}
+                                    <Select
+                                        defaultValue={item.status}
+                                        className="w-full h-10"
+                                        onChange={(value) => handleStatusChange(item.id, value)}
                                     >
-                                        Hình ảnh
-                                    </a>
-                                    <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
+                                        {VoucherStatus.map((status) => (
+                                            <Option key={status.id} value={status.id}>
+                                                {status.name}
+                                            </Option>
+                                        ))}
+                                    </Select>
                                 </td>
-                                <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(product.created_at).toLocaleDateString('vi-VN')}</td>
-                                <td className="px-6 py-4">
+                                <td className="px-6 py-4 text-gray-700">
+                                {new Date(item.expiry_date).toLocaleString('vi-VN')}
+                                </td>
+
+                                <td className="px-6 py-4 text-gray-700">{item.quantity}</td>
+                                <td className="px-6 py-4 text-gray-700">{item.quantity_used}</td>
+
+                                <td className="px-6 py-4 gap-4 flex">
                                     <Link
-                                        to={`/admin/products/update/${product.id}`}
+                                        to={`/admin/vouchers/update/${voucher.id}`}
                                         type="button"
-                                        data-modal-target="editUserModal"
-                                        data-modal-show="editUserModal"
-                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                                        Edit
+                                        className="font-medium text-orange-700 dark:text-orange-600 hover:underline"
+                                    >
+                                        Chỉnh sửa
                                     </Link>
                                 </td>
                             </tr>

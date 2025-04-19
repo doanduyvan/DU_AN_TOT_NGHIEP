@@ -310,15 +310,22 @@ export const Users = () => {
                                     </label>
                                 </td>
 
-                                <td className="px-6 py-4">
+                                <td className="px-6 py-4 gap-4 flex">
                                     <Link
-                                        to={`/admin/accounts/update/${user.id}`}
+                                        to={`/admin/accounts/rolelevel/${user.id}`}
                                         type="button"
                                         data-modal-target="editUserModal"
                                         data-modal-show="editUserModal"
                                         className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                                     >
                                         Cấp vai trò
+                                    </Link>
+                                    <Link
+                                        to={`/admin/accounts/update/${user.id}`}
+                                        type="button"
+                                        className="font-medium text-orange-700 dark:text-orange-600 hover:underline"
+                                    >
+                                        Chỉnh sửa
                                     </Link>
                                 </td>
                             </tr>

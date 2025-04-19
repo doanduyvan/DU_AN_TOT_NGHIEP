@@ -31,6 +31,7 @@ use App\Http\Controllers\Trashed\TrashedProductController;
 use App\Http\Controllers\Trashed\TrashedOrderController;
 use App\Http\Controllers\Trashed\TrashedNewsController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\VoucherController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,14 +42,19 @@ use App\Http\Controllers\LocationController;
 | routes are loaded by the RouteServiceProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
 |
-*/ 
+*/
+route::group(['prefix' => 'vouchers'], function (){
+    Route::get('/', [VoucherController::class, 'index']);
+    Route::post('/updatestatus', [VoucherController::class, 'updateStatus']);
+    Route::post('/create', [VoucherController::class, 'create']);
+
+});
+
 Route::get('/provinces', [LocationController::class, 'getProvinces']);
 Route::get('/districts/{provinceCode}', [LocationController::class, 'getDistrictsByProvince']);
 Route::get('/wards/{districtCode}', [LocationController::class, 'getWardsByDistrict']);
 
-
 route::post('orders/search-by-phone', [OrderController::class, 'searchByPhone']);
-
 
 
 route::get('/users/trash', [TrashedUserController::class, 'index']);
@@ -85,10 +91,14 @@ route::post('/categories/restore', [TrashedCategoryController::class, 'restore']
 route::delete('/categories/force-delete/{id}', [TrashedCategoryController::class, 'forceDelete']);
 
 
-Route::get('/product-performance', [ChartDataController::class, 'getProductPerformance']);
+Route::get('/statisticals/product-performance', [ChartDataController::class, 'getProductPerformance']);
+Route::get('/statisticals/get-order-year', [ChartDataController::class, 'getOrderYear']);
+Route::get('/statisticals/get-order-statistics/{year}', [ChartDataController::class, 'getOrderStatistics']);
 
 
 Route::get('orders', [OrderController::class, 'index']);
+Route::get('orders/get-product-variant', [OrderController::class, 'getProductVariant']);
+Route::get('orders/category-products', [OrderController::class, 'getCategoryProducts']);
 Route::post('orders/update/{id}', [OrderController::class, 'update']);
 Route::post('orders/destroy', [OrderController::class, 'destroy']);
 Route::post('orders/create', [OrderController::class, 'create']);
@@ -130,7 +140,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/logout-all', [AuthController::class, 'logoutAll']);
     Route::get('/me', [AuthController::class, 'me']);
-
     Route::get('/users', [UserController::class, 'index']);
 });
 route::post('/users/destroy', [UserController::class, 'destroy'])->middleware('check.permission:delete-customer');
@@ -138,6 +147,7 @@ route::post('/users/destroy', [UserController::class, 'destroy'])->middleware('c
 Route::middleware('check.permission:update-customer')->group(function () {
     route::post('/users/search-users', [UserController::class, 'searchUser']);
     Route::post('/users/updatestatus', [UserController::class, 'updateStatus']);
+    Route::post('/users/rolelevel/{id}', [UserController::class, 'roleLevel']);
     Route::post('/users/update/{id}', [UserController::class, 'updateUser']);
     Route::get('/users/showroles', [UserController::class, 'showRoles']);
     route::get('/users/{id}', [UserController::class, 'getUserById']);
@@ -168,6 +178,7 @@ route::get('/products/{id}', [ProductsController::class, 'getProductById'])->mid
 
 
 route::get('/news', [NewsController::class, 'index']);
+route::get('/news/get-category-news', [NewsController::class, 'getCategoryNews']);
 route::post('/news/update/{id}', [NewsController::class, 'update'])->middleware('check.permission:update-news');
 route::post('/news/create', [NewsController::class, 'create'])->middleware('check.permission:create-news');
 route::post('/news/destroy', [NewsController::class, 'destroy'])->middleware('check.permission:delete-news');

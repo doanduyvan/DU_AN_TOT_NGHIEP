@@ -26,6 +26,7 @@ class ProductsController extends Controller
         ->applyFilters($filters);
         return response()->json($products);
     }
+    
 
     public function getProductById($id)
     {

@@ -18,6 +18,7 @@ class ShippingAddress extends Model
         'districts',
         'wards',
         'addresses',
+        'is_default',
         'user_id',
     ];
     public function user()

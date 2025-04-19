@@ -67,7 +67,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'Asia/Ho_Chi_Minh',
 
     /*
     |--------------------------------------------------------------------------
@@ -231,5 +231,8 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
     ],
+
+    
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
 
 ];

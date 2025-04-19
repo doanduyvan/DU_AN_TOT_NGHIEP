@@ -12,7 +12,7 @@ const Cart = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const {cart,cartItems} = useUserContext();
+  const {cart,cartItems,onToCheckout} = useUserContext();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -24,11 +24,6 @@ const Cart = () => {
     navigate("/cart");
   };
 
-  // const [cartItems, setCartItems] = useState([
-  //   { id: 1, name: "Lavazza Coffee Blends Lavazza Coffee Blends Lavazza Coffee Blends", price: 329.0, img: "/images/home/img1.png" },
-  //   { id: 2, name: "Coffee Beans Espresso", price: 39.99, img: "/images/home/img1.png" },
-  //   { id: 3, name: "Qualità Oro Mountain", price: 47.0, img: "/images/home/img1.png" },
-  // ]);
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
 
@@ -74,7 +69,7 @@ const Cart = () => {
         </p>
       </div>
 
-      <Button type="primary" className="w-full mt-4 bg-yellow-400 hover:bg-yellow-500">
+      <Button type="primary" className="w-full mt-4 bg-yellow-400 hover:bg-yellow-500" onClick={onToCheckout}>
         Thanh toán
       </Button>
     </div>

@@ -14,7 +14,7 @@ class Product extends Model
     protected $dates = ['deleted_at'];
     protected $table = 'products';
 
-    protected $fillable = ['product_name', 'description', 'avatar', 'category_id', 'user_id', 'rating_avg', 'total_reviews'];
+    protected $fillable = ['product_name', 'description', 'avatar', 'category_id', 'user_id', 'rating_avg', 'total_reviews','status'];
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id');

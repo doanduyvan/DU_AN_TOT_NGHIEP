@@ -54,11 +54,33 @@ class RolePermissionSeeder extends Seeder
             'delete-category-news',
             'create-news',
             'update-news',
-            'delete-news',
+            'delete-news'
+        ];
+
+        $permissions2 = [
+            'create-role',
+            'update-role',
+            'delete-role',
+            'create-permission',
+            'update-permission',
+            'delete-customer',
+            'update-customer',
+            'create-category',
+            'delete-category',
+            'update-category',
+            'create-category-news',
+            'delete-category-news',
+            'update-category-news',
+            'create-product',
+            'delete-product',
+            'update-product',
+            'update-news',
+            'create-news',
+            'delete-news'
         ];
 
         // Tạo permission và gán cho Admin
-        foreach ($permissions as $permission) {
+        foreach ($permissions2 as $permission) {
             $perm = Permission::firstOrCreate([
                 'name' => $permission,
                 'guard_name' => 'api'

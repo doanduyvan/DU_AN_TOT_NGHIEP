@@ -19,6 +19,7 @@ const Home = () => {
       try {
         const response = await axios.get(urlGetNewProducts); // Adjust the endpoint as needed
         const data = response.data.newProducts;
+        if(!data) return;
         setNewProducts(data);
       } catch (error) {
         console.error("Error fetching products:", error);

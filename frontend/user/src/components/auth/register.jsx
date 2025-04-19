@@ -5,35 +5,39 @@ import { AuthService } from "../../services/api-auth";
 import { useState, useEffect } from "react";
 import { useHref, useNavigate } from "react-router-dom";
 import { notification as Notification, message } from "antd";
+import { FullScreenLoader } from "/src/utils/helpersjsx";
+
 
 const RegisterForm = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     try {
+      setLoading(true);
       const response = await AuthService.register(formData);
-      if (response.status === 200) {
-        localStorage.setItem("token", response.token);
-        message.success("Đăng ký, đăng nhập thành công");
-        navigate('/');
-      }else if (response.status === 500) {
-        Notification.error({
-          message: "Đăng ký không thành công",
-          description: response.data.message,
-        });
-      }
-      console.log(response);
+
+      const message2 = response?.data?.message || "Đăng ký thành công, vui lòng kích hoạt tài khoản qua email";
+      Notification.error({
+      message: "Đăng ký thành công",
+      description: message2,
+      });
+      navigate("/login");
     } catch (error) {
-      console.log(error.response.data);
       setError(error.response.data.errors);
-      setTimeout(()=> { setError('') },2000)
+      setTimeout(()=> { setError('') },3000)
       console.log(error);
+    }finally {
+      setLoading(false);
     }
 
   };
   return (
+    <>
     <div className="flex items-center justify-center min-h-screen bg-yellow-50">
       <div className="bg-white p-8 shadow-lg rounded-2xl w-96 text-center mt-[100px] mb-6">
         <h2 className="text-2xl font-bold">Mes Skin</h2>
@@ -54,7 +58,7 @@ const RegisterForm = () => {
           <Input.Password className="mt-1 text-lg" name="password" placeholder="Nhập mật khẩu" />
 
           <label className="block text-sm font-medium text-gray-700 mt-4">Nhập lại mật khẩu</label>
-          {error && <p className="error text-red-500">{error.password}</p>}
+          {error && <p className="error text-red-500">{error?.password}</p>}
           <Input.Password className="mt-1 text-lg" name="password_confirmation" placeholder="Nhập lại mật khẩu" />
 
           <button type="submit" className="w-full p-2 rounded-lg mt-6 bg-yellow-400 hover:bg-yellow-500">
@@ -77,6 +81,8 @@ const RegisterForm = () => {
         </div>
       </div>
     </div>
+    <FullScreenLoader visible={loading} tip='vui lòng đợi trong giây lát...' />
+    </>
   );
 };
 

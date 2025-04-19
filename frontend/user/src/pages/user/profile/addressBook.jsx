@@ -7,16 +7,29 @@ const { Option } = Select;
 
 const urlAddAddress = "customer/profile/get-address";
 const urlDeleteAddress = "customer/profile/delete-address/";
+const urlSetDefaultAddress = "customer/profile/set-default-address/";
 
 const AddressBook = () => {
 
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(false);
     const [forceReload, setForceReload] = useState(false);
+    const [handleDefaultLoading, setHandleDefaultLoading] = useState(false);
 
 
   const [addresses, setAddresses] = useState([]);
   
+
+  const handleFomatAddress = (item) => {
+    const dataFormatted = {
+      id: item.id,
+      name: item.fullname,
+      phone: item.phone,
+      address: `${item.addresses}, ${item.wards}, ${item.districts}, ${item.provinces}`,
+      is_default: item.is_default
+    };
+    return dataFormatted;
+  };
 
   useEffect(() => {
     const fetchAddresses = async () => {
@@ -24,16 +37,11 @@ const AddressBook = () => {
         setLoading(true);
         const res = await AxiosUser.get(urlAddAddress, { useToken: true });
         const data = res.addresses;
-        const dataFormatted = data.map((item) => ({
-          id: item.id,
-          name: item.fullname,
-          phone: item.phone,
-          address: `${item.addresses}, ${item.wards}, ${item.districts}, ${item.provinces}`,
-        }));
+        const dataFormatted = data.map((item) => handleFomatAddress(item));
         setAddresses(dataFormatted);
       } catch (error) {
-        console.log(error);
-        message.error("Có lỗi xảy ra khi tải địa chỉ.");
+        const message = error.response?.data?.message || "Có lỗi xảy ra khi tải địa chỉ.";
+        message.error(message);
       }finally{
         setLoading(false);
       }
@@ -55,8 +63,28 @@ const AddressBook = () => {
     }
   }
 
-  const onSuccess = () => {
-    setForceReload((prev) => !prev);
+  const handleSetDefaultAddress = async (id) => {
+    try {
+      setHandleDefaultLoading(true);
+      const res = await AxiosUser.post(urlSetDefaultAddress + id,{}, { useToken: true });
+      setAddresses(prev =>
+        prev.map(item => ({
+          ...item,
+          is_default: item.id === id,
+        }))
+      );
+      message.success("Đặt địa chỉ mặc định thành công!");
+    } catch (error) {
+      console.log(error);
+      message.error("Có lỗi xảy ra khi đặt địa chỉ mặc định.");
+    } finally {
+      setHandleDefaultLoading(false);
+    }
+  }
+
+  const onSuccess = (address) => {
+    const newAddress = handleFomatAddress(address);
+    setAddresses((prev) => [...prev, newAddress]);
   }
 
   return (
@@ -73,7 +101,11 @@ const AddressBook = () => {
           Thêm địa chỉ mới
         </Button>
 
-        <AddAddress open={showModal} onClose={setShowModal} onSuccess={onSuccess} />
+        <AddAddress
+          open={showModal}
+          onClose={setShowModal}
+          onSuccess={onSuccess}
+        />
 
         {/* Danh sách địa chỉ đã có */}
         <List
@@ -104,12 +136,24 @@ const AddressBook = () => {
                 <p className="font-semibold">{item.name}</p>
                 <p>{item.phone}</p>
                 <p>{item.address}</p>
+                <div className="mt-2">
+                  {item.is_default ? (
+                    <Button type="primary" color="green" variant="filled">
+                      Mặc định
+                    </Button>
+                  ) : (
+                    <Button type="primary" loading={handleDefaultLoading} onClick={()=>{handleSetDefaultAddress(item.id)}}>Đặt làm địa chỉ mặc định</Button>
+                  )}
+                </div>
               </Card>
             </List.Item>
           )}
         />
       </div>
-      <FullScreenLoader visible={loading} tip="Vui lòng đợi trong giây lát..." />
+      <FullScreenLoader
+        visible={loading}
+        tip="Vui lòng đợi trong giây lát..."
+      />
     </>
   );
 };

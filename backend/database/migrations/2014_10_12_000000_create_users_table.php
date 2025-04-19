@@ -19,9 +19,7 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique()->nullable();
             $table->string('password')->nullable();
             $table->boolean('is_verify')->default(false);
-            $table->integer('status')->default(1);  // Hoặc có thể là enum/integer tùy nhu cầu
-            $table->integer('role')->default(0);
-            $table->boolean('is_root')->default(false);
+            $table->integer('status')->default(1);  
             $table->string('phone')->nullable();
             $table->timestamps(); // Tạo cột created_at và updated_at
             $table->softDeletes();

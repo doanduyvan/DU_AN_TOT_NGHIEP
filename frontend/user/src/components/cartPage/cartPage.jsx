@@ -4,13 +4,15 @@ import { CloseOutlined } from "@ant-design/icons";
 import { useUserContext } from "../../context/user/userContext";
 import { Link } from "react-router-dom";
 import { formatCurrency, toSlug } from "../../utils/helpers";
+import { FullScreenLoader } from "../../utils/helpersjsx";
+import { useNavigate } from "react-router-dom";
 
 
 const baseUrlImg = import.meta.env.VITE_URL_IMG;
 
 const CartPage = () => {
-
-  const {cartItems, addToCart, removeFromCart, decreaseQty} = useUserContext();
+  const navigate = useNavigate();
+  const {cartItems, addToCart, removeFromCart, decreaseQty, loadingCartContext, onToCheckout} = useUserContext();
 
   const [loading, setLoading] = useState(false);
   const [loadingItems, setLoadingItems] = useState([]);
@@ -36,6 +38,8 @@ const CartPage = () => {
   
 
   const total = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
+
+
 
   return (
     <>
@@ -82,6 +86,9 @@ const CartPage = () => {
                         </span>
                       )}
                     </div>
+                    {item?.error && (
+                    <p className="text-red-600 text-xs text-center">sản phẩm không đủ số lượng</p>
+                    )}
                   </div>
 
                   <div className="flex gap-2 justify-center items-end">
@@ -124,12 +131,15 @@ const CartPage = () => {
               className="bg-yellow-500 hover:!bg-yellow-600"
               disabled={cartItems.length === 0}
               loading={loading}
+              onClick={onToCheckout}
             >
               Thanh toán ({formatCurrency(total)})
             </Button>
           </div>
         </div>
       </div>
+
+      <FullScreenLoader visible={loadingCartContext} tip="Đang tải giỏ hàng..." />
     </>
   );
 };

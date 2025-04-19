@@ -1,6 +1,7 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import AxiosUser from "../../utils/axios_user";
 import { message } from "antd";
+import { useNavigate } from "react-router-dom";
 
 const AppContext = createContext();
 
@@ -9,11 +10,14 @@ const urlCheckQtyVariant = "customer/cart/checkqtyproductvariant/";
 const maxQtyInCart = 20;
 
 export const UserContext = ({ children }) => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [cart, setCart] = useState([]); // Chỉ chứa id & qty
   const [cartItems, setCartItems] = useState([]); // Chi tiết từ server
+  const [forceReloadCart, setForceReloadCart] = useState(false); // Để reload lại cart khi cần thiết
+  const [loadingCartContext, setLoadingCartContext] = useState(false); // Để hiển thị loading khi cần thiết
 
   // Kiểm tra đăng nhập
   useEffect(() => {
@@ -49,7 +53,7 @@ export const UserContext = ({ children }) => {
       }
     }
     firstLoadCart();
-  }, []);
+  }, [forceReloadCart]);
 
   // Lưu lại local mỗi lần cart thay đổi
   useEffect(() => {
@@ -62,6 +66,7 @@ export const UserContext = ({ children }) => {
       if (!Array.isArray(cartLocal) || cartLocal.length === 0) {
         return null;
       }
+      setLoadingCartContext(true);
       const res = await AxiosUser.post(urlGetCart, { cart: cartLocal });
       if (Array.isArray(res.data)) {
         const variantIdsInServer = res.data.map(item => item.variant_id);
@@ -78,9 +83,13 @@ export const UserContext = ({ children }) => {
         setCartItems(res.data);
         return res.data;
       }
+      message.error("Lỗi khi lấy chi tiết giỏ hàng.");
+      return null;
     } catch (err) {
       console.error("Lỗi khi lấy chi tiết giỏ hàng:", err);
       return null;
+    }finally{
+      setLoadingCartContext(false);
     }
   };
 
@@ -102,7 +111,9 @@ export const UserContext = ({ children }) => {
       return false;
     }
   
-    if (availableQty < qty) {
+    const totalQtyInCartLocal = cart.reduce((sum, item) => sum + (item.variant_id === variant_id ? item.qty : 0) , 0);
+
+    if (availableQty < totalQtyInCartLocal) {
       message.error(`Chỉ còn ${availableQty} sản phẩm trong kho.`);
       return false;
     }
@@ -155,6 +166,27 @@ export const UserContext = ({ children }) => {
     message.success("Đã xóa sản phẩm khỏi giỏ hàng.");
   };
 
+  const onToCheckout = () => {
+
+    if (!isLoggedIn) {
+      message.error("Vui lòng đăng nhập để thanh toán.");
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      message.error("Giỏ hàng trống.");
+      return;
+    }
+
+    const checkCart = cartItems.some(item => item.stock < item.qty);
+    if (checkCart) {
+      message.error("Có sản phẩm không đủ số lượng trong giỏ hàng.");
+      return;
+    }
+    navigate("/checkout");
+  }
+
+
   const useExport = {
     user,
     isLoggedIn,
@@ -167,7 +199,10 @@ export const UserContext = ({ children }) => {
     addToCart,
     getCartItems,
     removeFromCart,
-    decreaseQty
+    decreaseQty,
+    setForceReloadCart,
+    loadingCartContext,
+    onToCheckout
   };
 
   return <AppContext.Provider value={useExport}>{children}</AppContext.Provider>;

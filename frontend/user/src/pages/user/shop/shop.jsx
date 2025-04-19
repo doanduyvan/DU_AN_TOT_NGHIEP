@@ -386,10 +386,13 @@ const price_delete = currentVariant.promotional_price ? currentVariant.price : n
     setLoadingBtn(true);
     const check = await addToCart(currentVariant.product_id, currentVariant.id, 1);
     setLoadingBtn(false);
-    if (check) {
+    if(!check) return;
+    requestAnimationFrame(() => {
       flyRef.current.fly();
-    };
+    });
   }
+
+  
 
     return (
       <>

@@ -182,7 +182,7 @@ const NoVerifyModal = ({ open, onClose, email }) => {
   const handleOk = async () => {
     try {
       setLoading(true);
-      const response = await AxiosUser.post(urlForgotPassword, {email});
+      const response = await AxiosUser.post(urlSendVerifyEmail, {email});
       const message2 = response?.message || "Đã gửi yêu cầu xác thực thành công";
       notification.success({
         message: "Thành công",

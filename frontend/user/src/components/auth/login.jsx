@@ -74,7 +74,7 @@ const LoginForm = () => {
     <div className="flex items-center justify-center min-h-screen bg-yellow-50">
       <div className="bg-white p-8 shadow-lg rounded-2xl w-96 text-center">
         <h2 className="text-2xl font-bold">Mes Skin</h2>
-        <p className="mt-2 text-gray-600">Welcome to WeConnect! 👋</p>
+        <p className="mt-2 text-gray-600">Welcome to WeConnect! 1 👋</p>
         <p className="text-sm text-gray-500">Please sign in to your account and start the adventure</p>
 
         <form className="mt-6 text-left form" onSubmit={handleSubmit}>

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Result, Button, Spin } from "antd";
-import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FullScreenLoader } from "/src/utils/helpersjsx";
+import AxiosUser from "../../utils/axios_user";
 
+const urlVerify = "verify-email";
 
 const VerifyEmail = () => {
   const [status, setStatus] = useState("loading"); // loading | success | error
@@ -19,21 +20,22 @@ const VerifyEmail = () => {
       setMessage("Thiếu token xác nhận. Vui lòng kiểm tra lại email.");
       return;
     }
-
     setStatus("loading");
     setMessage("");
 
-    axios
-      .get(`http://localhost:8000/api/verify-email?token=${token}`)
-      .then((res) => {
+    const verifyEmail = async () => {
+      try {
+        const res = await AxiosUser.get(urlVerify, {params: { token }});
         setStatus("success");
-        setMessage(res.data.message || "Xác nhận email thành công.");
-      })
-      .catch((err) => {
-        const msg = err.response?.data?.message || "Token không hợp lệ hoặc đã được sử dụng.";
+        setMessage(res?.message|| "Xác nhận email thành công.");
+      } catch (error) {
+        const msg = error?.response?.data?.message || "Token không hợp lệ hoặc đã được sử dụng.";
         setStatus("error");
         setMessage(msg);
-      });
+      }
+    };
+    verifyEmail();
+
   }, [location.search]);
 
   const handleRedirect = () => {
@@ -46,7 +48,9 @@ const VerifyEmail = () => {
 
   if (status === "loading") {
     return (
+      <div className="h-screen flex items-center justify-center px-4">
       <FullScreenLoader visible={true} tip='Đang xác minh Email...' />
+      </div>
     );
   }
 

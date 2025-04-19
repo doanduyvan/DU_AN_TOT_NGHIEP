@@ -21,7 +21,7 @@ use App\Http\Controllers\customer\CartController;
 use App\Http\Controllers\customer\NewsdetailController;
 use App\Http\Controllers\customer\ProfileController;
 use App\Http\Controllers\ChartDataController;
-use App\Http\Controllers\Customer\CheckoutController;
+use App\Http\Controllers\customer\CheckoutController;
 use App\Http\Controllers\Trashed\TrashedCategoryController;
 use App\Http\Controllers\Trashed\TrashedCategoryNewsController;
 use App\Http\Controllers\Trashed\TrashedUserController;
@@ -133,6 +133,7 @@ Route::get('/verify-email', [AuthController::class, 'verifyEmail']);
 Route::post('/forgot-password', [AuthController::class, 'sendResetPasswordEmail']);
 Route::get('/check-reset-token', [AuthController::class, 'checkResetToken']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('/resend-verify-email', [AuthController::class, 'resendVerifyEmail']);
 
 
 // Route được bảo vệ bởi Sanctum

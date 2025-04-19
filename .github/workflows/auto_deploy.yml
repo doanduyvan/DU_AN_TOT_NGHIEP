@@ -21,7 +21,7 @@ jobs:
           script: | 
             cd /var/www/DU_AN_TOT_NGHIEP
             git fetch origin
-            git reset --hard origin/develop
+            git reset --hard origin/duyvan
             sudo docker compose -f docker-compose.prod.yml down
             sudo docker compose -f docker-compose.prod.yml build
             sudo docker compose -f docker-compose.prod.yml up -d

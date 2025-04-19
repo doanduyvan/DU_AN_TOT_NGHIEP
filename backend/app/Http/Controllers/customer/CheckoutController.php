@@ -209,12 +209,6 @@ class CheckoutController extends Controller
         $orderId = $request->input('vnp_TxnRef');
         $amount  = $request->input('vnp_Amount') / 100;
 
-
-        Log::info('sosanh',[
-            'secureHash' => $secureHash,
-            'vnp_SecureHash' => $vnp_SecureHash
-        ]);
-
         if ($secureHash !== $vnp_SecureHash) {
             return response()->json([
                 'RspCode' => '97',

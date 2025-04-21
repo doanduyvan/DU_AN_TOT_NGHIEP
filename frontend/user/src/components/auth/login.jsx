@@ -43,7 +43,6 @@ const LoginForm = () => {
         setCurrentUser(user);
         setUser(user);
         setIsLoggedIn(true);
-        console.log(response);
       } else if (response.status === 401) {
         console.log("401");
         Notification.warning({

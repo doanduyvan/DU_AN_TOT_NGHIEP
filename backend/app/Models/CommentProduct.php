@@ -13,6 +13,8 @@ class CommentProduct extends Model
         'content',
         'rating',
         'product_id',
+        'is_verified_buyer',
+        'is_admin',
         'user_id',
         'comment_product_id',
     ];
@@ -65,5 +67,10 @@ class CommentProduct extends Model
     public function scopeForceDelete($query)
     {
         return $query->forceDelete();
+    }
+
+    public function replies()
+    {
+        return $this->hasMany(CommentProduct::class, 'comment_product_id');
     }
 }

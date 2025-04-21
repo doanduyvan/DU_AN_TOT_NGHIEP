@@ -223,6 +223,10 @@ Route::group(['prefix' => 'customer'],function(){
     Route::get('shop/getvariantfilter', [ShopController::class, 'getVariantFilter']);
     Route::get('productdetail/getproductbyid/{id}',[ProductdetailController::class, 'getProductById']);
     Route::get('productdetail/getrelatedproducts/{id}',[ProductdetailController::class, 'getRelatedProducts']);
+    Route::post('productdetail/add-comment',[ProductdetailController::class, 'Comment'])->middleware('auth:sanctum');
+    Route::get('productdetail/get-comment/{id}',[ProductdetailController::class, 'getComment']);
+    Route::post('productdetail/delete-comment/{id}',[ProductdetailController::class, 'deleteComment'])->middleware('auth:sanctum');
+
     Route::get('news/categorynews',[CustomerNewsController::class, 'getCategoryNews']);
     Route::get('news/getnews',[CustomerNewsController::class, 'getNews']);
     Route::get('newsdetail/getnewsbyid/{id}',[NewsdetailController::class, 'getNewsById']);

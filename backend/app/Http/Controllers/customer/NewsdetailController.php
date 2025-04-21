@@ -36,4 +36,6 @@ class NewsdetailController extends Controller
             'related' => $related
         ]);
     }
+
+    
 }

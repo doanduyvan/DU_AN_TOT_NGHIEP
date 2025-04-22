@@ -231,6 +231,10 @@ Route::group(['prefix' => 'customer'],function(){
     Route::get('news/getnews',[CustomerNewsController::class, 'getNews']);
     Route::get('newsdetail/getnewsbyid/{id}',[NewsdetailController::class, 'getNewsById']);
     Route::get('newsdetail/getnewsrelated/{id}',[NewsdetailController::class, 'getNewsRelated']);
+    Route::post('newsdetail/add-comment',[NewsdetailController::class, 'Comment'])->middleware('auth:sanctum');
+    Route::get('newsdetail/get-comment/{id}',[NewsdetailController::class, 'getComment']);
+    Route::post('newsdetail/delete-comment/{id}',[NewsdetailController::class, 'deleteComment'])->middleware('auth:sanctum');
+
     Route::post('profile/update-avatar', [ProfileController::class, 'updateAvatar'])->middleware('auth:sanctum');
     Route::post('profile/update-info', [ProfileController::class, 'updateInfo'])->middleware('auth:sanctum');
     Route::get('profile/get-address', [ProfileController::class, 'getAddress'])->middleware('auth:sanctum');

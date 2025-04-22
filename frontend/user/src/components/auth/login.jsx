@@ -10,6 +10,7 @@ import { useUserContext } from "../../context/user/userContext";
 import AxiosUser from "../../utils/axios_user";
 
 const urlForgotPassword = "forgot-password";
+const urlSendVerifyEmail = "resend-verify-email";
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -19,11 +20,12 @@ const LoginForm = () => {
   const [loading, setLoading] = useState(false);
 
   const [openforgotpasss, setOpenforgotpasss] = useState(false);
+  const [openNoVerify, setOpenNoVerify] = useState(false);
+  const [emailVerify, setEmailVerify] = useState("emailtest@gmail.com");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    // console.log(formData.forEach((value, key) => console.log(key, value)));
     try {
       setLoading(true);
       const response = await AuthService.login(formData);
@@ -44,19 +46,27 @@ const LoginForm = () => {
         });
       }
     } catch (error) {
+      if(error?.response?.data?.is_verify === 0) {
+        const email = error?.response?.data?.email;
+        setEmailVerify(email);
+        setOpenNoVerify(true);
+        return;
+      }
+
       setError(error?.response?.data?.errors);
       setTimeout(() => {
         setError("");
       }, 2000);
 
-    Notification.warning({
+    Notification.error({
     message: "Có lỗi xảy ra",
-    description: error?.response?.message || "Vui lòng thử lại sau",
+    description: error?.response?.data?.message || "Vui lòng thử lại sau",
     duration: 5,
     });
     }finally{
       setLoading(false);
     }
+    
   };
 
   return (
@@ -64,7 +74,7 @@ const LoginForm = () => {
     <div className="flex items-center justify-center min-h-screen bg-yellow-50">
       <div className="bg-white p-8 shadow-lg rounded-2xl w-96 text-center">
         <h2 className="text-2xl font-bold">Mes Skin</h2>
-        <p className="mt-2 text-gray-600">Welcome to WeConnect! 👋</p>
+        <p className="mt-2 text-gray-600">Welcome to WeConnect! 1 👋</p>
         <p className="text-sm text-gray-500">Please sign in to your account and start the adventure</p>
 
         <form className="mt-6 text-left form" onSubmit={handleSubmit}>
@@ -101,6 +111,7 @@ const LoginForm = () => {
     </div>
     <FullScreenLoader visible={loading} tip="Đang tải..." />
     <ForgotPasswordModal open={openforgotpasss} onClose={setOpenforgotpasss} />
+    <NoVerifyModal open={openNoVerify} onClose={setOpenNoVerify} email={emailVerify}  />
     </>
   );
 };
@@ -119,7 +130,7 @@ const ForgotPasswordModal = ({ open, onClose }) => {
       const response = await AxiosUser.post(urlForgotPassword, values);
       message.success("Đã gửi yêu cầu quên mật khẩu thành công");
       form.resetFields();
-      onClose();
+      onClose(false);
     } catch (error) {
       const emailError = error?.response?.data?.errors?.email;
       const message2 = Array.isArray(emailError) ? emailError[0] : "Lỗi khi gửi yêu cầu quên mật khẩu.";
@@ -156,6 +167,53 @@ const ForgotPasswordModal = ({ open, onClose }) => {
           <Input placeholder="example@gmail.com" />
         </Form.Item>
       </Form>
+    </Modal>
+  );
+};
+
+
+const NoVerifyModal = ({ open, onClose, email }) => {
+
+  if(!email){
+    onClose(false);
+  }
+
+  const [loading, setLoading] = useState(false);
+  const handleOk = async () => {
+    try {
+      setLoading(true);
+      const response = await AxiosUser.post(urlForgotPassword, {email});
+      const message2 = response?.message || "Đã gửi yêu cầu xác thực thành công";
+      notification.success({
+        message: "Thành công",
+        description: message2,
+      });
+      onClose(false);
+    } catch (error) {
+      const message2 = error?.response?.data?.message || "Lỗi khi gửi yêu cầu xác thực.";
+      notification.error({
+        message: "Lỗi",
+        description: message2,
+      });
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Modal
+      title="Tài khoản chưa được xác thực"
+      content="Vui lòng kiểm tra email để xác thực tài khoản của bạn. Nếu không thấy email, hãy kiểm tra thư mục spam hoặc yêu cầu gửi lại email xác thực."
+      open={open}
+      onCancel={()=> onClose(false)}
+      maskClosable={true}
+      onOk={handleOk}
+      confirmLoading={loading}
+      okText="Gửi lại"
+      cancelText="Hủy"
+    >
+      <p className="text-sm text-gray-500">Email: {email}</p>
     </Modal>
   );
 };

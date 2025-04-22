@@ -76,24 +76,21 @@ class AuthController extends Controller
 
         if ($user) {
             if ($user->is_verify == 0) {
-                $token = Str::random(64);
-                EmailVerification::updateOrCreate(
-                    ['email' => $user->email],
-                    ['token' => $token, 'created_at' => now()]
-                );
-                Mail::to($user->email)->send(new VerifyEmail($token));
                 return response()->json([
-                    'status' => 401,
-                    'message' => 'Tài khoản của bạn chưa được xác nhận. Vui lòng kiểm tra email để xác nhận tài khoản.'
-                ]);
+                    'is_verify' => 0,
+                    'status' => 403,
+                    'email' => $user->email,
+                    'message' => 'Tài khoản của bạn chưa được xác nhận.'
+                ],403);
             }
         }
 
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['Thông tin đăng nhập được cung cấp không chính xác.'],
-            ]);
+            return response()->json([
+                'status' => 401,
+                'message' => 'Thông tin đăng nhập không chính xác.'
+            ],403);
         }
 
         if ($user->status == 0) {
@@ -114,6 +111,36 @@ class AuthController extends Controller
             'permissions' => $user->getAllPermissions()->pluck('name'),
             'roles' => $user->getRoleNames(),
             'token' => $token
+        ]);
+    }
+
+    public function resendVerifyEmail(Request $request)
+    {
+        $email = $request->input('email');
+        $user = User::where('email', $email)->first();
+        if (!$user) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Email không tồn tại trong hệ thống.'
+            ]);
+        }
+        if ($user->is_verify == 1) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Tài khoản của bạn đã được xác nhận.'
+            ]);
+        }
+
+        $token = Str::random(64);
+        EmailVerification::updateOrCreate(
+            ['email' => $user->email],
+            ['token' => $token, 'created_at' => now()]
+        );
+        Mail::to($user->email)->send(new VerifyEmail($token));
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Đã gửi lại email xác nhận. Vui lòng kiểm tra email của bạn.'
         ]);
     }
 
@@ -166,6 +193,7 @@ class AuthController extends Controller
 
     public function verifyEmail(Request $request)
     {
+
         $token = $request->query('token');
         if (!$token) {
             return response()->json(['message' => 'Thiếu token xác nhận.'], 400);

@@ -1,67 +1,88 @@
+
 import { useState, useEffect, useRef } from "react";
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
-import { commentNewsService } from "../../../services/api-comment-news";
+import { BannerService } from "../../../services/api-banners";
 import { AntNotification } from "../../../components/notification";
+import { ImageModal } from "../../../components/admin/imgmodal";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
-import { Pagination } from "antd";
+import { Pagination } from 'antd';
 
-export const Comment_News = () => {
-    const [comments, setComments] = useState([]);
-    const [selectedComments, setSelectedCommnets] = useState([]);
+
+export const Banners = () => {
+    const [imageSrc, setImageSrc] = useState(null);
+    const [banners, setBanners] = useState([]);
+    const [selectedBanners, setSelectedBanners] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
     const [sortorder, setSortOrder] = useState(null);
-    const [keyword, setKeyword] = useState("");
-    const [inputValue, setInputValue] = useState('');
 
+    const openModal = (src) => {
+        setImageSrc(src);
+    };
 
-    const checkComments = (e, id) => {
-        setSelectedCommnets((prevselectedComment) => {
+    const closeModal = () => {
+        setImageSrc(null);
+    };
+
+    const checkCategory = (e, id) => {
+        setSelectedBanners((prevselectedBanners) => {
             if (e.target.checked) {
-                return [...prevselectedComment, id];
+                return [...prevselectedBanners, id];
             } else {
-                return prevselectedComment.filter((item) => item !== id);
+                return prevselectedBanners.filter((item) => item !== id);
             }
         });
     };
     const hanDleDelete = async () => {
-        if (selectedComments.length === 0) {
-            AntNotification.showNotification("Chưa có bình luận nào được chọn", "Vui lòng chọn ít nhất một bình luận để xóa", "error");
+        if (selectedBanners.length === 0) {
+            AntNotification.showNotification(
+                "Không có danh mục nào được chọn",
+                "Vui lòng chọn ít nhất một danh mục để xóa",
+                "error"
+            );
             return;
         }
         try {
-            const res = await commentNewsService.destroy(selectedComments);
-            console.log(selectedComments);
+            const res = await BannerService.destroy(selectedBanners);
+            console.log(selectedBanners);
             if (res?.status === 200) {
+                setSelectedBanners([]);
                 fetchData();
-                setSelectedCommnets([]);
-                AntNotification.showNotification("Xóa bình luận thành công", res?.message, "success");
+                AntNotification.showNotification(
+                    "Xóa banner thành công",
+                    res?.message || "Xóa banner thành công",
+                    "success"
+                );
             } else {
-                AntNotification.showNotification("Xóa bình luận thất bại", res?.message, "error");
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
             }
         } catch (error) {
             AntNotification.handleError(error);
         }
     };
+    console.log(selectedBanners);
     const fetchData = async () => {
         try {
-            const res = await commentNewsService.getComments(
-                {
-                    page: currentPage,
-                    per_page: pageSize,
-                    sortorder: sortorder,
-                    keyword: keyword,
-                }
-            );
+            const res = await BannerService.getBanners({
+                page: currentPage,
+                per_page: pageSize,
+                sortorder: sortorder,
+            });
             if (res) {
-                setComments(res.data);
+                setBanners(Array.isArray(res.data) ? res.data : []);
                 setTotalItems(res.total || 0);
-                console.log(res.data);
+                console.log(res);
             } else {
-                AntNotification.showNotification("Lỗi", "Không thể lấy danh sách bình luận", "error");
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
             }
         } catch (error) {
             AntNotification.handleError(error);
@@ -69,23 +90,11 @@ export const Comment_News = () => {
     };
     useEffect(() => {
         fetchData();
-    }, [currentPage, pageSize, sortorder, keyword]);
+    }, [currentPage, pageSize, sortorder]);
 
-    useEffect(() => {
-        const debounceTimer = setTimeout(() => {
-            if (inputValue !== "") {
-                setCurrentPage(1);
-                setKeyword(inputValue);
-            } else {
-                setKeyword("");
-            }
-        }, 400);
-        return () => clearTimeout(debounceTimer);
-    }, [inputValue]);
-    console.log("keyword", keyword);
 
     const handlePageChange = async (page, size) => {
-        console.log(page, size);
+        console.log(page);
         setCurrentPage(page);
         setPageSize(size);
     }
@@ -112,15 +121,21 @@ export const Comment_News = () => {
                         </span>
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Quản Lý Bình Luận Tin Tức
+                        Quản Lý Banner
                     </li>
                 </ol>
             </nav>
             <div className="relative overflow-x-auto shadow-md my-4 sm:rounded-lg bg-white">
                 <div className="flex justify-between items-center p-4">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Quản Lý Bình Luận Tin Tức
+                        Quản Lý Banner
                     </h5>
+                    <Link
+                        to="/admin/banners/create"
+                        className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
+                    >
+                        Thêm Banner
+                    </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
                     <div>
@@ -137,57 +152,27 @@ export const Comment_News = () => {
                         </select>
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
-                        {(selectedComments.length > 0) ?
+                        {(selectedBanners.length > 0) ?
                             <DeleteConfirmationModal
-                                data={`Bạn có chắc chắn muốn xóa ${selectedComments.length} bình luận này không?`}
+                                data={`Bạn có chắc chắn muốn xóa ${selectedBanners.length} banner này không?`}
                                 onDelete={hanDleDelete}
                             /> : null
                         }
-                        <label htmlFor="table-search" className="sr-only">
-                            Tìm kiếm
-                        </label>
-                        <div className="relative">
-                            <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
-                                <svg
-                                    className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                    aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 20 20"
-                                >
-                                    <path
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                                    />
-                                </svg>
-                            </div>
-                            <input
-                                type="text"
-                                id="table-search-voucher"
-                                className="block pt-2 ps-10 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-950 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Tìm kiếm người dùng hoặc tin tức"
-                                value={inputValue}
-                                onChange={(e) => setInputValue(e.target.value)}
-                            />
-                        </div>
                     </div>
                 </div>
-                <table className="table-auto w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-300">
                         <tr>
                             <th scope="col" className="p-4">
                                 <div className="flex items-center">
                                     <input
-                                        checked={selectedComments.length === comments.length}
+                                        checked={selectedBanners.length === banners.length}
                                         onChange={() => {
-                                            if (selectedComments.length === comments.length) {
-                                                setSelectedCommnets([]); // bo chon tat ca
+                                            if (selectedBanners.length === banners.length) {
+                                                setSelectedBanners([]); // bo chon tat ca
                                             } else {
-                                                setSelectedCommnets(
-                                                    comments.map((item) => item.id)
+                                                setSelectedBanners(
+                                                    banners.map((category) => category.id)
                                                 ); // chon tat ca
                                             }
                                         }}
@@ -201,13 +186,10 @@ export const Comment_News = () => {
                                 </div>
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Thông tin bình luận
+                                Link
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Tin tức
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Thời gian
+                                Hình ảnh
                             </th>
                             <th scope="col" className="px-6 py-3">
                                 Action
@@ -215,17 +197,17 @@ export const Comment_News = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {comments.map((item) => (
+                        {banners.map((banner) => (
                             <tr
-                                key={item.id}
-                                className="bg-white border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
+                                key={banner.id}
+                                className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                             >
-                                <td className="w-4 p-4 ">
+                                <td className="w-4 p-4">
                                     <div className="flex items-center">
                                         <input
                                             id="checkbox-table-search-1"
-                                            onChange={(e) => checkComments(e, item.id)}
-                                            checked={selectedComments.includes(item.id)}
+                                            onChange={(e) => checkCategory(e, banner.id)}
+                                            checked={selectedBanners.includes(banner.id)}
                                             type="checkbox"
                                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                         />
@@ -237,39 +219,37 @@ export const Comment_News = () => {
                                         </label>
                                     </div>
                                 </td>
-                                <td
+                                <th
                                     scope="row"
-                                    className="max-w-5xl flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
+                                    className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                 >
-                                    <div className="truncate">
-                                        <div className="text-base font-semibold truncate">
-                                            {item.user.fullname}
+                                    <a href={banner.link} target="_blank" className="ps-3">
+                                        <div className="text-base text-blue-500 font-semibold">
+                                            {banner.link}
                                         </div>
-                                        <Link to={`/news/${item.news.id}/${item.news.title}`} className="font-normal text-gray-500 truncate">
-                                            {item.content}
-                                        </Link>
-                                    </div>
-                                </td>
+                                    </a>
+                                </th>
                                 <td className="px-6 py-4">
-                                    <div className="text-base font-semibold truncate">
-                                        {item.news.title}
-                                    </div>
+                                    <a
+                                        className="underline cursor-pointer"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            openModal(banner.img);
+                                        }}
+                                    >
+                                        Hình ảnh
+                                    </a>
+                                    <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
                                 </td>
-                                <td className="px-6 py-4">
-                                    <div className="text-base font-semibold">
-                                        {formatDistanceToNow(new Date(item.created_at), {
-                                            addSuffix: true,
-                                            locale: vi
-                                        })}
-                                    </div>
-                                </td>
+
                                 <td className="px-6 py-4">
                                     <Link
-                                        to={`/admin/comment-news/update/${item.id}`}
+                                        to={`/admin/banners/update/${banner.id}`}
                                         type="button"
                                         data-modal-target="editUserModal"
                                         data-modal-show="editUserModal"
-                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                    >
                                         Edit
                                     </Link>
                                 </td>

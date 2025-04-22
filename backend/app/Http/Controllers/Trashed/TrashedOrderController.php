@@ -11,9 +11,14 @@ class TrashedOrderController extends Controller
 {
     public function index(){
         $filters = request()->only(['per_page', 'sortorder', 'keyword']);
-        $categories = Order::onlyTrashed()->search($filters['keyword'] ?? null)
+        $orders = Order::onlyTrashed()->search($filters['keyword'] ?? null)
         ->applyFilters($filters);
-        return response()->json($categories);
+        $orders->load('user');
+        $orders->getCollection()->transform(function ($order) {
+            $order->user_name = $order->user ? $order->user->fullname : null;
+            return $order;
+        });
+        return response()->json($orders);
     }
 
     public function restore(Request $request)

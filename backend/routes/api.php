@@ -32,6 +32,7 @@ use App\Http\Controllers\Trashed\TrashedOrderController;
 use App\Http\Controllers\Trashed\TrashedNewsController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\VoucherController;
+use App\Http\Controllers\BannerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,12 +44,24 @@ use App\Http\Controllers\VoucherController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-route::group(['prefix' => 'vouchers'], function (){
-    Route::get('/', [VoucherController::class, 'index']);
-    Route::post('/updatestatus', [VoucherController::class, 'updateStatus']);
-    Route::post('/create', [VoucherController::class, 'create']);
 
+route::group(['prefix' => 'vouchers'], function () {
+    Route::get('/', [VoucherController::class, 'index'])->middleware('auth:sanctum');
+    Route::get('/get-voucher/{id}', [VoucherController::class, 'getVoucherById'])->middleware('auth:sanctum');
+    Route::post('/updatestatus', [VoucherController::class, 'updateStatus'])->middleware('check.permission:update-voucher');
+    Route::post('/update/{id}', [VoucherController::class, 'update'])->middleware('check.permission:update-voucher');
+    Route::post('/create', [VoucherController::class, 'create'])->middleware('check.permission:create-voucher');
+    route::post('/destroy', [VoucherController::class, 'destroy'])->middleware('check.permission:delete-voucher');
 });
+
+route::group(['prefix' => 'banners'], function () {
+    Route::get('/', [BannerController::class, 'index'])->middleware('auth:sanctum');
+    Route::get('/get-banner/{id}', [BannerController::class, 'getBannerById'])->middleware('auth:sanctum');
+    Route::post('/create', [BannerController::class, 'create'])->middleware('check.permission:create-banner');
+    Route::post('/update/{id}', [BannerController::class, 'update'])->middleware('check.permission:update-banner');
+    Route::post('/destroy', [BannerController::class, 'destroy'])->middleware('check.permission:delete-banner');
+});
+
 
 Route::get('/provinces', [LocationController::class, 'getProvinces']);
 Route::get('/districts/{provinceCode}', [LocationController::class, 'getDistrictsByProvince']);
@@ -143,8 +156,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::get('/users', [UserController::class, 'index']);
 });
-route::post('/users/destroy', [UserController::class, 'destroy'])->middleware('check.permission:delete-customer');
 
+route::post('/users/destroy', [UserController::class, 'destroy'])->middleware('check.permission:delete-customer');
 Route::middleware('check.permission:update-customer')->group(function () {
     route::post('/users/search-users', [UserController::class, 'searchUser']);
     Route::post('/users/updatestatus', [UserController::class, 'updateStatus']);
@@ -218,15 +231,14 @@ Route::group(['prefix' => 'customer'],function(){
     Route::get('home/getnewproducts', [HomeController::class, 'getNewProducts']);
     Route::get('home/getcategory', [HomeController::class, 'getCategory']);
     Route::get('home/get3news', [HomeController::class, 'get3News']);
-    Route::get('shop/getcategory',[ShopController::class, 'getCategory']);
-    Route::get('shop/getproducts',[ShopController::class, 'getProducts']);
+    Route::get('shop/getcategory', [ShopController::class, 'getCategory']);
+    Route::get('shop/getproducts', [ShopController::class, 'getProducts']);
     Route::get('shop/getvariantfilter', [ShopController::class, 'getVariantFilter']);
     Route::get('productdetail/getproductbyid/{id}',[ProductdetailController::class, 'getProductById']);
     Route::get('productdetail/getrelatedproducts/{id}',[ProductdetailController::class, 'getRelatedProducts']);
     Route::post('productdetail/add-comment',[ProductdetailController::class, 'Comment'])->middleware('auth:sanctum');
     Route::get('productdetail/get-comment/{id}',[ProductdetailController::class, 'getComment']);
     Route::post('productdetail/delete-comment/{id}',[ProductdetailController::class, 'deleteComment'])->middleware('auth:sanctum');
-
     Route::get('news/categorynews',[CustomerNewsController::class, 'getCategoryNews']);
     Route::get('news/getnews',[CustomerNewsController::class, 'getNews']);
     Route::get('newsdetail/getnewsbyid/{id}',[NewsdetailController::class, 'getNewsById']);
@@ -234,7 +246,8 @@ Route::group(['prefix' => 'customer'],function(){
     Route::post('newsdetail/add-comment',[NewsdetailController::class, 'Comment'])->middleware('auth:sanctum');
     Route::get('newsdetail/get-comment/{id}',[NewsdetailController::class, 'getComment']);
     Route::post('newsdetail/delete-comment/{id}',[NewsdetailController::class, 'deleteComment'])->middleware('auth:sanctum');
-
+    Route::get('productdetail/getproductbyid/{id}', [ProductdetailController::class, 'getProductById']);
+    Route::get('productdetail/getrelatedproducts/{id}', [ProductdetailController::class, 'getRelatedProducts']);
     Route::post('profile/update-avatar', [ProfileController::class, 'updateAvatar'])->middleware('auth:sanctum');
     Route::post('profile/update-info', [ProfileController::class, 'updateInfo'])->middleware('auth:sanctum');
     Route::get('profile/get-address', [ProfileController::class, 'getAddress'])->middleware('auth:sanctum');

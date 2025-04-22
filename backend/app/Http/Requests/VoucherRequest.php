@@ -23,8 +23,9 @@ class VoucherRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->route('id');
         return [
-            'code' => 'required|string|unique:voucher,code|max:255',
+            'code' => 'required|string|unique:voucher,code,' . $id . '|max:255',
             'title' => 'required|string|max:255',
             'quantity' => 'required|integer|min:1',
             'quantity_used' => 'integer|min:0',

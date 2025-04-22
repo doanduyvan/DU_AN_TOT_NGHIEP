@@ -43,6 +43,10 @@ class CategoryNews extends Model
     {
         return $query->onlyTrashed();
     }
+    public function scopeWithTrashed($query)
+    {
+        return $query->withTrashed();
+    }
     public function scopeForceDeleteId($query, $id)
     {
         // Chỉ xóa những bản ghi đã bị xóa mềm

@@ -9,9 +9,13 @@ use Illuminate\Database\QueryException;
 
 class CommentProductController extends Controller
 {
-    public function index (){
-        $comments = CommentProduct::WithRelations()->Sort(['sort'=> 'desc'])->paginate();
-        return response()->json($comments);
+    public function index()
+    {
+        $filters = request()->only(['per_page', 'sortorder', 'keyword']);
+        $commentProduct = CommentProduct::search($filters['keyword'] ?? null)
+        ->withRelations()
+        ->applyFilters($filters);
+        return response()->json($commentProduct);
     }
     public function create (CommentProductRequest $request){
         $validatedData = $request->validated();

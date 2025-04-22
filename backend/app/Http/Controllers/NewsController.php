@@ -13,12 +13,20 @@ class NewsController extends Controller
 {
     public function index()
     {
-        $news = News::orderBy('id', 'desc')->get();
+        $filters = request()->only(['per_page', 'sortorder', 'keyword', 'filter_category']);
+        $news = News::search($filters['keyword'] ?? null)
+        ->filterCategory($filters['filter_category'] ?? null)
+        ->applyFilters($filters);
+        $news->load('user');
+        $news->getCollection()->transform(function ($item) {
+            $item->user_name = $item->user ? $item->user->fullname : null;
+            return $item;
+        });
         return response()->json($news);
     }
     public function getCategoryNews()
     {
-        $categoryNews = CategoryNews::orderBy('id', 'desc')->get();
+        $categoryNews = CategoryNews::withTrashed()->orderBy('id', 'desc')->get();
         return response()->json($categoryNews);
     }
     public function getNewsById($id)
@@ -64,6 +72,13 @@ class NewsController extends Controller
         $ids = $request->ids;
         if (is_array($ids) && !empty($ids)) {
             try {
+                foreach ($ids as $id) {
+                    $news = News::find($id);
+
+                    if ($news && $news->comment()->count() > 0) {
+                        return response()->json(['message' => 'Không thể xóa tin vì có bình luận liên quan', 'status' => 'error'], 400);
+                    }
+                }
                 News::whereIn('id', $ids)->delete();
                 return response()->json(['message' => 'Xóa tin tức thành công', 'status' => 200], 200);
             } catch (QueryException $e) {

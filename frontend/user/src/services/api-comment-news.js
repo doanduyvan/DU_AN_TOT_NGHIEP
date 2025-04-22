@@ -1,36 +1,34 @@
 import axios from "../utils/axios-customize.js";
-const getHeaders = () => ({
-  "Content-Type": "multipart/form-data",
-});
-
 const apiPost = async (url, data) => {
-  const response = await axios.post(url, data, {
-    headers: getHeaders(),
-    withCredentials: true,
+  const response = await axios.post(url, data);
+  return response;
+};
+
+const apiGet = async (url, options = {}) => {
+  const response = await axios.get(url, {
+    ...options,
   });
   return response;
 };
 
-const apiGet = async (url) => {
-  const response = await axios.get(url, {
-    headers: getHeaders(),
-    withCredentials: true,
-  });
+const apiDelete = async (url, data) => {
+  const response = await axios.delete(url, data);
   return response;
 };
 
 const commentNewsService = {
-
   searchUsers: async (query) => {
-    return apiPost("/users/search-users",  query);
+    return apiPost("/users/search-users", query);
   },
 
   searchNews: async (query) => {
-    return apiPost("/comment-news/search-news",  query);
+    return apiPost("/comment-news/search-news", query);
   },
 
-  getComments: async () => {
-    return apiGet("/comment-news");
+  getComments: async ({ page, per_page, sortorder, keyword }) => {
+    return apiGet("/comment-news", {
+      params: { page, per_page, sortorder, keyword},
+    });
   },
 
   getCommentById: async (id) => {

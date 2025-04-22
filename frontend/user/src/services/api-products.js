@@ -39,9 +39,9 @@ const productService = {
   destroy: async (ids) => {
     return apiPost("/products/destroy", { ids });
   },
-  productTrash: async ({ page, per_page, sortorder, keyword }) => {
+  productTrash: async ({ page, per_page, sortorder, keyword, filter_category }) => {
     return apiGet("products/trash", {
-      params: { page, per_page, sortorder, keyword },
+      params: { page, per_page, sortorder, keyword, filter_category },
     });
   },
   restore: async (ids) => {

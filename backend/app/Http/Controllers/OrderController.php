@@ -19,7 +19,15 @@ class OrderController extends Controller
     //
     public function index()
     {
-        $orders = Order::orderBy('id', 'desc')->get();
+        $filters = request()->only(['per_page', 'sortorder', 'keyword', 'filter_status', 'filter_payment_status', 'filter_shipping_status']);
+        $orders = Order::search($filters['keyword'] ?? null)
+        ->filterStatus($filters ?? null)
+        ->applyFilters($filters);
+        $orders->load('user');
+        $orders->getCollection()->transform(function ($order) {
+            $order->user_name = $order->user ? $order->user->fullname : null;
+            return $order;
+        });
         return response()->json($orders);
     }
     public function getOrderById($id)

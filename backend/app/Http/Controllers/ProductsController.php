@@ -24,6 +24,11 @@ class ProductsController extends Controller
         $products = Product::search($filters['keyword'] ?? null)
         ->filterCategory($filters['filter_category'] ?? null)
         ->applyFilters($filters);
+        $products->load('user');
+        $products->getCollection()->transform(function ($product) {
+            $product->user_name = $product->user ? $product->user->fullname : null;
+            return $product;
+        });
         return response()->json($products);
     }
     
@@ -41,7 +46,7 @@ class ProductsController extends Controller
 
     public function getAllCategories()
     {
-        $categories = Category::orderBy('id', 'desc')->get();
+        $categories = Category::withTrashed()->orderBy('id', 'desc')->get();
         return response()->json($categories);
     }
 
@@ -117,13 +122,11 @@ class ProductsController extends Controller
 
         if (is_array($ids) && !empty($ids)) {
             try {
-                // Kiểm tra nếu có sản phẩm có biến thể liên quan
                 foreach ($ids as $id) {
                     $product = Product::find($id);
 
-                    // Kiểm tra xem sản phẩm có biến thể không
-                    if ($product && $product->variants()->count() > 0) {
-                        return response()->json(['message' => 'Không thể xóa sản phẩm vì có biến thể liên quan', 'status' => 'error'], 400);
+                    if ($product && $product->comment()->count() > 0) {
+                        return response()->json(['message' => 'Không thể xóa sản phẩm vì có bình luận liên quan', 'status' => 'error'], 400);
                     }
                 }
 

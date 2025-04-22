@@ -45,6 +45,10 @@ class Category extends Model
     {
         return $query->onlyTrashed();
     }
+    public function scopeWithTrashed($query)
+    {
+        return $query->withTrashed();
+    }
     public function scopeForceDeleteId($query, $id)
     {
         $category = $query->withTrashed()->where('id', $id)->first();

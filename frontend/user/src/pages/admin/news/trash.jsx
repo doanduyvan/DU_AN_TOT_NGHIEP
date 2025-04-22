@@ -1,67 +1,100 @@
 import { useState, useEffect, useRef } from "react";
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
-import { commentNewsService } from "../../../services/api-comment-news";
+import { newsService } from "../../../services/api-news";
 import { AntNotification } from "../../../components/notification";
+import { ImageModal } from "../../../components/admin/imgmodal";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../../contexts/authcontext";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import RestoreConfirmationModal from "../../../components/restore_confirm";
 import { Pagination } from "antd";
 
-export const Comment_News = () => {
-    const [comments, setComments] = useState([]);
-    const [selectedComments, setSelectedCommnets] = useState([]);
+export const NewsTrash = () => {
+
+    const [imageSrc, setImageSrc] = useState(null);
+    const [categories, setCategories] = useState([]);
+    const [news, setNews] = useState([]);
+    const [selectedNews, setselectedNews] = useState([]);
+    const { permissions } = useAuth();
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
     const [sortorder, setSortOrder] = useState(null);
+    const [filterCategory, setFilterCategory] = useState(null);
     const [keyword, setKeyword] = useState("");
     const [inputValue, setInputValue] = useState('');
 
+    const openModal = (src) => {
+        setImageSrc(src);
+    };
 
-    const checkComments = (e, id) => {
-        setSelectedCommnets((prevselectedComment) => {
+    const closeModal = () => {
+        setImageSrc(null);
+    };
+    const checkNews = (e, id) => {
+        setselectedNews((prevselectedNews) => {
             if (e.target.checked) {
-                return [...prevselectedComment, id];
+                return [...prevselectedNews, id];
             } else {
-                return prevselectedComment.filter((item) => item !== id);
+                return prevselectedNews.filter((item) => item !== id);
             }
         });
     };
-    const hanDleDelete = async () => {
-        if (selectedComments.length === 0) {
-            AntNotification.showNotification("Chưa có bình luận nào được chọn", "Vui lòng chọn ít nhất một bình luận để xóa", "error");
+    const hanDleRestore = async () => {
+        if (setselectedNews.length === 0) {
+            AntNotification.showNotification("Lỗi", "Không có tin nào được chọn", "error");
             return;
         }
         try {
-            const res = await commentNewsService.destroy(selectedComments);
-            console.log(selectedComments);
+            const res = await newsService.restore(selectedNews);
             if (res?.status === 200) {
                 fetchData();
-                setSelectedCommnets([]);
-                AntNotification.showNotification("Xóa bình luận thành công", res?.message, "success");
+                setselectedNews([]);
+                AntNotification.showNotification("Khôi phục tin thành công", res?.message, "success");
             } else {
-                AntNotification.showNotification("Xóa bình luận thất bại", res?.message, "error");
+                AntNotification.showNotification("Khôi phục tin thất bại", res?.message, "error");
             }
         } catch (error) {
             AntNotification.handleError(error);
         }
     };
+    const handleDelete = async (id) => {
+        try {
+            const res = await newsService.forceDelete(id);
+            if (res?.status === 200) {
+                setselectedNews([]);
+                AntNotification.showNotification(
+                    "Xóa tin tức thành công",
+                    res?.message || "Xóa thành công",
+                    "success"
+                );
+                fetchData();
+            } else {
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
+            }
+        } catch (error) {
+            AntNotification.handleError(error);
+        }
+    };
+
     const fetchData = async () => {
         try {
-            const res = await commentNewsService.getComments(
-                {
-                    page: currentPage,
-                    per_page: pageSize,
-                    sortorder: sortorder,
-                    keyword: keyword,
-                }
-            );
+            const res = await newsService.newsTrash({
+                page: currentPage,
+                per_page: pageSize,
+                sortorder: sortorder,
+                keyword: keyword,
+                filter_category: filterCategory,
+            });
             if (res) {
-                setComments(res.data);
+                setNews(Array.isArray(res.data) ? res.data : []);
                 setTotalItems(res.total || 0);
-                console.log(res.data);
+                console.log(res);
             } else {
-                AntNotification.showNotification("Lỗi", "Không thể lấy danh sách bình luận", "error");
+                AntNotification.showNotification("Lỗi", "Không thể lấy danh sách tin tức", "error");
             }
         } catch (error) {
             AntNotification.handleError(error);
@@ -69,7 +102,21 @@ export const Comment_News = () => {
     };
     useEffect(() => {
         fetchData();
-    }, [currentPage, pageSize, sortorder, keyword]);
+    }, [currentPage, pageSize, sortorder, keyword, filterCategory]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await newsService.categoryNews();
+                if (res) {
+                    setCategories(Array.isArray(res) ? res : []);
+                }
+            } catch (error) {
+                console.error(error.message)
+            }
+        };
+        fetchCategories();
+    }, []);
 
     useEffect(() => {
         const debounceTimer = setTimeout(() => {
@@ -82,10 +129,9 @@ export const Comment_News = () => {
         }, 400);
         return () => clearTimeout(debounceTimer);
     }, [inputValue]);
-    console.log("keyword", keyword);
 
     const handlePageChange = async (page, size) => {
-        console.log(page, size);
+        console.log(page);
         setCurrentPage(page);
         setPageSize(size);
     }
@@ -93,6 +139,12 @@ export const Comment_News = () => {
         const value = e.target.value;
         const sortOrder = value === "asc" ? "asc" : "desc";
         setSortOrder(sortOrder);
+    };
+
+    const handleFilterCategoryChange = async (e) => {
+        const value = e.target.value;
+        console.log(value);
+        setFilterCategory(value);
     };
     return (
         <div className="pt-20 px-4 lg:ml-64">
@@ -112,18 +164,18 @@ export const Comment_News = () => {
                         </span>
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Quản Lý Bình Luận Tin Tức
+                        Quản Lý Tin Tức
                     </li>
                 </ol>
             </nav>
             <div className="relative overflow-x-auto shadow-md my-4 sm:rounded-lg bg-white">
                 <div className="flex justify-between items-center p-4">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Quản Lý Bình Luận Tin Tức
+                        Tin Tức Đã Xóa
                     </h5>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
-                    <div>
+                    <div className="flex items-center space-x-4">
                         <select
                             className="cursor-pointer items-center text-black bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 font-medium rounded-lg text-sm px-3 py-1.5 "
                             onChange={handleFilterChange}
@@ -135,14 +187,25 @@ export const Comment_News = () => {
                                 Cũ Nhất
                             </option>
                         </select>
+                        <select
+                            className="cursor-pointer text-black bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 font-medium rounded-lg text-sm px-3 py-1.5 overflow-y-auto"
+                            onChange={handleFilterCategoryChange}
+                        >
+                            <option value="">
+                                Tất cả danh mục
+                            </option>
+                            {categories.map((category) =>
+                                <option key={category.id} value={category.id}>
+                                    {category.category_news_name}
+                                </option>
+                            )}
+                        </select>
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
-                        {(selectedComments.length > 0) ?
-                            <DeleteConfirmationModal
-                                data={`Bạn có chắc chắn muốn xóa ${selectedComments.length} bình luận này không?`}
-                                onDelete={hanDleDelete}
-                            /> : null
-                        }
+                        <RestoreConfirmationModal
+                            data={`Bạn có chắc chắn muốn khôi phục ${selectedNews.length} tin này không?`}
+                            onDelete={hanDleRestore}
+                        />
                         <label htmlFor="table-search" className="sr-only">
                             Tìm kiếm
                         </label>
@@ -166,28 +229,28 @@ export const Comment_News = () => {
                             </div>
                             <input
                                 type="text"
-                                id="table-search-voucher"
+                                id="table-search-users"
                                 className="block pt-2 ps-10 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-950 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Tìm kiếm người dùng hoặc tin tức"
+                                placeholder="Tìm kiếm..."
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                             />
                         </div>
                     </div>
                 </div>
-                <table className="table-auto w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-300">
                         <tr>
                             <th scope="col" className="p-4">
                                 <div className="flex items-center">
                                     <input
-                                        checked={selectedComments.length === comments.length}
+                                        checked={selectedNews.length === news.length}
                                         onChange={() => {
-                                            if (selectedComments.length === comments.length) {
-                                                setSelectedCommnets([]); // bo chon tat ca
+                                            if (selectedNews.length === news.length) {
+                                                setselectedNews([]); // bo chon tat ca
                                             } else {
-                                                setSelectedCommnets(
-                                                    comments.map((item) => item.id)
+                                                setselectedNews(
+                                                    news.map((item) => item.id)
                                                 ); // chon tat ca
                                             }
                                         }}
@@ -201,13 +264,13 @@ export const Comment_News = () => {
                                 </div>
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Thông tin bình luận
+                                Tiêu đề
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Tin tức
+                                Danh mục
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Thời gian
+                                Hình ảnh
                             </th>
                             <th scope="col" className="px-6 py-3">
                                 Action
@@ -215,17 +278,17 @@ export const Comment_News = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {comments.map((item) => (
+                        {news.map((item) => (
                             <tr
                                 key={item.id}
-                                className="bg-white border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
+                                className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                             >
-                                <td className="w-4 p-4 ">
+                                <td className="w-4 p-4">
                                     <div className="flex items-center">
                                         <input
                                             id="checkbox-table-search-1"
-                                            onChange={(e) => checkComments(e, item.id)}
-                                            checked={selectedComments.includes(item.id)}
+                                            onChange={(e) => checkNews(e, item.id)}
+                                            checked={selectedNews.includes(item.id)}
                                             type="checkbox"
                                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                         />
@@ -237,41 +300,38 @@ export const Comment_News = () => {
                                         </label>
                                     </div>
                                 </td>
-                                <td
+                                <th
                                     scope="row"
-                                    className="max-w-5xl flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
+                                    className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                 >
-                                    <div className="truncate">
+                                    <div className="ps-3">
                                         <div className="text-base font-semibold truncate">
-                                            {item.user.fullname}
+                                            {item.title}
                                         </div>
-                                        <Link to={`/news/${item.news.id}/${item.news.title}`} className="font-normal text-gray-500 truncate">
-                                            {item.content}
-                                        </Link>
                                     </div>
+                                </th>
+                                <td className="px-6 py-4 text-gray-700 tracking-wide">
+                                    {categories.find((cat) =>
+                                        cat.id === item.category_news_id)?.category_news_name || 'Không có danh mục'}
                                 </td>
                                 <td className="px-6 py-4">
-                                    <div className="text-base font-semibold truncate">
-                                        {item.news.title}
-                                    </div>
+                                    <a
+                                        className="underline cursor-pointer"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            openModal(item.avatar);
+                                        }}
+                                    >
+                                        Hình ảnh
+                                    </a>
+                                    <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
                                 </td>
                                 <td className="px-6 py-4">
-                                    <div className="text-base font-semibold">
-                                        {formatDistanceToNow(new Date(item.created_at), {
-                                            addSuffix: true,
-                                            locale: vi
-                                        })}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <Link
-                                        to={`/admin/comment-news/update/${item.id}`}
-                                        type="button"
-                                        data-modal-target="editUserModal"
-                                        data-modal-show="editUserModal"
-                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                                        Edit
-                                    </Link>
+                                    <DeleteConfirmationModal
+                                        data={`Bạn có chắc chắn muốn xóa vĩnh viễn tin tức: ${item.title} không?`}
+                                        id={item.id}
+                                        onDelete={() => handleDelete(item.id)}
+                                    />
                                 </td>
                             </tr>
                         ))}

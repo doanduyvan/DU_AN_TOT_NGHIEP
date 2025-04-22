@@ -30,6 +30,7 @@ import { CategoryTransh } from './pages/admin/categories/trash';
 import { Products } from './pages/admin/products/index';
 import { Create_Product } from './pages/admin/products/create';
 import { Update_Product } from './pages/admin/products/update';
+import { ProductTransh } from "./pages/admin/products/trash";
 
 import { Home_Admin } from './pages/admin/home';
 
@@ -53,20 +54,18 @@ import NewsDetail from "./pages/user/news/newsDetail";
 import ContactPage from "./pages/user/contact/contact";
 
 import { CategoryNews } from "./pages/admin/category_news";
+import { CategoryNewsTransh } from "./pages/admin/category_news/trash";
 import { Create_category_news } from "./pages/admin/category_news/create";
 import { Update_Category_News } from "./pages/admin/category_news/update";
 
 import { NewsAdmin } from "./pages/admin/news";
 import { Create_News } from "./pages/admin/news/create";
 import { Update_News } from "./pages/admin/news/update";
+import { NewsTrash } from "./pages/admin/news/trash";
 
 import { Comment_Products } from "./pages/admin/comment_products";
-import { Create_CommentProduct } from "./pages/admin/comment_products/create";
-import { Update_CommentProduct } from "./pages/admin/comment_products/update";
 
 import { Comment_News } from "./pages/admin/comment_news";
-import { Create_CommentNews } from "./pages/admin/comment_news/create";
-import { Update_CommentNews } from "./pages/admin/comment_news/update";
 
 import { Vouchers } from "./pages/admin/vouchers";
 import { Create_Voucher } from "./pages/admin/vouchers/create";
@@ -74,6 +73,7 @@ import { Update_Voucher } from "./pages/admin/vouchers/update";
 
 import { Banners } from "./pages/admin/banners";
 import { Create_Banner } from "./pages/admin/banners/create";
+import { Update_Banner } from "./pages/admin/banners/update";
 
 import Checkout from "./pages/user/checkout/checkout";
 
@@ -136,27 +136,26 @@ function App() {
     { path: 'products', element: < Products /> },
     { path: 'products/create', element: < Create_Product /> },
     { path: 'products/update/:id', element: < Update_Product /> },
+    { path: 'products/trash', element: < ProductTransh /> },
 
     { path: 'orders', element: < Orders /> },
     { path: 'orders/update/:id', element: < Update_Order /> },
     { path: 'orders/create', element: < Create_Order /> },
 
     { path: 'category-news', element: < CategoryNews /> },
+    { path: 'category-news/trash', element: < CategoryNewsTransh /> },
     { path: 'category-news/create', element: < Create_category_news /> },
     { path: 'category-news/update/:id', element: < Update_Category_News /> },
 
     { path: 'news', element: < NewsAdmin /> },
     { path: 'news/create', element: < Create_News /> },
     { path: 'news/update/:id', element: < Update_News /> },
+    { path: 'news/trash', element: < NewsTrash /> },
 
     { path: 'comment-products', element: < Comment_Products /> },
-    { path: 'comment-products/create', element: < Create_CommentProduct /> },
-    { path: 'comment-products/update/:id', element: < Update_CommentProduct /> },
 
     { path: 'comment-news', element: < Comment_News /> },
-    { path: 'comment-news/create', element: < Create_CommentNews /> },
-    { path: 'comment-news/update/:id', element: < Update_CommentNews /> },
-
+    
     { path: 'chart', element: < ProductStatsChart /> },
     { path: 'status', element: < ProductStatusChart /> },
     { path: 'statisticals/productper', element: < ProductPerformanceChart /> },
@@ -168,6 +167,7 @@ function App() {
 
     {path: 'banners', element: <Banners />},
     {path: 'banners/create', element: <Create_Banner />},
+    {path: 'banners/update/:bannerId', element: <Update_Banner />},
 
     { path: 'test1', element: < MyChart /> },
     { path: 'test2', element: < OrdersChart /> },

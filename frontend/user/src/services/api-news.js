@@ -1,27 +1,26 @@
 import axios from "../utils/axios-customize.js";
-const getHeaders = () => ({
-  "Content-Type": "multipart/form-data",
-});
-
 const apiPost = async (url, data) => {
-  const response = await axios.post(url, data, {
-    headers: getHeaders(),
-    withCredentials: true,
+  const response = await axios.post(url, data);
+  return response;
+};
+
+const apiGet = async (url, options = {}) => {
+  const response = await axios.get(url, {
+    ...options,
   });
   return response;
 };
 
-const apiGet = async (url) => {
-  const response = await axios.get(url, {
-    headers: getHeaders(),
-    withCredentials: true,
-  });
+const apiDelete = async (url, data) => {
+  const response = await axios.delete(url, data);
   return response;
 };
 
 const newsService = {
-  getAllNews: async () => {
-    return apiGet("/news");
+  getAllNews: async ({page, per_page, sortorder, keyword, filter_category}) => {
+    return apiGet("/news", {
+      params: { page, per_page, sortorder, keyword, filter_category },
+    });
   },
 
   getNewsById: async (id) => {
@@ -38,6 +37,17 @@ const newsService = {
   },
   destroy: async (ids) => {
     return apiPost("/news/destroy", { ids });
+  },
+  newsTrash: async ({ page, per_page, sortorder, keyword, filter_category }) => {
+    return apiGet("news/trash", {
+      params: { page, per_page, sortorder, keyword, filter_category },
+    });
+  },
+  restore: async (ids) => {
+    return apiPost("/news/restore", { ids });
+  },
+  forceDelete: async (id) => {
+    return apiDelete(`/news/force-delete/${id}`);
   },
 };
 export { newsService };

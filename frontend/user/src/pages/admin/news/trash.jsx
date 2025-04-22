@@ -1,21 +1,27 @@
-
 import { useState, useEffect, useRef } from "react";
-import { BannerService } from "../../../services/api-banners";
+import { newsService } from "../../../services/api-news";
 import { AntNotification } from "../../../components/notification";
 import { ImageModal } from "../../../components/admin/imgmodal";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../../contexts/authcontext";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
-import { Pagination } from 'antd';
+import RestoreConfirmationModal from "../../../components/restore_confirm";
+import { Pagination } from "antd";
 
+export const NewsTrash = () => {
 
-export const Banners = () => {
     const [imageSrc, setImageSrc] = useState(null);
-    const [banners, setBanners] = useState([]);
-    const [selectedBanners, setSelectedBanners] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [news, setNews] = useState([]);
+    const [selectedNews, setselectedNews] = useState([]);
+    const { permissions } = useAuth();
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
     const [sortorder, setSortOrder] = useState(null);
+    const [filterCategory, setFilterCategory] = useState(null);
+    const [keyword, setKeyword] = useState("");
+    const [inputValue, setInputValue] = useState('');
 
     const openModal = (src) => {
         setImageSrc(src);
@@ -24,36 +30,44 @@ export const Banners = () => {
     const closeModal = () => {
         setImageSrc(null);
     };
-
-    const checkCategory = (e, id) => {
-        setSelectedBanners((prevselectedBanners) => {
+    const checkNews = (e, id) => {
+        setselectedNews((prevselectedNews) => {
             if (e.target.checked) {
-                return [...prevselectedBanners, id];
+                return [...prevselectedNews, id];
             } else {
-                return prevselectedBanners.filter((item) => item !== id);
+                return prevselectedNews.filter((item) => item !== id);
             }
         });
     };
-    const hanDleDelete = async () => {
-        if (selectedBanners.length === 0) {
-            AntNotification.showNotification(
-                "Không có danh mục nào được chọn",
-                "Vui lòng chọn ít nhất một danh mục để xóa",
-                "error"
-            );
+    const hanDleRestore = async () => {
+        if (setselectedNews.length === 0) {
+            AntNotification.showNotification("Lỗi", "Không có tin nào được chọn", "error");
             return;
         }
         try {
-            const res = await BannerService.destroy(selectedBanners);
-            console.log(selectedBanners);
+            const res = await newsService.restore(selectedNews);
             if (res?.status === 200) {
-                setSelectedBanners([]);
                 fetchData();
+                setselectedNews([]);
+                AntNotification.showNotification("Khôi phục tin thành công", res?.message, "success");
+            } else {
+                AntNotification.showNotification("Khôi phục tin thất bại", res?.message, "error");
+            }
+        } catch (error) {
+            AntNotification.handleError(error);
+        }
+    };
+    const handleDelete = async (id) => {
+        try {
+            const res = await newsService.forceDelete(id);
+            if (res?.status === 200) {
+                setselectedNews([]);
                 AntNotification.showNotification(
-                    "Xóa banner thành công",
-                    res?.message || "Xóa banner thành công",
+                    "Xóa tin tức thành công",
+                    res?.message || "Xóa thành công",
                     "success"
                 );
+                fetchData();
             } else {
                 AntNotification.showNotification(
                     "Có lỗi xảy ra",
@@ -65,24 +79,22 @@ export const Banners = () => {
             AntNotification.handleError(error);
         }
     };
-    console.log(selectedBanners);
+
     const fetchData = async () => {
         try {
-            const res = await BannerService.getBanners({
+            const res = await newsService.newsTrash({
                 page: currentPage,
                 per_page: pageSize,
                 sortorder: sortorder,
+                keyword: keyword,
+                filter_category: filterCategory,
             });
             if (res) {
-                setBanners(Array.isArray(res.data) ? res.data : []);
+                setNews(Array.isArray(res.data) ? res.data : []);
                 setTotalItems(res.total || 0);
                 console.log(res);
             } else {
-                AntNotification.showNotification(
-                    "Có lỗi xảy ra",
-                    res?.message || "Vui lòng thử lại sau",
-                    "error"
-                );
+                AntNotification.showNotification("Lỗi", "Không thể lấy danh sách tin tức", "error");
             }
         } catch (error) {
             AntNotification.handleError(error);
@@ -90,8 +102,33 @@ export const Banners = () => {
     };
     useEffect(() => {
         fetchData();
-    }, [currentPage, pageSize, sortorder]);
+    }, [currentPage, pageSize, sortorder, keyword, filterCategory]);
 
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await newsService.categoryNews();
+                if (res) {
+                    setCategories(Array.isArray(res) ? res : []);
+                }
+            } catch (error) {
+                console.error(error.message)
+            }
+        };
+        fetchCategories();
+    }, []);
+
+    useEffect(() => {
+        const debounceTimer = setTimeout(() => {
+            if (inputValue !== "") {
+                setCurrentPage(1);
+                setKeyword(inputValue);
+            } else {
+                setKeyword("");
+            }
+        }, 400);
+        return () => clearTimeout(debounceTimer);
+    }, [inputValue]);
 
     const handlePageChange = async (page, size) => {
         console.log(page);
@@ -102,6 +139,12 @@ export const Banners = () => {
         const value = e.target.value;
         const sortOrder = value === "asc" ? "asc" : "desc";
         setSortOrder(sortOrder);
+    };
+
+    const handleFilterCategoryChange = async (e) => {
+        const value = e.target.value;
+        console.log(value);
+        setFilterCategory(value);
     };
     return (
         <div className="pt-20 px-4 lg:ml-64">
@@ -121,24 +164,18 @@ export const Banners = () => {
                         </span>
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Quản Lý Banner
+                        Quản Lý Tin Tức
                     </li>
                 </ol>
             </nav>
             <div className="relative overflow-x-auto shadow-md my-4 sm:rounded-lg bg-white">
                 <div className="flex justify-between items-center p-4">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Quản Lý Banner
+                        Tin Tức Đã Xóa
                     </h5>
-                    <Link
-                        to="/admin/banners/create"
-                        className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
-                    >
-                        Thêm Banner
-                    </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
-                    <div>
+                    <div className="flex items-center space-x-4">
                         <select
                             className="cursor-pointer items-center text-black bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 font-medium rounded-lg text-sm px-3 py-1.5 "
                             onChange={handleFilterChange}
@@ -150,14 +187,55 @@ export const Banners = () => {
                                 Cũ Nhất
                             </option>
                         </select>
+                        <select
+                            className="cursor-pointer text-black bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 font-medium rounded-lg text-sm px-3 py-1.5 overflow-y-auto"
+                            onChange={handleFilterCategoryChange}
+                        >
+                            <option value="">
+                                Tất cả danh mục
+                            </option>
+                            {categories.map((category) =>
+                                <option key={category.id} value={category.id}>
+                                    {category.category_news_name}
+                                </option>
+                            )}
+                        </select>
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
-                        {(selectedBanners.length > 0) ?
-                            <DeleteConfirmationModal
-                                data={`Bạn có chắc chắn muốn xóa ${selectedBanners.length} banner này không?`}
-                                onDelete={hanDleDelete}
-                            /> : null
-                        }
+                        <RestoreConfirmationModal
+                            data={`Bạn có chắc chắn muốn khôi phục ${selectedNews.length} tin này không?`}
+                            onDelete={hanDleRestore}
+                        />
+                        <label htmlFor="table-search" className="sr-only">
+                            Tìm kiếm
+                        </label>
+                        <div className="relative">
+                            <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
+                                <svg
+                                    className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                                    aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 20 20"
+                                >
+                                    <path
+                                        stroke="currentColor"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                                    />
+                                </svg>
+                            </div>
+                            <input
+                                type="text"
+                                id="table-search-users"
+                                className="block pt-2 ps-10 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-950 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="Tìm kiếm..."
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                            />
+                        </div>
                     </div>
                 </div>
                 <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
@@ -166,13 +244,13 @@ export const Banners = () => {
                             <th scope="col" className="p-4">
                                 <div className="flex items-center">
                                     <input
-                                        checked={selectedBanners.length === banners.length}
+                                        checked={selectedNews.length === news.length}
                                         onChange={() => {
-                                            if (selectedBanners.length === banners.length) {
-                                                setSelectedBanners([]); // bo chon tat ca
+                                            if (selectedNews.length === news.length) {
+                                                setselectedNews([]); // bo chon tat ca
                                             } else {
-                                                setSelectedBanners(
-                                                    banners.map((category) => category.id)
+                                                setselectedNews(
+                                                    news.map((item) => item.id)
                                                 ); // chon tat ca
                                             }
                                         }}
@@ -186,7 +264,10 @@ export const Banners = () => {
                                 </div>
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Link
+                                Tiêu đề
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Danh mục
                             </th>
                             <th scope="col" className="px-6 py-3">
                                 Hình ảnh
@@ -197,17 +278,17 @@ export const Banners = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {banners.map((banner) => (
+                        {news.map((item) => (
                             <tr
-                                key={banner.id}
+                                key={item.id}
                                 className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                             >
                                 <td className="w-4 p-4">
                                     <div className="flex items-center">
                                         <input
                                             id="checkbox-table-search-1"
-                                            onChange={(e) => checkCategory(e, banner.id)}
-                                            checked={selectedBanners.includes(banner.id)}
+                                            onChange={(e) => checkNews(e, item.id)}
+                                            checked={selectedNews.includes(item.id)}
                                             type="checkbox"
                                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                         />
@@ -223,35 +304,34 @@ export const Banners = () => {
                                     scope="row"
                                     className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                 >
-                                    <a href={banner.link} target="_blank" className="ps-3">
-                                        <div className="text-base text-blue-500 font-semibold">
-                                            {banner.link}
+                                    <div className="ps-3">
+                                        <div className="text-base font-semibold truncate">
+                                            {item.title}
                                         </div>
-                                    </a>
+                                    </div>
                                 </th>
+                                <td className="px-6 py-4 text-gray-700 tracking-wide">
+                                    {categories.find((cat) =>
+                                        cat.id === item.category_news_id)?.category_news_name || 'Không có danh mục'}
+                                </td>
                                 <td className="px-6 py-4">
                                     <a
                                         className="underline cursor-pointer"
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            openModal(banner.img);
+                                            openModal(item.avatar);
                                         }}
                                     >
                                         Hình ảnh
                                     </a>
                                     <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
                                 </td>
-
                                 <td className="px-6 py-4">
-                                    <Link
-                                        to={`/admin/banners/update/${banner.id}`}
-                                        type="button"
-                                        data-modal-target="editUserModal"
-                                        data-modal-show="editUserModal"
-                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                    >
-                                        Edit
-                                    </Link>
+                                    <DeleteConfirmationModal
+                                        data={`Bạn có chắc chắn muốn xóa vĩnh viễn tin tức: ${item.title} không?`}
+                                        id={item.id}
+                                        onDelete={() => handleDelete(item.id)}
+                                    />
                                 </td>
                             </tr>
                         ))}

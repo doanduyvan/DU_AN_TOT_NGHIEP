@@ -128,7 +128,7 @@ const ProductSelector = ({ onSelectProduct, onClose }) => {
                         className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                         onChange={(e) => handleVariantChange(product.id, e.target.value)}
                       >
-                        <option value="" selected className="p-2">
+                        <option value="" className="p-2">
                           Chọn size
                         </option>
                         {product.variants.map((variant) => (

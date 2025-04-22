@@ -48,11 +48,7 @@ export const UsersTrash = () => {
             const res = await UsersService.restore(selectedUsers);
             console.log(selectedUsers);
             if (res?.status === 200) {
-                setUser((prevUser) => {
-                    return prevUser.filter(
-                        (user) => !selectedUsers.includes(user.id)
-                    );
-                });
+                fetchData();
                 setSelectedUsers([]);
                 AntNotification.showNotification(
                     "Khôi phục tài khoản thành công",
@@ -75,12 +71,8 @@ export const UsersTrash = () => {
         try {
             const res = await UsersService.forceDelete(id);
             if (res?.status === 200) {
-                setUser((prevusers) => {
-                    return prevusers.filter(
-                        (user) => user.id !== id
-                    );
-                });
                 setSelectedUsers([]);
+                fetchData();
                 AntNotification.showNotification(
                     "Xóa tài khoản vĩnh viễn thành công",
                     res?.message,
@@ -98,29 +90,29 @@ export const UsersTrash = () => {
         }
     };
     console.log(selectedUsers);
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await UsersService.userTrash({
-                    page: currentPage,
-                    per_page: pageSize,
-                    sortorder: sortorder,
-                    keyword: keyword,
-                });
-                if (res) {
-                    setUser(Array.isArray(res.data) ? res.data : []);
-                    setTotalItems(res.total || 0);
-                } else {
-                    AntNotification.showNotification(
-                        "Có lỗi xảy ra",
-                        res?.message || "Vui lòng thử lại sau",
-                        "error"
-                    );
-                }
-            } catch (error) {
-                AntNotification.handleError(error);
+    const fetchData = async () => {
+        try {
+            const res = await UsersService.userTrash({
+                page: currentPage,
+                per_page: pageSize,
+                sortorder: sortorder,
+                keyword: keyword,
+            });
+            if (res) {
+                setUser(Array.isArray(res.data) ? res.data : []);
+                setTotalItems(res.total || 0);
+            } else {
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
             }
-        };
+        } catch (error) {
+            AntNotification.handleError(error);
+        }
+    };
+    useEffect(() => {
         fetchData();
     }, [currentPage, pageSize, sortorder, keyword]);
 

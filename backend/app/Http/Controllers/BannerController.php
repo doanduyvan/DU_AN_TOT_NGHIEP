@@ -16,11 +16,23 @@ class BannerController extends Controller
         $banners = Banner::applyFilters($filters);
         return response()->json($banners);
     }
+    public function getBannerById($id)
+    {
+
+        $banners = Banner::find($id);
+        if (!$banners) {
+            return response()->json([
+                'message' => 'Banner không tồn tại',
+                'status' => 404,
+            ], 404);
+        }
+        return response()->json($banners);
+    }
     public function create(BannerRequest $request)
     {
-        $validateData = $request->validated();
         try {
             $path = $request->file('img')->storePublicly('uploads/banners', 'public');
+            $validateData = $request->validated();
             $validateData['img'] = $path;
             $category = Banner::create($validateData);
             return response()->json([
@@ -41,30 +53,39 @@ class BannerController extends Controller
         $ids = $request->ids;
         if (is_array($ids) && !empty($ids)) {
             try {
-                $categories = Banner::whereIn('id', $ids)->get();
-                foreach ($categories as $category) {
-                    if ($category->img) {
-                        Storage::disk('public')->delete($category->img);
+                $banners = Banner::whereIn('id', $ids)->get();
+                foreach ($banners as $banner) {
+                    if ($banner->img) {
+                        Storage::disk('public')->delete($banner->img);
                     }
                 }
                 Banner::whereIn('id', $ids)->delete();
-                return response()->json(['message' => 'Xóa Danh Mục thành công', 'status' => 200], 200);
+                return response()->json(['message' => 'Xóa banner thành công', 'status' => 200], 200);
             } catch (QueryException $e) {
-                if ($e->getCode() == '23000') {
-                    return response()->json(['message' => 'Không thể xóa danh mục vì có dữ liệu liên quan', 'status' => 'error'], 400);
-                }
-                return response()->json(['message' => 'Xóa danh mục thất bại: ' . $e->getMessage(), 'status' => 'error'], 500);
+                return response()->json(['message' => 'Xóa banner thất bại: ' . $e->getMessage(), 'status' => 'error'], 500);
             }
         } else {
-            return response()->json(['message' => 'Xóa danh mục thất bại', 'status' => 'error'], 400);
+            return response()->json(['message' => 'Xóa banner thất bại', 'status' => 'error'], 400);
         }
     }
-    public function update(Request $request, $id)
+    public function update(BannerRequest $request, $id)
     {
         $validatedData = $request->validated();
-    
+
         try {
             $banner = Banner::findOrFail($id);
+            if ($request->hasFile('img')) {
+                if ($banner->img) {
+                    $oldImagePath = public_path('storage/' . $banner->img);
+                    if (file_exists($oldImagePath)) {
+                        unlink($oldImagePath);
+                    }
+                }
+                $path = $request->file('img')->storePublicly('uploads', 'public');
+                $validatedData['img'] = $path;
+            } else {
+                $validatedData['img'] = $banner->img;
+            }
             $banner->update($validatedData);
             return response()->json([
                 'message' => 'Cập nhật banner thành công',
@@ -78,7 +99,6 @@ class BannerController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         } catch (\Exception $e) {
-            // Xử lý các lỗi khác
             return response()->json([
                 'message' => 'Đã xảy ra lỗi không xác định.',
                 'status' => 'error',

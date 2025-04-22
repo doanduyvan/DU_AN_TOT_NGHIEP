@@ -48,17 +48,13 @@ export const Categories = () => {
             const res = await destroy(selectedCategories);
             console.log(selectedCategories);
             if (res?.status === 200) {
-                setCategories((prevCategories) => {
-                    return prevCategories.filter(
-                        (category) => !selectedCategories.includes(category.id)
-                    );
-                });
                 setSelectedCategories([]);
                 AntNotification.showNotification(
                     "Xóa danh mục thành công",
                     res?.message || "Xóa danh mục thành công",
                     "success"
                 );
+                fetchData();
             } else {
                 AntNotification.showNotification(
                     "Có lỗi xảy ra",
@@ -70,40 +66,39 @@ export const Categories = () => {
             AntNotification.handleError(error);
         }
     };
-    console.log(selectedCategories);
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await callCategories({
-                    page: currentPage,
-                    per_page: pageSize,
-                    sortorder: sortorder,
-                    keyword: keyword,
-                });
-                if (res) {
-                    setCategories(Array.isArray(res.data) ? res.data : []);
-                    setTotalItems(res.total || 0);
-                    console.log(res);
-                } else {
-                    AntNotification.showNotification(
-                        "Có lỗi xảy ra",
-                        res?.message || "Vui lòng thử lại sau",
-                        "error"
-                    );
-                }
-            } catch (error) {
-                AntNotification.handleError(error);
+    const fetchData = async () => {
+        try {
+            const res = await callCategories({
+                page: currentPage,
+                per_page: pageSize,
+                sortorder: sortorder,
+                keyword: keyword,
+            });
+            if (res) {
+                setCategories(Array.isArray(res.data) ? res.data : []);
+                setTotalItems(res.total || 0);
+                console.log(res);
+            } else {
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
             }
-        };
+        } catch (error) {
+            AntNotification.handleError(error);
+        }
+    };
+    useEffect(() => {
         fetchData();
     }, [currentPage, pageSize, sortorder, keyword]);
-    
+
     useEffect(() => {
         const debounceTimer = setTimeout(() => {
             if (inputValue !== "") {
-                setCurrentPage(1); 
+                setCurrentPage(1);
                 setKeyword(inputValue);
-            }else {
+            } else {
                 setKeyword("");
             }
         }, 400);
@@ -147,12 +142,12 @@ export const Categories = () => {
                     <h5 className="text-xl font-medium leading-tight text-primary">
                         Quản Lý Danh Mục
                     </h5>
-                    <a
-                        href="/admin/categories/create"
+                    <Link
+                        to="/admin/categories/create"
                         className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
                     >
                         Thêm Danh Mục
-                    </a>
+                    </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
                     <div>

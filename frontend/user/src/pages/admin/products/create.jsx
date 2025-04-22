@@ -274,19 +274,14 @@ export const Create_Product = () => {
                             <div key={index} className="grid grid-cols-5 gap-4 mb-3 items-end">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Size</label>
-                                    <select
+                                    <input
+                                        type="text"
                                         name="size"
+                                        placeholder="Size sản phẩm"
                                         value={variant.size}
                                         onChange={(e) => handleVariantChange(index, e)}
                                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                        required
-                                    >
-                                        <option value="">Chọn size</option>
-                                        <option value="S">S</option>
-                                        <option value="M">M</option>
-                                        <option value="L">L</option>
-                                        <option value="XL">XL</option>
-                                    </select>
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Mã sản phẩm</label>

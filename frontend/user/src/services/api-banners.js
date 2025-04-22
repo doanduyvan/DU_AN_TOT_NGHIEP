@@ -22,8 +22,8 @@ const BannerService = {
       params: { page, per_page, sortorder },
   });
   },
-  getBanner: async (id) => {
-    return apiGet(`banners/${id}`);
+  getBannerById: async (id) => {
+    return apiGet(`banners/get-banner/${id}`);
   },
   create: async (formData) => {
     return apiPost("/banners/create", formData);

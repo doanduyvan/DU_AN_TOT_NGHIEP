@@ -13,8 +13,11 @@ class CommentNewsController extends Controller
 
     public function index()
     {
-        $comments = CommentNews::WithRelations()->Sort(['sort' => 'desc'])->paginate();
-        return response()->json($comments);
+        $filters = request()->only(['per_page', 'sortorder', 'keyword']);
+        $categories = CommentNews::search($filters['keyword'] ?? null)
+        ->withRelations()
+        ->applyFilters($filters);
+        return response()->json($categories);
     }
     public function create(CommentNewsRequest $request)
     {

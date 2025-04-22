@@ -6,14 +6,22 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\News;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Storage;
 
 class TrashedNewsController extends Controller
 {
-    public function index(){
-        $filters = request()->only(['per_page', 'sortorder', 'keyword']);
-        $categories = News::onlyTrashed()->search($filters['keyword'] ?? null)
+    public function index()
+    {
+        $filters = request()->only(['per_page', 'sortorder', 'keyword', 'filter_category']);
+        $news = News::onlyTrashed()->search($filters['keyword'] ?? null)
+        ->filterCategory($filters['filter_category'] ?? null)
         ->applyFilters($filters);
-        return response()->json($categories);
+        $news->load('user');
+        $news->getCollection()->transform(function ($item) {
+            $item->user_name = $item->user ? $item->user->fullname : null;
+            return $item;
+        });
+        return response()->json($news);
     }
 
     public function restore(Request $request)
@@ -34,8 +42,16 @@ class TrashedNewsController extends Controller
     {
         if (!empty($id) && is_numeric($id)) {
             try {
-                News::forceDeleteId($id);
+                $news = News::onlyTrashed()->find($id);
+            if ($news) {
+                if ($news->avatar) {
+                    Storage::disk('public')->delete($news->avatar);
+                }
+                $news->forceDelete();
                 return response()->json(['message' => 'Xóa vĩnh viễn thành công', 'status' => 200], 200);
+            } else {
+                return response()->json(['message' => 'Danh mục không tồn tại', 'status' => 'error'], 404);
+            }
             } catch (QueryException $e) {
                 return response()->json(['message' => 'Xóa vĩnh viễn thất bại: ' . $e->getMessage(), 'status' => 'error'], 500);
             }

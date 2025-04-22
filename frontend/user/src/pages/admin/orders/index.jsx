@@ -3,15 +3,30 @@ import { OrderService } from "../../../services/api-orders";
 import { AntNotification } from "../../../components/notification";
 import { Link } from "react-router-dom";
 import { OrderStatusSelect } from "../../../components/admin/orders/order_status";
+import { FilterOrderStatusSelect } from "../../../components/admin/orders/filter_status";
+import { FilterPaymentStatusSelect } from "../../../components/admin/orders/filter_payment_status";
 import { PaymentStatusSelect } from "../../../components/admin/orders/payment_status";
+import { FilterShippingStatusSelect } from "../../../components/admin/orders/filter_shipping_status";
 import { ShippingStatusSelect } from "../../../components/admin/orders/shipping_status";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
 import { OrderDetail } from "../../../components/admin/order_detail";
+import { Pagination } from 'antd';
+
+
 
 export const Orders = () => {
     const [orders, setOrders] = useState([]);
     const [selectedOrders, setSelectedOrders] = useState([]);
     const [orderDetail, setOrderDetail] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalItems, setTotalItems] = useState(0);
+    const [sortorder, setSortOrder] = useState(null);
+    const [filterStatus, setFilterStatus] = useState(null);
+    const [filterPaymentStatus, setFilterPaymentStatus] = useState(null);
+    const [filterShippingStatus, setFilterShippingStatus] = useState(null);
+    const [keyword, setKeyword] = useState("");
+    const [inputValue, setInputValue] = useState('');
 
     const openModal = async (id) => {
         const res = await OrderService.getOrderById(id);
@@ -141,31 +156,74 @@ export const Orders = () => {
             AntNotification.handleError(error);
         }
     };
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await OrderService.getAllOrder();
-                if (res) {
-                    setOrders(Array.isArray(res) ? res : []);
-                } else {
-                    AntNotification.showNotification(
-                        "Lỗi",
-                        "Không thể lấy danh sách đơn hàng",
-                        "error"
-                    );
-                }
-            } catch (error) {
-                AntNotification.handleError(error);
+    const fetchData = async () => {
+        try {
+            const res = await OrderService.getAllOrder({
+                page: currentPage,
+                per_page: pageSize,
+                sortorder: sortorder,
+                keyword: keyword,
+                filter_status: filterStatus,
+                filter_payment_status: filterPaymentStatus,
+                filter_shipping_status: filterShippingStatus,
+            });
+            if (res) {
+                setOrders(Array.isArray(res.data) ? res.data : []);
+                setTotalItems(res.total || 0);
+            } else {
+                AntNotification.showNotification(
+                    "Lỗi",
+                    "Không thể lấy danh sách đơn hàng",
+                    "error"
+                );
             }
-        };
+        } catch (error) {
+            AntNotification.handleError(error);
+        }
+    };
+    useEffect(() => {
         fetchData();
-    }, []);
+    }, [currentPage, pageSize, sortorder, keyword, filterStatus, filterPaymentStatus, filterShippingStatus]);
+
+    useEffect(() => {
+        const debounceTimer = setTimeout(() => {
+            if (inputValue !== "") {
+                setCurrentPage(1);
+                setKeyword(inputValue);
+            } else {
+                setKeyword("");
+            }
+        }, 400);
+        return () => clearTimeout(debounceTimer);
+    }, [inputValue]);
+
+    const handlePageChange = async (page, size) => {
+        console.log(page);
+        setCurrentPage(page);
+        setPageSize(size);
+    }
+    const handleFilterChange = async (e) => {
+        const value = e.target.value;
+        const sortOrder = value === "asc" ? "asc" : "desc";
+        setSortOrder(sortOrder);
+    };
+
+    const handleFilterStatusChange = (newStatus) => {
+        setFilterStatus(newStatus);
+    };
+
+    const handleFilterPaymentStatusChange = (newStatus) => {
+        setFilterPaymentStatus(newStatus);
+    };
+    const handleFilterShippingStatusChange = (newStatus) => {
+        setFilterShippingStatus(newStatus);
+    };
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <nav className="rounded-md w-full">
                 <ol className="list-reset flex">
                     <li>
-                    <Link
+                        <Link
                             to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
@@ -193,31 +251,21 @@ export const Orders = () => {
                     </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
-                    <div>
-                        <button
-                            id="dropdownActionButton"
-                            data-dropdown-toggle="dropdownAction"
-                            className="inline-flex items-center text-gray-500 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700"
-                            type="button"
+                    <div className="flex items-center space-x-4">
+                        <select
+                            className="cursor-pointer items-center text-black bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 font-medium rounded-lg text-sm px-3 py-1.5 "
+                            onChange={handleFilterChange}
                         >
-                            <span className="sr-only">Action button</span>
-                            Action
-                            <svg
-                                className="w-2.5 h-2.5 ms-2.5"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 10 6"
-                            >
-                                <path
-                                    stroke="currentColor"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="m1 1 4 4 4-4"
-                                />
-                            </svg>
-                        </button>
+                            <option value="desc">
+                                Mới nhất
+                            </option>
+                            <option value="asc">
+                                Cũ Nhất
+                            </option>
+                        </select>
+                        <FilterPaymentStatusSelect onChange={handleFilterPaymentStatusChange} />
+                        <FilterOrderStatusSelect onChange={handleFilterStatusChange} />
+                        <FilterShippingStatusSelect onChange={handleFilterShippingStatusChange} />
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
                         {(selectedOrders.length > 0) ?
@@ -227,7 +275,7 @@ export const Orders = () => {
                             /> : null
                         }
                         <label htmlFor="table-search" className="sr-only">
-                            Search
+                            Tìm kiếm
                         </label>
                         <div className="relative">
                             <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
@@ -251,7 +299,9 @@ export const Orders = () => {
                                 type="text"
                                 id="table-search-users"
                                 className="block pt-2 ps-10 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-950 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Search for users"
+                                placeholder="Tìm kiếm..."
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
                             />
                         </div>
                     </div>
@@ -341,7 +391,7 @@ export const Orders = () => {
                                     </div>
                                 </th>
                                 <td className="px-6 py-4">
-                                    <button 
+                                    <button
                                         className="underline cursor-pointer"
                                         onClick={(e) => {
                                             openModal(order.id);
@@ -388,6 +438,14 @@ export const Orders = () => {
                         ))}
                     </tbody>
                 </table>
+                <div className="flex justify-end p-4">
+                    <Pagination className=""
+                        current={currentPage}
+                        defaultCurrent={1}
+                        total={totalItems}
+                        onShowSizeChange={handlePageChange}
+                        onChange={handlePageChange} />
+                </div>
             </div>
         </div>
     );

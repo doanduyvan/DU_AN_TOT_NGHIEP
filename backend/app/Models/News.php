@@ -21,6 +21,11 @@ class News extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+    public function comment()
+    {
+        return $this->hasMany(CommentNews::class);
+    }
+
     public function scopePaginate($query, $perPage)
     {
         return $query->paginate($perPage);
@@ -31,6 +36,13 @@ class News extends Model
             return $query->orderBy('created_at', $sort);
         });
         return $query->paginate($filters['per_page'] ?? 10);
+    }
+    public function scopeFilterCategory($query, $categoryId)
+    {
+        if (!empty($categoryId)) {
+            return $query->where('category_news_id', $categoryId);
+        }
+        return $query;
     }
     public function scopeSearch($query, $keyword)
     {

@@ -47,11 +47,7 @@ export const Products = () => {
             const res = await productService.destroy(selectedProducts);
             console.log(selectedProducts);
             if (res?.status === 200) {
-                setProducts((prevProducts) => {
-                    return prevProducts.filter(
-                        (product) => !selectedProducts.includes(product.id)
-                    );
-                });
+                fetchData();
                 setselectedProducts([]);
                 AntNotification.showNotification("Xóa sản phẩm thành công", res?.message, "success");
             } else {
@@ -61,27 +57,27 @@ export const Products = () => {
             AntNotification.handleError(error);
         }
     };
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await productService.getAllProducts({
-                    page: currentPage,
-                    per_page: pageSize,
-                    sortorder: sortorder,
-                    keyword: keyword,
-                    filter_category: filterCategory,
-                });
-                if (res) {
-                    setProducts(Array.isArray(res.data) ? res.data : []);
-                    setTotalItems(res.total || 0);
-                    console.log(res);
-                } else {
-                    AntNotification.showNotification("Lỗi", "Không thể lấy danh sách sản phẩm", "error");
-                }
-            } catch (error) {
-                AntNotification.handleError(error);
+    const fetchData = async () => {
+        try {
+            const res = await productService.getAllProducts({
+                page: currentPage,
+                per_page: pageSize,
+                sortorder: sortorder,
+                keyword: keyword,
+                filter_category: filterCategory,
+            });
+            if (res) {
+                setProducts(Array.isArray(res.data) ? res.data : []);
+                setTotalItems(res.total || 0);
+                console.log(res);
+            } else {
+                AntNotification.showNotification("Lỗi", "Không thể lấy danh sách sản phẩm", "error");
             }
-        };
+        } catch (error) {
+            AntNotification.handleError(error);
+        }
+    };
+    useEffect(() => {
         fetchData();
     }, [currentPage, pageSize, sortorder, keyword, filterCategory]);
 

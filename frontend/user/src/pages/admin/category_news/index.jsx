@@ -136,7 +136,7 @@ export const CategoryNews = () => {
                         </span>
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Quản Lý Danh Mục
+                        Quản Lý Danh Mục Tin Tức
                     </li>
                 </ol>
             </nav>

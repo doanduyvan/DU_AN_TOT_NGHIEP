@@ -32,6 +32,7 @@ use App\Http\Controllers\Trashed\TrashedOrderController;
 use App\Http\Controllers\Trashed\TrashedNewsController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\VoucherController;
+use App\Http\Controllers\BannerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,10 +55,11 @@ route::group(['prefix' => 'vouchers'], function () {
 });
 
 route::group(['prefix' => 'banners'], function () {
-    Route::get('/', [\App\Http\Controllers\BannerController::class, 'index'])->middleware('auth:sanctum');
-    Route::post('/create', [\App\Http\Controllers\BannerController::class, 'create'])->middleware('check.permission:create-banner');
-    Route::post('/update/{id}', [\App\Http\Controllers\BannerController::class, 'update'])->middleware('check.permission:update-banner');
-    Route::post('/destroy', [\App\Http\Controllers\BannerController::class, 'destroy'])->middleware('check.permission:delete-banner');
+    Route::get('/', [BannerController::class, 'index'])->middleware('auth:sanctum');
+    Route::get('/get-banner/{id}', [BannerController::class, 'getBannerById'])->middleware('auth:sanctum');
+    Route::post('/create', [BannerController::class, 'create'])->middleware('check.permission:create-banner');
+    Route::post('/update/{id}', [BannerController::class, 'update'])->middleware('check.permission:update-banner');
+    Route::post('/destroy', [BannerController::class, 'destroy'])->middleware('check.permission:delete-banner');
 });
 
 

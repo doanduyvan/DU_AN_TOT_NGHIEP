@@ -49,17 +49,13 @@ export const CategoryTransh = () => {
             const res = await restore(selectedCategories);
             console.log(selectedCategories);
             if (res?.status === 200) {
-                setCategories((prevCategories) => {
-                    return prevCategories.filter(
-                        (category) => !selectedCategories.includes(category.id)
-                    );
-                });
                 setSelectedCategories([]);
                 AntNotification.showNotification(
                     "Khôi phục danh mục thành công",
                     res?.message || "khôi phục thành công",
                     "success"
                 );
+                fetchData();
             } else {
                 AntNotification.showNotification(
                     "Có lỗi xảy ra",
@@ -77,17 +73,13 @@ export const CategoryTransh = () => {
         try {
             const res = await forceDelete(id);
             if (res?.status === 200) {
-                setCategories((prevCategories) => {
-                    return prevCategories.filter(
-                        (category) => category.id !== id
-                    );
-                });
                 setSelectedCategories([]);
                 AntNotification.showNotification(
                     "Xóa danh mục vĩnh viễn thành công",
                     res?.message || "Xóa thành công",
                     "success"
                 );
+                fetchData();
             } else {
                 AntNotification.showNotification(
                     "Có lỗi xảy ra",
@@ -100,30 +92,30 @@ export const CategoryTransh = () => {
         }
     };
     console.log(selectedCategories);
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await categoryTrash({
-                    page: currentPage,
-                    per_page: pageSize,
-                    sortorder: sortorder,
-                    keyword: keyword,
-                });
-                if (res) {
-                    setCategories(Array.isArray(res.data) ? res.data : []);
-                    setTotalItems(res.total || 0);
-                    console.log(res);
-                } else {
-                    AntNotification.showNotification(
-                        "Có lỗi xảy ra",
-                        res?.message || "Vui lòng thử lại sau",
-                        "error"
-                    );
-                }
-            } catch (error) {
-                AntNotification.handleError(error);
+    const fetchData = async () => {
+        try {
+            const res = await categoryTrash({
+                page: currentPage,
+                per_page: pageSize,
+                sortorder: sortorder,
+                keyword: keyword,
+            });
+            if (res) {
+                setCategories(Array.isArray(res.data) ? res.data : []);
+                setTotalItems(res.total || 0);
+                console.log(res);
+            } else {
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
             }
-        };
+        } catch (error) {
+            AntNotification.handleError(error);
+        }
+    };
+    useEffect(() => {
         fetchData();
     }, [currentPage, pageSize, sortorder, keyword]);
     useEffect(() => {

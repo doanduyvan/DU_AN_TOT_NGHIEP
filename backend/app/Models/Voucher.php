@@ -74,6 +74,7 @@ class Voucher extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
     public function scopePaginate($query, $perPage)
     {
         return $query->paginate($perPage);

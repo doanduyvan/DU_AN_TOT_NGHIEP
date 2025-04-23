@@ -74,7 +74,8 @@ useEffect(()=> {
         </div>
        ) : (
         <>
-        <div className="md:col-span-9 bg-white p-6 rounded shadow">
+        <div className="md:col-span-9">
+        <div className="bg-white p-6 shadow rounded">
           <img
             src={ baseUrlImg + news?.avatar }
             alt="news"
@@ -90,10 +91,10 @@ useEffect(()=> {
               <div dangerouslySetInnerHTML={{ __html: news?.content }}></div>
             </div>
           </div>
-
+        </div>
           {/* Comment Section */}
-          <div className="mt-8">
-            <CommentBox />
+          <div className="mt-5 border-t-2">
+            <CommentBox news_id={id} />
           </div>
         </div>
         <NewsRelated data={newsRelated} />
@@ -112,7 +113,7 @@ const NewsRelated = ({ data }) => {
   return (
     <div className="md:col-span-3 bg-white p-4 rounded shadow h-fit">
       <h5 className="text-lg font-semibold mb-4">Bài viết liên quan</h5>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 *:border-t *:pt-2">
         {data?.length > 0 ? (
           data.map((item, i) => (
             <Link

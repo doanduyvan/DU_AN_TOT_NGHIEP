@@ -13,6 +13,7 @@ class CommentNews extends Model
         'content',
         'news_id',
         'user_id',
+        'is_admin',
         'comment_news_id',
     ];
     protected $dates = ['deleted_at'];
@@ -51,6 +52,30 @@ class CommentNews extends Model
     public function scopeWithRelations($query)
     {
         return $query->with(['news', 'user']);
+    }
+    public function scopeWithCount($query)
+    {
+        return $query->withCount(['news', 'user']);
+    }
+    public function scopeWithTrashed($query)
+    {
+        return $query->withTrashed();
+    }
+    public function scopeOnlyTrashed($query)
+    {
+        return $query->onlyTrashed();
+    }
+    public function scopeRestore($query, $id) {
+        return $query->where('id', $id)->restore();
+    }
+    public function scopeForceDelete($query)
+    {
+        return $query->forceDelete();
+    }
+
+    public function replies()
+    {
+        return $this->hasMany(CommentNews::class, 'comment_news_id');
     }
     
 }

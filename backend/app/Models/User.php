@@ -90,4 +90,16 @@ class User extends Authenticatable
             ->where('id', $id)
             ->forceDelete();
     }
+
+    public function hasPurchasedProduct($productId)
+    {
+        return OrderDetail::whereHas('order', function ($query) {
+            $query->where('user_id', $this->id)
+                ->where('status', 6);
+        })
+            ->whereHas('productvariant', function ($query) use ($productId) {
+                $query->where('product_id', $productId);
+            })
+            ->exists();
+    }
 }

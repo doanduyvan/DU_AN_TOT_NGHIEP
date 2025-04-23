@@ -16,13 +16,20 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
+    // const formData = new FormData(e.target);
+    const rawForm = new FormData(e.target);
+    const formData = new FormData();
+
+    for (const [key, value] of rawForm.entries()) {
+      formData.append(key, typeof value === "string" ? value.trim() : value);
+    }
+
     try {
       setLoading(true);
       const response = await AuthService.register(formData);
 
       const message2 = response?.data?.message || "Đăng ký thành công, vui lòng kích hoạt tài khoản qua email";
-      Notification.error({
+      Notification.success({
       message: "Đăng ký thành công",
       description: message2,
       });
@@ -30,7 +37,12 @@ const RegisterForm = () => {
     } catch (error) {
       setError(error.response.data.errors);
       setTimeout(()=> { setError('') },3000)
-      console.log(error);
+      const message2 = error?.response?.data?.message;
+      if(message2) {
+        Notification.error({
+          message: message2
+        });
+      }
     }finally {
       setLoading(false);
     }
@@ -46,20 +58,20 @@ const RegisterForm = () => {
 
         <form className="mt-6 text-left form" onSubmit={handleSubmit}>
           <label className="block text-sm font-medium text-gray-700">Họ Tên</label>
-          {error && <p className="error text-red-500">{error.fullname}</p>}
           <Input className="mt-1 text-lg" name="fullname" placeholder="Nhập Họ Tên đầy đủ" />
+          {error && <p className="error text-red-500">{error.fullname}</p>}
 
           <label className="block text-sm font-medium text-gray-700 mt-4">Email</label>
-          {error && <p className="error text-red-500">{error.email}</p>}
           <Input className="mt-1 text-lg" name="email" placeholder="Example@gmail.com" />
+          {error && <p className="error text-red-500">{error.email}</p>}
     
           <label className="block text-sm font-medium text-gray-700 mt-4">Mật khẩu</label>
-          {error && <p className="error text-red-500">{error.password}</p>}
           <Input.Password className="mt-1 text-lg" name="password" placeholder="Nhập mật khẩu" />
+          {error && <p className="error text-red-500">{error?.password}</p>}
 
           <label className="block text-sm font-medium text-gray-700 mt-4">Nhập lại mật khẩu</label>
-          {error && <p className="error text-red-500">{error?.password}</p>}
           <Input.Password className="mt-1 text-lg" name="password_confirmation" placeholder="Nhập lại mật khẩu" />
+          {error && <p className="error text-red-500">{error?.password}</p>}
 
           <button type="submit" className="w-full p-2 rounded-lg mt-6 bg-yellow-400 hover:bg-yellow-500">
             Đăng ký

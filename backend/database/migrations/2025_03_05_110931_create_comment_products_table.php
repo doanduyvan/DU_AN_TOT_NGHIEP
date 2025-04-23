@@ -20,6 +20,8 @@ class CreateCommentProductsTable extends Migration
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('comment_product_id')->nullable();
+            $table->boolean('is_verified_buyer')->default(false);
+            $table->boolean('is_admin')->default(false);
             $table->timestamps();
                 
             // Khóa ngoại

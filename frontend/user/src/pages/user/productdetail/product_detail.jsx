@@ -293,7 +293,7 @@ export const ProductDetail = () => {
 
             {activeTab === 1 && (
               <div>
-                <CommentProduct />
+                <CommentProduct product_id={id} />
               </div>
             )}
           </div>

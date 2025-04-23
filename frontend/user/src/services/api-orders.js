@@ -11,14 +11,16 @@ const apiGet = async (url, options = {}) => {
   });
   return response;
 };
-const apiDelete = async (id) => {
-  const response = await axios.delete(id);
+
+const apiDelete = async (url, data) => {
+  const response = await axios.delete(url, data);
   return response;
 };
-
 const OrderService = {
-  getAllOrder: async () => {
-    return apiGet("/orders");
+  getAllOrder: async ({page, per_page, sortorder, keyword, filter_status, filter_payment_status, filter_shipping_status}) => {
+    return apiGet("/orders", {
+      params: { page, per_page, sortorder, keyword, filter_status, filter_payment_status, filter_shipping_status },
+    });
   },
   getOrderById: async (id) => {
     return apiGet(`/orders/${id}`);

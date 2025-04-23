@@ -41,7 +41,7 @@ export const Vouchers = () => {
             return;
         }
         try {
-            const res = await UsersService.destroy(selectedVoucher);
+            const res = await VoucherService.destroy(selectedVoucher);
             if (res?.status === 200) {
                 setVoucher((prevvoucher) => {
                     return prevvoucher.filter(
@@ -272,6 +272,9 @@ export const Vouchers = () => {
                                 Số lượng đã sử dụng
                             </th>
                             <th scope="col" className="px-6 py-3">
+                                Người thêm
+                            </th>
+                            <th scope="col" className="px-6 py-3">
                                 Action
                             </th>
                         </tr>
@@ -310,7 +313,7 @@ export const Vouchers = () => {
                                 <td className="px-6 py-4 text-gray-700">{item.code}</td>
                                 <td className="px-6 py-4">
                                     <Select
-                                        defaultValue={item.status}
+                                        value={item?.status}
                                         className="w-full h-10"
                                         onChange={(value) => handleStatusChange(item.id, value)}
                                     >
@@ -322,19 +325,21 @@ export const Vouchers = () => {
                                     </Select>
                                 </td>
                                 <td className="px-6 py-4 text-gray-700">
-                                {new Date(item.expiry_date).toLocaleString('vi-VN')}
+                                    {new Date(item.expiry_date).toLocaleString('vi-VN')}
                                 </td>
 
                                 <td className="px-6 py-4 text-gray-700">{item.quantity}</td>
                                 <td className="px-6 py-4 text-gray-700">{item.quantity_used}</td>
+                                <td className="px-6 py-4 text-gray-700">{item.user_name}</td>
 
                                 <td className="px-6 py-4 gap-4 flex">
                                     <Link
-                                        to={`/admin/vouchers/update/${voucher.id}`}
+                                        to={`/admin/vouchers/update/${item.id}`}
                                         type="button"
-                                        className="font-medium text-orange-700 dark:text-orange-600 hover:underline"
-                                    >
-                                        Chỉnh sửa
+                                        data-modal-target="editUserModal"
+                                        data-modal-show="editUserModal"
+                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                                        Edit
                                     </Link>
                                 </td>
                             </tr>

@@ -16,7 +16,7 @@ export const Create_category_news = () => {
             const res = await categoryNewsService.create_Category(formData);
             if (res?.status === 200) {
                 AntNotification.showNotification("Thêm danh mục bài viết thành công", res?.message, "success");
-                navigate("/admin/categorynews");
+                navigate("/admin/category-news");
             } else {
                 AntNotification.showNotification("Thêm danh mục bài viết thất bại", res?.message, "error");
             }

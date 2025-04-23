@@ -54,6 +54,14 @@ class CategoriesController extends Controller
         $ids = $request->ids;
         if (is_array($ids) && !empty($ids)) {
             try {
+                foreach ($ids as $id) {
+                    $category = Category::find($id);
+
+                    // Kiểm tra xem sản phẩm có biến thể không
+                    if ($category && $category->products()->count() > 0) {
+                        return response()->json(['message' => 'Không thể xóa danh mục vì có sản phẩm liên quan', 'status' => 'error'], 400);
+                    }
+                }
                 Category::whereIn('id', $ids)->delete();
                 return response()->json(['message' => 'Xóa Danh Mục thành công', 'status' => 200], 200);
             } catch (QueryException $e) {

@@ -5,13 +5,22 @@ import { ImageModal } from "../../../components/admin/imgmodal";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../contexts/authcontext";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import { Pagination } from "antd";
 
 export const NewsAdmin = () => {
 
     const [imageSrc, setImageSrc] = useState(null);
+    const [categories, setCategories] = useState([]);
     const [news, setNews] = useState([]);
     const [selectedNews, setselectedNews] = useState([]);
     const { permissions } = useAuth();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalItems, setTotalItems] = useState(0);
+    const [sortorder, setSortOrder] = useState(null);
+    const [filterCategory, setFilterCategory] = useState(null);
+    const [keyword, setKeyword] = useState("");
+    const [inputValue, setInputValue] = useState('');
 
     const openModal = (src) => {
         setImageSrc(src);
@@ -31,18 +40,14 @@ export const NewsAdmin = () => {
     };
     const hanDleDelete = async () => {
         if (selectedNews.length === 0) {
-           AntNotification.showNotification("Chưa có bài viết nào được chọn", "Vui lòng chọn ít nhất một bài viết để xóa", "error");
+            AntNotification.showNotification("Chưa có bài viết nào được chọn", "Vui lòng chọn ít nhất một bài viết để xóa", "error");
             return;
         }
         try {
             const res = await newsService.destroy(selectedNews);
             console.log(selectedNews);
             if (res?.status === 200) {
-                setNews((prevNews) => {
-                    return prevNews.filter(
-                        (news) => !selectedNews.includes(news.id)
-                    );
-                });
+                fetchData();
                 setselectedNews([]);
                 AntNotification.showNotification("Xóa tin thành công", res?.message, "success");
             } else {
@@ -52,29 +57,78 @@ export const NewsAdmin = () => {
             AntNotification.handleError(error);
         }
     };
+    const fetchData = async () => {
+        try {
+            const res = await newsService.getAllNews({
+                page: currentPage,
+                per_page: pageSize,
+                sortorder: sortorder,
+                keyword: keyword,
+                filter_category: filterCategory,
+            });
+            if (res) {
+                setNews(Array.isArray(res.data) ? res.data : []);
+                setTotalItems(res.total || 0);
+                console.log(res);
+            } else {
+                AntNotification.showNotification("Lỗi", "Không thể lấy danh sách bài viết", "error");
+            }
+        } catch (error) {
+            AntNotification.handleError(error);
+        }
+    };
     useEffect(() => {
-        const fetchData = async () => {
+        fetchData();
+    }, [currentPage, pageSize, sortorder, keyword, filterCategory]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
             try {
-                const res = await newsService.getAllNews();
+                const res = await newsService.categoryNews();
                 if (res) {
-                    setNews(Array.isArray(res) ? res : []);
-                    console.log(res);
-                } else {
-                    AntNotification.showNotification("Lỗi", "Không thể lấy danh sách bài viết", "error");
+                    setCategories(Array.isArray(res) ? res : []);
                 }
             } catch (error) {
-                AntNotification.handleError(error);
+                console.error(error.message)
             }
         };
-        fetchData();
+        fetchCategories();
     }, []);
 
+    useEffect(() => {
+        const debounceTimer = setTimeout(() => {
+            if (inputValue !== "") {
+                setCurrentPage(1);
+                setKeyword(inputValue);
+            } else {
+                setKeyword("");
+            }
+        }, 400);
+        return () => clearTimeout(debounceTimer);
+    }, [inputValue]);
+
+    const handlePageChange = async (page, size) => {
+        console.log(page);
+        setCurrentPage(page);
+        setPageSize(size);
+    }
+    const handleFilterChange = async (e) => {
+        const value = e.target.value;
+        const sortOrder = value === "asc" ? "asc" : "desc";
+        setSortOrder(sortOrder);
+    };
+
+    const handleFilterCategoryChange = async (e) => {
+        const value = e.target.value;
+        console.log(value);
+        setFilterCategory(value);
+    };
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <nav className="rounded-md w-full">
                 <ol className="list-reset flex">
                     <li>
-                    <Link
+                        <Link
                             to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
@@ -96,39 +150,39 @@ export const NewsAdmin = () => {
                     <h5 className="text-xl font-medium leading-tight text-primary">
                         Quản Lý Tin Tức
                     </h5>
-                        <Link
-                            to="/admin/news/create"
-                            className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
-                        >
-                            Thêm Tin Tức
-                        </Link>
+                    <Link
+                        to="/admin/news/create"
+                        className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
+                    >
+                        Thêm Tin Tức
+                    </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
-                    <div>
-                        <button
-                            id="dropdownActionButton"
-                            data-dropdown-toggle="dropdownAction"
-                            className="inline-flex items-center text-gray-500 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700"
-                            type="button"
+                    <div className="flex items-center space-x-4">
+                        <select
+                            className="cursor-pointer items-center text-black bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 font-medium rounded-lg text-sm px-3 py-1.5 "
+                            onChange={handleFilterChange}
                         >
-                            <span className="sr-only">Action button</span>
-                            Action
-                            <svg
-                                className="w-2.5 h-2.5 ms-2.5"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 10 6"
-                            >
-                                <path
-                                    stroke="currentColor"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="m1 1 4 4 4-4"
-                                />
-                            </svg>
-                        </button>
+                            <option value="desc">
+                                Mới nhất
+                            </option>
+                            <option value="asc">
+                                Cũ Nhất
+                            </option>
+                        </select>
+                        <select
+                            className="cursor-pointer text-black bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 font-medium rounded-lg text-sm px-3 py-1.5 overflow-y-auto"
+                            onChange={handleFilterCategoryChange}
+                        >
+                            <option value="">
+                                Tất cả danh mục
+                            </option>
+                            {categories.map((category) =>
+                                <option key={category.id} value={category.id}>
+                                    {category.category_news_name}
+                                </option>
+                            )}
+                        </select>
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
                         {(selectedNews.length > 0) ?
@@ -138,7 +192,7 @@ export const NewsAdmin = () => {
                             /> : null
                         }
                         <label htmlFor="table-search" className="sr-only">
-                            Search
+                            Tìm kiếm
                         </label>
                         <div className="relative">
                             <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
@@ -162,7 +216,9 @@ export const NewsAdmin = () => {
                                 type="text"
                                 id="table-search-users"
                                 className="block pt-2 ps-10 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-950 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Search for users"
+                                placeholder="Tìm kiếm..."
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
                             />
                         </div>
                     </div>
@@ -194,6 +250,9 @@ export const NewsAdmin = () => {
                             </th>
                             <th scope="col" className="px-6 py-3">
                                 Tiêu đề
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Danh mục
                             </th>
                             <th scope="col" className="px-6 py-3">
                                 Hình ảnh
@@ -236,6 +295,10 @@ export const NewsAdmin = () => {
                                         </div>
                                     </div>
                                 </th>
+                                <td className="px-6 py-4 text-gray-700 tracking-wide">
+                                    {categories.find((cat) =>
+                                        cat.id === item.category_news_id)?.category_news_name || 'Không có danh mục'}
+                                </td>
                                 <td className="px-6 py-4">
                                     <a
                                         className="underline cursor-pointer"
@@ -262,6 +325,14 @@ export const NewsAdmin = () => {
                         ))}
                     </tbody>
                 </table>
+                <div className="flex justify-end p-4">
+                    <Pagination className=""
+                        current={currentPage}
+                        defaultCurrent={1}
+                        total={totalItems}
+                        onShowSizeChange={handlePageChange}
+                        onChange={handlePageChange} />
+                </div>
             </div>
         </div>
     );

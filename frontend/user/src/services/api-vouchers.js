@@ -28,6 +28,15 @@ const VoucherService = {
   updateStatus: async (data) => {
     return apiPost("/vouchers/updatestatus", data);
   },
+  getVoucherById: async (id) => {
+    return apiGet(`/vouchers/get-voucher/${id}`);
+  },
+  update: async (id, data) => {
+    return apiPost(`/vouchers/update/${id}`, data);
+  },
+  destroy: async (ids) => {
+    return apiPost('/vouchers/destroy', { ids });
+  },
   roleLevel: async (formdata, id) => {
     return apiPost(`/users/rolelevel/${id}`, formdata);
   },
@@ -37,9 +46,7 @@ const VoucherService = {
   showRoles: async () => {
     return apiGet("/users/showroles");
   },
-  destroy: async (ids) => {
-    return apiPost('/users/destroy', { ids });
-  },
+
   getUserById: async (id) => {
     return apiGet(`/users/${id}`);
   },

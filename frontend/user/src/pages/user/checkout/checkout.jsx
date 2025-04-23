@@ -6,7 +6,7 @@ import { useUserContext } from "../../../context/user/userContext";
 import { formatCurrency } from "../../../utils/helpers";
 import AxiosUser from "../../../utils/axios_user";
 import { message } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 
 const { Option } = Select;
 
@@ -17,7 +17,9 @@ const urlCheckOut = "customer/checkout";
 
 const Checkout = () => {
 
-  const { cartItems,getCartItems,setCart,setCartItems } = useUserContext();
+  const { cartItems,setCart,setCartItems, isLoggedIn } = useUserContext();
+
+
 
   const [showModal, setShowModal] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
@@ -33,6 +35,7 @@ const Checkout = () => {
     (sum, item) => sum + parseFloat(item.price) * item.qty,
     0
   );
+
 
   const handleFomatAddress = (item) => {
     const dataFormatted = {
@@ -61,24 +64,14 @@ const Checkout = () => {
         message.error(message2);
       }
     };
-    fetchAddresses();
-  },[]);
+    if(isLoggedIn) fetchAddresses();
+  },[isLoggedIn]);
 
   const onAfterAddAddress = (address) => {
     const newAddress = handleFomatAddress(address);
     setAddAddress((prev) => [...prev, newAddress]);
-  }
-
-  const onCheckout = async () => {
-    const urltest = "checkout";
-    try{
-      const res = await AxiosUser.get(urltest);
-
-      const urlVnPay = res.url;
-      window.location.href = urlVnPay;
-      console.log(res);
-    }catch(err){
-      console.log(err);
+    if(selectedAddress === null){
+      setSelectedAddress(newAddress);
     }
   }
 
@@ -121,6 +114,8 @@ const Checkout = () => {
       setLoadingCheckout(false);
     }
   }
+
+  if (!isLoggedIn) return <Navigate to="/login" />;
 
   return (
     <>
@@ -317,7 +312,7 @@ const SuccessModal = ({ open, onClose }) => {
 
   const handleGoOrder = () => {
     onClose();
-    navigate("/profile");
+    navigate("/profile?tab=4");
   };
 
   return (

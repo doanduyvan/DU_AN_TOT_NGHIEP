@@ -25,7 +25,14 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
+
+    const rawForm = new FormData(e.target);
+    const formData = new FormData();
+
+    for (const [key, value] of rawForm.entries()) {
+      formData.append(key, typeof value === "string" ? value.trim() : value);
+    }
+
     try {
       setLoading(true);
       const response = await AuthService.login(formData);
@@ -36,7 +43,6 @@ const LoginForm = () => {
         setCurrentUser(user);
         setUser(user);
         setIsLoggedIn(true);
-        console.log(response);
       } else if (response.status === 401) {
         console.log("401");
         Notification.warning({
@@ -74,7 +80,7 @@ const LoginForm = () => {
     <div className="flex items-center justify-center min-h-screen bg-yellow-50">
       <div className="bg-white p-8 shadow-lg rounded-2xl w-96 text-center">
         <h2 className="text-2xl font-bold">Mes Skin</h2>
-        <p className="mt-2 text-gray-600">Welcome to WeConnect! 1 👋</p>
+        <p className="mt-2 text-gray-600">Welcome to WeConnect! 2 👋</p>
         <p className="text-sm text-gray-500">Please sign in to your account and start the adventure</p>
 
         <form className="mt-6 text-left form" onSubmit={handleSubmit}>
@@ -182,7 +188,7 @@ const NoVerifyModal = ({ open, onClose, email }) => {
   const handleOk = async () => {
     try {
       setLoading(true);
-      const response = await AxiosUser.post(urlForgotPassword, {email});
+      const response = await AxiosUser.post(urlSendVerifyEmail, {email});
       const message2 = response?.message || "Đã gửi yêu cầu xác thực thành công";
       notification.success({
         message: "Thành công",

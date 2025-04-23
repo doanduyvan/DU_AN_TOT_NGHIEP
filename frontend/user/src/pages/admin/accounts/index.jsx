@@ -46,11 +46,7 @@ export const Users = () => {
         try {
             const res = await UsersService.destroy(selectedUsers);
             if (res?.status === 200) {
-                setUser((prevusers) => {
-                    return prevusers.filter(
-                        (user) => !selectedUsers.includes(user.id)
-                    );
-                });
+                fetchData();
                 setSelectedUsers([]);
                 AntNotification.showNotification(
                     "Xóa thành công",
@@ -69,30 +65,30 @@ export const Users = () => {
         }
     };
     console.log(selectedUsers);
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await UsersService.getAllUsers({
-                    page: currentPage,
-                    per_page: pageSize,
-                    sortorder: sortorder,
-                    keyword: keyword,
-                });
-                if (res) {
-                    setUser(Array.isArray(res.data) ? res.data : []);
-                    setTotalItems(res.total || 0);
-                    console.log(res);
-                } else {
-                    AntNotification.showNotification(
-                        "Có lỗi xảy ra",
-                        res?.message || "Vui lòng thử lại sau",
-                        "error"
-                    );
-                }
-            } catch (error) {
-                AntNotification.handleError(error);
+    const fetchData = async () => {
+        try {
+            const res = await UsersService.getAllUsers({
+                page: currentPage,
+                per_page: pageSize,
+                sortorder: sortorder,
+                keyword: keyword,
+            });
+            if (res) {
+                setUser(Array.isArray(res.data) ? res.data : []);
+                setTotalItems(res.total || 0);
+                console.log(res);
+            } else {
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
             }
-        };
+        } catch (error) {
+            AntNotification.handleError(error);
+        }
+    };
+    useEffect(() => {
         fetchData();
     }, [currentPage, pageSize, sortorder, keyword]);
 

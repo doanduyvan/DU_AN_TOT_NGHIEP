@@ -8,6 +8,7 @@ use App\Models\ProductVariant;
 use App\Models\ShippingAddress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -251,5 +252,43 @@ class ProfileController extends Controller
             DB::rollBack();
             return response()->json(['message' => 'Đã xảy ra lỗi khi huỷ đơn hàng.'], 500);
         }
+    }
+
+    public function ChangePassword(Request $request)
+    {
+
+        $messages =  [
+            'current_password.required' => 'Vui lòng nhập mật khẩu hiện tại',
+            'new_password.required' => 'Vui lòng nhập mật khẩu mới',
+            'new_password.min' => 'Mật khẩu mới phải có ít nhất 6 ký tự',
+            'new_password.max' => 'Mật khẩu mới không vượt quá 255 ký tự',
+            'new_password.same' => 'Mật khẩu nhập lại không khớp',
+            'confirm_password.required' => 'Vui lòng nhập lại mật khẩu mới',
+            'confirm_password.min' => 'Mật khẩu nhập lại phải có ít nhất 6 ký tự',
+            'confirm_password.max' => 'Mật khẩu nhập lại không vượt quá 255 ký tự',
+        ];
+
+        $validated = $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:6|max:255|same:confirm_password',
+            'confirm_password' => 'required|string|min:6|max:255',
+        ],$messages);
+
+        $user = $request->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Mật khẩu hiện tại không đúng',
+            ], 422);
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Đổi mật khẩu thành công',
+        ]);
     }
 }

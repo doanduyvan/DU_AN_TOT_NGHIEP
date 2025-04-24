@@ -120,7 +120,7 @@ class UserController extends Controller
             ], 500);
         }
     }
-    public function create(AccountRequest $request, $id)
+    public function create(AccountRequest $request)
     {
         $validatedData = $request->validated();
         try {

@@ -144,6 +144,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::group(['prefix' => 'users'], function () {
     route::get('/', [UserController::class, 'index']);
+    route::post('/create', [UserController::class, 'create'])->middleware('check.permission:create-customer');
     route::get('get-user-count', [UserController::class, 'getUserCount']);
     route::post('destroy', [UserController::class, 'destroy'])->middleware('check.permission:delete-customer');
     Route::post('updatestatus', [UserController::class, 'updateStatus'])->middleware('check.permission:update-customer');

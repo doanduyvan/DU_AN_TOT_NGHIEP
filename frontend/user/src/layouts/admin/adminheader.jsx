@@ -1,20 +1,19 @@
-import { Button, Dropdown } from 'antd';
+import { Button, Dropdown, notification } from 'antd';
 import { useState, useEffect } from "react";
-import { NavLink, Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useUserContext } from "../../../src/context/user/userContext";
 import { useAuth } from '../../contexts/authcontext';
 import { AuthService } from '../../services/api-auth';
-import { notification, message } from "antd";
+import { message } from "antd";
 import { NotificationService } from '../../services/api-notification';
 const baseUrlImg = import.meta.env.VITE_URL_IMG;
 
 export const AdminHeader = () => {
     const navigate = useNavigate();
-    const { isLoggedIn, user, setIsLoggedIn, setUser } = useUserContext() || {};
-    const [hasNotifications, setHasNotifications] = useState(true);
+    const { isLoggedIn, setIsLoggedIn, setUser } = useUserContext() || {};
+    const [hasNotifications, setHasNotifications] = useState(false); // Mặc định không có thông báo
     const [countOrder, setCountOrder] = useState(0);
-    const [products, setProducts] = useState([]);  // Đảm bảo products là một mảng
-    if (isLoggedIn) return navigate('/login');
+    const [products, setProducts] = useState([]);
     const { currentUser, setCurrentUser } = useAuth();
 
     const handleLogout = async () => {
@@ -36,27 +35,58 @@ export const AdminHeader = () => {
                 const order = await NotificationService.getCountOrder();
                 const product = await NotificationService.getProduct();
                 setCountOrder(order);
-                setProducts(Array.isArray(product) ? product : []);  // Đảm bảo product là một mảng
+                setProducts(Array.isArray(product) ? product : []);
+
+                // Kiểm tra nếu có thông báo (đơn hàng hoặc sản phẩm hết hàng)
+                if (order > 0 || product.length > 0) {
+                    setHasNotifications(true); // Nếu có thông báo, cập nhật trạng thái
+                    notification.info({
+                        message: 'Thông báo',
+                        description: order > 0
+                            ? `Có ${order} đơn hàng chưa được xử lý. Hãy kiểm tra ngay!`
+                            : `Sản phẩm hết hàng, hãy xem và nhập lại.`,
+                        duration: 5,
+                    });
+                } else {
+                    setHasNotifications(false); // Nếu không có thông báo, set false
+                }
             } catch (error) {
                 console.error("Error fetching count order:", error);
             }
         };
-        fetchCountOrder();
-    }, []);
 
-    // Xử lý menuNotifi dựa trên `hasNotifications`
+        fetchCountOrder();
+    }, []); // Chạy khi component mount
+
     const menuNotifi = {
         items: [
-            {
-                label: hasNotifications
-                    ? <Link to="/admin/orders">Có {countOrder} đơn hàng chưa được xử lý. Hãy kiểm tra ngay!</Link>
-                    : <Link>Không có thông báo nào.</Link>,
-            },
-            ...products.map((item) => ({
-                key: item.id,
-                label: <Link to={`/admin/products/update/${item.id}`} className='flex'>
-                    Sản phẩm: <p className='w-24 font-bold mx-1 truncate'>{item.product_name}</p> hết hàng, hãy xem và nhập lại</Link>,
-            })),
+            hasNotifications ? (
+                {
+                    label: (
+                        <Link to="/admin/orders">
+                            Có {countOrder} đơn hàng chưa được xử lý. Hãy kiểm tra ngay!
+                        </Link>
+                    ),
+                }
+            ) : (
+                {
+                    label: <Link>Không có thông báo nào.</Link>,
+                }
+            ),
+            ...products.length > 0
+                ? products.map((item) => ({
+                    key: item.id,
+                    label: (
+                        <Link to={`/admin/products/update/${item.id}`} className="flex">
+                            Sản phẩm: <p className="w-24 font-bold mx-1 truncate">{item.product_name}</p> hết hàng, hãy xem và nhập lại
+                        </Link>
+                    ),
+                }))
+                : [
+                    {
+                        label: <Link></Link>,
+                    },
+                ],
         ],
     };
 

@@ -13,8 +13,6 @@ import { OrderDetail } from "../../../components/admin/order_detail";
 import { Pagination } from 'antd';
 
 
-
-
 export const Orders = () => {
     const [orders, setOrders] = useState([]);
     const [selectedOrders, setSelectedOrders] = useState([]);
@@ -37,7 +35,6 @@ export const Orders = () => {
     const closeModal = () => {
         setOrderDetail(null);
     };
-
 
     const handleOrderStatusChange = async (orderId, newStatus) => {
         try {
@@ -352,6 +349,9 @@ export const Orders = () => {
                                 Ngày đặt
                             </th>
                             <th scope="col" className="px-6 py-3">
+                                Người tạo
+                            </th>
+                            <th scope="col" className="px-6 py-3">
                                 Tổng tiền
                             </th>
                             <th scope="col" className="px-6 py-3">
@@ -394,7 +394,7 @@ export const Orders = () => {
                                 </th>
                                 <td className="px-6 py-4">
                                     <button
-                                        className="underline cursor-pointer"
+                                        className="text-left underline cursor-pointer min-w-[100px]"
                                         onClick={(e) => {
                                             openModal(order.id);
                                         }}
@@ -403,18 +403,23 @@ export const Orders = () => {
                                     </button>
                                     <OrderDetail orderDetail={orderDetail} closeModal={closeModal} />
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-6 py-4 min-w-[200px]">
                                     <PaymentStatusSelect order={order} onChange={handlePaymentStatusChange} />
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-6 py-4 min-w-[200px]">
                                     <OrderStatusSelect order={order} onChange={handleOrderStatusChange} />
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-6 py-4 min-w-[200px]">
                                     <ShippingStatusSelect order={order} onChange={handleShippingStatusChange} />
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="text-base font-semibold">
                                         {new Date(order.created_at).toLocaleString('vi-VN')}
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                    <div className="text-base font-semibold">
+                                        {order.user.fullname}
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">

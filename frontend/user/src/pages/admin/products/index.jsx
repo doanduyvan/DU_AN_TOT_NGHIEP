@@ -262,6 +262,9 @@ export const Products = () => {
                                 Thời gian tạo
                             </th>
                             <th scope="col" className="px-6 py-3">
+                                Người tạo
+                            </th>
+                            <th scope="col" className="px-6 py-3">
                                 Action
                             </th>
                         </tr>
@@ -316,6 +319,7 @@ export const Products = () => {
                                     <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
                                 </td>
                                 <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(product.created_at).toLocaleDateString('vi-VN')}</td>
+                                <td className="px-6 py-4 text-gray-700 tracking-wide">{product.user.fullname}</td>
                                 <td className="px-6 py-4">
                                     <Link
                                         to={`/admin/products/update/${product.id}`}

@@ -1,59 +1,88 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import { UsersService } from "../../../services/api-users";
+import { OrderService } from "../../../services/api-orders";
 import { AntNotification } from "../../../components/notification";
-import { ImageModal } from "../../../components/admin/imgmodal";
+import { Link } from "react-router-dom";
+import { OrderStatusSelect } from "../../../components/admin/orders/order_status";
+import { FilterOrderStatusSelect } from "../../../components/admin/orders/filter_status";
+import { FilterPaymentStatusSelect } from "../../../components/admin/orders/filter_payment_status";
+import { PaymentStatusSelect } from "../../../components/admin/orders/payment_status";
+import { FilterShippingStatusSelect } from "../../../components/admin/orders/filter_shipping_status";
+import { ShippingStatusSelect } from "../../../components/admin/orders/shipping_status";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import RestoreConfirmationModal from "../../../components/restore_confirm";
+import { OrderDetail } from "../../../components/admin/order_detail";
 import { Pagination } from 'antd';
 
-export const Users = () => {
-    const urlSRC = import.meta.env.VITE_URL_IMG;
-    const [imageSrc, setImageSrc] = useState(null);
-    const [users, setUser] = useState([]);
-    const [selectedUsers, setSelectedUsers] = useState([]);
+
+
+export const OrdersTrash = () => {
+    const [orders, setOrders] = useState([]);
+    const [selectedOrders, setSelectedOrders] = useState([]);
+    const [orderDetail, setOrderDetail] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
     const [sortorder, setSortOrder] = useState(null);
+    const [filterStatus, setFilterStatus] = useState(null);
+    const [filterPaymentStatus, setFilterPaymentStatus] = useState(null);
+    const [filterShippingStatus, setFilterShippingStatus] = useState(null);
     const [keyword, setKeyword] = useState("");
     const [inputValue, setInputValue] = useState('');
 
-    const openModal = (src) => {
-        setImageSrc(src);
+    const openModal = async (id) => {
+        const res = await OrderService.getOrderTrashById(id);
+        if (res) {
+            setOrderDetail(res);
+        }else {
+            AntNotification.showNotification(
+                "Có lỗi xảy ra",
+                res?.message || "Vui lòng thử lại sau",
+                "error"
+            );
+        }
     };
-
     const closeModal = () => {
-        setImageSrc(null);
+        setOrderDetail(null);
     };
 
-    const checkUser = (e, id) => {
-        setSelectedUsers((prevselectedUsers) => {
+    const checkOrder = (e, id) => {
+        setSelectedOrders((prevselectedOrders) => {
             if (e.target.checked) {
-                return [...prevselectedUsers, id];
+                return [...prevselectedOrders, id];
             } else {
-                return prevselectedUsers.filter((item) => item !== id);
+                return prevselectedOrders.filter((item) => item !== id);
             }
         });
     };
-    const hanDleDelete = async () => {
-        if (selectedUsers.length === 0) {
-            AntNotification.showNotification(
-                "Chưa có người dùng nào được chọn",
-                "Vui lòng chọn ít nhất một người dùng",
-                "error"
-            );
+    const hanDleRestore = async () => {
+        if (selectedOrders.length === 0) {
+            AntNotification.showNotification("Lỗi", "Không đơn hàng nào được chọn", "error");
             return;
         }
         try {
-            const res = await UsersService.destroy(selectedUsers);
+            const res = await OrderService.restore(selectedOrders);
             if (res?.status === 200) {
                 fetchData();
-                setSelectedUsers([]);
+                setSelectedOrders([]);
+                AntNotification.showNotification("Khôi phục đơn hàng thành công", res?.message, "success");
+            } else {
+                AntNotification.showNotification("Khôi phục đơn hàng thất bại", res?.message, "error");
+            }
+        } catch (error) {
+            AntNotification.handleError(error);
+        }
+    };
+    const handleDelete = async (id) => {
+        try {
+            const res = await OrderService.forceDelete(id);
+            if (res?.status === 200) {
+                setSelectedOrders([]);
                 AntNotification.showNotification(
-                    "Xóa thành công",
-                    res?.message,
+                    "Xóa đơn hàng thành công",
+                    res?.message || "Xóa thành công",
                     "success"
                 );
+                fetchData();
             } else {
                 AntNotification.showNotification(
                     "Có lỗi xảy ra",
@@ -65,23 +94,24 @@ export const Users = () => {
             AntNotification.handleError(error);
         }
     };
-    console.log(selectedUsers);
     const fetchData = async () => {
         try {
-            const res = await UsersService.getAllUsers({
+            const res = await OrderService.orderTrash({
                 page: currentPage,
                 per_page: pageSize,
                 sortorder: sortorder,
                 keyword: keyword,
+                filter_status: filterStatus,
+                filter_payment_status: filterPaymentStatus,
+                filter_shipping_status: filterShippingStatus,
             });
             if (res) {
-                setUser(Array.isArray(res.data) ? res.data : []);
+                setOrders(Array.isArray(res.data) ? res.data : []);
                 setTotalItems(res.total || 0);
-                console.log(res);
             } else {
                 AntNotification.showNotification(
-                    "Có lỗi xảy ra",
-                    res?.message || "Vui lòng thử lại sau",
+                    "Lỗi",
+                    "Không thể lấy danh sách đơn hàng",
                     "error"
                 );
             }
@@ -91,36 +121,7 @@ export const Users = () => {
     };
     useEffect(() => {
         fetchData();
-    }, [currentPage, pageSize, sortorder, keyword]);
-
-    const handleStatusChange = async (id, status) => {
-        try {
-            const res = await UsersService.upadteStatus({ id, status });
-            if (res?.status === 200) {
-                setUser((prevUsers) => {
-                    return prevUsers.map((user) => {
-                        if (user.id === id) {
-                            return { ...user, status };
-                        }
-                        return user;
-                    });
-                });
-                AntNotification.showNotification(
-                    "Cập nhật thành công",
-                    res?.message,
-                    "success"
-                );
-            } else {
-                AntNotification.showNotification(
-                    "Có lỗi xảy ra",
-                    res?.message || "Vui lòng thử lại sau",
-                    "error"
-                );
-            }
-        } catch (error) {
-            AntNotification.handleError(error);
-        }
-    }
+    }, [currentPage, pageSize, sortorder, keyword, filterStatus, filterPaymentStatus, filterShippingStatus]);
 
     useEffect(() => {
         const debounceTimer = setTimeout(() => {
@@ -135,6 +136,7 @@ export const Users = () => {
     }, [inputValue]);
 
     const handlePageChange = async (page, size) => {
+        console.log(page);
         setCurrentPage(page);
         setPageSize(size);
     }
@@ -142,6 +144,17 @@ export const Users = () => {
         const value = e.target.value;
         const sortOrder = value === "asc" ? "asc" : "desc";
         setSortOrder(sortOrder);
+    };
+
+    const handleFilterStatusChange = (newStatus) => {
+        setFilterStatus(newStatus);
+    };
+
+    const handleFilterPaymentStatusChange = (newStatus) => {
+        setFilterPaymentStatus(newStatus);
+    };
+    const handleFilterShippingStatusChange = (newStatus) => {
+        setFilterShippingStatus(newStatus);
     };
     return (
         <div className="pt-20 px-4 lg:ml-64">
@@ -161,18 +174,18 @@ export const Users = () => {
                         </span>
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Quản Lý Tài Khoản
+                        Quản Lý đơn hàng
                     </li>
                 </ol>
             </nav>
             <div className="relative overflow-x-auto shadow-md my-4 sm:rounded-lg bg-white">
                 <div className="flex justify-between items-center p-4">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Quản Lý Tài Khoản
+                        Đơn Hàng Đã Xóa
                     </h5>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
-                    <div>
+                    <div className="flex items-center space-x-4">
                         <select
                             className="cursor-pointer items-center text-black bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 font-medium rounded-lg text-sm px-3 py-1.5 "
                             onChange={handleFilterChange}
@@ -184,14 +197,15 @@ export const Users = () => {
                                 Cũ Nhất
                             </option>
                         </select>
+                        <FilterPaymentStatusSelect onChange={handleFilterPaymentStatusChange} />
+                        <FilterOrderStatusSelect onChange={handleFilterStatusChange} />
+                        <FilterShippingStatusSelect onChange={handleFilterShippingStatusChange} />
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
-                        {(selectedUsers.length > 0) ?
-                            <DeleteConfirmationModal
-                                data={`Bạn có chắc chắn muốn xóa ${selectedUsers.length} người dùng này không?`}
-                                onDelete={hanDleDelete}
-                            /> : null
-                        }
+                        <RestoreConfirmationModal
+                            data={`Bạn có chắc chắn muốn khôi phục ${selectedOrders.length} đơn hàng này không?`}
+                            onDelete={hanDleRestore}
+                        />
                         <label htmlFor="table-search" className="sr-only">
                             Tìm kiếm
                         </label>
@@ -217,7 +231,7 @@ export const Users = () => {
                                 type="text"
                                 id="table-search-users"
                                 className="block pt-2 ps-10 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-950 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Tìm kiếm tên tài khoản hoặc email"
+                                placeholder="Tìm kiếm..."
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                             />
@@ -230,19 +244,19 @@ export const Users = () => {
                             <th scope="col" className="p-4">
                                 <div className="flex items-center">
                                     <input
-                                        checked={selectedUsers.length === users.length}
+                                        checked={selectedOrders.length === orders.length}
                                         onChange={() => {
-                                            if (selectedUsers.length === users.length) {
-                                                setSelectedUsers([]); // bo chon tat ca
+                                            if (selectedOrders.length === orders.length) {
+                                                setSelectedOrders([]); // bo chon tat ca
                                             } else {
-                                                setSelectedUsers(
-                                                    users.map((user) => user.id)
+                                                setSelectedOrders(
+                                                    orders.map((category) => category.id)
                                                 ); // chon tat ca
                                             }
                                         }}
                                         id="checkbox-all-search"
                                         type="checkbox"
-                                        className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                     />
                                     <label htmlFor="checkbox-all-search" className="sr-only">
                                         checkbox
@@ -253,7 +267,22 @@ export const Users = () => {
                                 Tên
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Trạng thái
+                                Chi tiết đơn hàng
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Trạng thái thanh toán
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Trạng thái đơn hàng
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Trạng thái vận chuyển
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Ngày đặt
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Tổng tiền
                             </th>
                             <th scope="col" className="px-6 py-3">
                                 Action
@@ -261,19 +290,19 @@ export const Users = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map((user) => (
+                        {orders.map((order) => (
                             <tr
-                                key={user.id}
+                                key={order.id}
                                 className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                             >
                                 <td className="w-4 p-4">
                                     <div className="flex items-center">
                                         <input
                                             id="checkbox-table-search-1"
-                                            onChange={(e) => checkUser(e, user.id)}
-                                            checked={selectedUsers.includes(user.id)}
+                                            onChange={(e) => checkOrder(e, order.id)}
+                                            checked={selectedOrders.includes(order.id)}
                                             type="checkbox"
-                                            className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
+                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                         />
                                         <label
                                             htmlFor="checkbox-table-search-1"
@@ -287,44 +316,51 @@ export const Users = () => {
                                     scope="row"
                                     className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                 >
-                                    <img src={urlSRC + user.avatar} className="w-12 h-12 rounded-full" alt={user.fullname} />
-
-                                    <div className="ps-3">
+                                    <div className="px-6 py-4">
                                         <div className="text-base font-semibold">
-                                            {user.fullname}
-                                        </div>
-                                        <div className="font-normal text-gray-500">
-                                            {user.email}
+                                            {order.fullname}
                                         </div>
                                     </div>
                                 </th>
                                 <td className="px-6 py-4">
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" className="sr-only peer" value={(user.status === 1) ? 0 : 1}
-                                            checked={user.status === 1}
-                                            onChange={(e) => handleStatusChange(user.id, e.target.checked ? 1 : 0)}
-                                        />
-                                        <div className="group peer bg-white rounded-full duration-300 w-16 h-8 ring-2 ring-red-500 after:duration-300 after:bg-red-500 peer-checked:after:bg-green-500 peer-checked:ring-green-500 after:rounded-full after:absolute after:h-6 after:w-6 after:top-1 after:left-1 after:flex after:justify-center after:items-center peer-checked:after:translate-x-8 peer-hover:after:scale-95" />
-                                    </label>
+                                    <button
+                                        className="underline cursor-pointer"
+                                        onClick={(e) => {
+                                            openModal(order.id);
+                                        }}
+                                    >
+                                        Xem chi tiết
+                                    </button>
+                                    <OrderDetail orderDetail={orderDetail} closeModal={closeModal} />
                                 </td>
-
-                                <td className="px-6 py-4 gap-4 flex">
-                                    <Link
-                                        to={`/admin/accounts/rolelevel/${user.id}`}
-                                        type="button"
-                                        data-modal-target="editUserModal"
-                                        data-modal-show="editUserModal"
-                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                    >
-                                        Cấp vai trò
-                                    </Link>
-                                    <Link
-                                        to={`/admin/accounts/update/${user.id}`}
-                                        type="button"
-                                        className="font-medium text-orange-700 dark:text-orange-600 hover:underline"
-                                    >
-                                        Chỉnh sửa
-                                    </Link>
+                                <td className="px-6 py-4">
+                                    <PaymentStatusSelect order={order} disabled={true} />
+                                </td>
+                                <td className="px-6 py-4">
+                                    <OrderStatusSelect order={order} disabled={true} />
+                                </td>
+                                <td className="px-6 py-4">
+                                    <ShippingStatusSelect order={order} disabled={true} />
+                                </td>
+                                <td className="px-6 py-4">
+                                    <div className="text-base font-semibold">
+                                        {new Date(order.created_at).toLocaleString('vi-VN')}
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                    <div className="text-base font-semibold">
+                                        {new Intl.NumberFormat('vi-VN', {
+                                            style: 'currency',
+                                            currency: 'VND',
+                                        }).format(order.total_amount)}
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                    <DeleteConfirmationModal
+                                        data={`Bạn có chắc chắn muốn xóa vĩnh viễn đơn hàng: ${order.fullname} không?`}
+                                        id={order.id}
+                                        onDelete={() => handleDelete(order.id)}
+                                    />
                                 </td>
                             </tr>
                         ))}

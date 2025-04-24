@@ -5,6 +5,7 @@ import { productService } from "../../../services/api-products";
 import { QuillEditor } from "../../../components/quilleditor";
 
 export const Update_Product = () => {
+    const urlSRC = import.meta.env.VITE_URL_IMG;
     const { id } = useParams();
     const [product, setProduct] = useState({});
     const [variants, setVariants] = useState([{ size: '', sku: '', price: '', promotional_price: '', stock_quantity: '' }]);
@@ -259,8 +260,8 @@ export const Update_Product = () => {
                                         ? avatar
                                         : (avatar.startsWith('data:image/jpeg;base64,')
                                             ? avatar
-                                            : `http://localhost:8000/storage/${avatar}`)
-                                    }
+                                            : urlSRC + avatar
+                                        )}
                                     alt="Xem trước ảnh"
                                     className="max-w-full h-auto max-h-64 rounded-lg border border-gray-300"
                                 />
@@ -318,7 +319,7 @@ export const Update_Product = () => {
                                     <img
                                         src={image.img && (image.img.startsWith('http://') || image.img.startsWith('https://'))
                                             ? image.img
-                                            : `http://localhost:8000/storage/${image.img}`}
+                                            : urlSRC + image.img}
                                         alt={`existing-${index}`}
                                         className="max-w-full h-auto max-h-64 rounded-lg border border-gray-300"
                                     />

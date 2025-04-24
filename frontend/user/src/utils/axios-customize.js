@@ -1,5 +1,6 @@
 import axios from "axios";
 import { message, notification } from "antd";
+import { AntNotification } from "../components/notification";
 
 
 const baseUrl = import.meta.env.VITE_API_URL;
@@ -36,6 +37,19 @@ instance.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       localStorage.removeItem("token");
       window.location.href = "/login";
+    }
+    if (error.response && error.response.status === 403) {
+      window.location.replace("/admin/forbidden");
+      AntNotification.showNotification(
+        "Không có quyền truy cập",
+        "Bạn không có quyền thực hiện hành động này.",
+        "warning"
+      );
+    }
+    if (error.response && error.response.status === 500) {
+      message.error("Đã có lỗi xảy ra, vui lòng thử lại.");
+    } else if (error.response && error.response.status === 404) {
+      message.warning("Không tìm thấy tài nguyên yêu cầu.");
     }
     return Promise.reject(error);
   }

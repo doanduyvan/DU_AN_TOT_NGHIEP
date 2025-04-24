@@ -14,6 +14,7 @@ import { Pagination } from 'antd';
 
 
 
+
 export const Orders = () => {
     const [orders, setOrders] = useState([]);
     const [selectedOrders, setSelectedOrders] = useState([]);
@@ -30,6 +31,7 @@ export const Orders = () => {
 
     const openModal = async (id) => {
         const res = await OrderService.getOrderById(id);
+        console.log(res);
         setOrderDetail(res);
     };
     const closeModal = () => {

@@ -16,20 +16,14 @@ const apiDelete = async (url, data) => {
   return response;
 };
 
-const commentNewsService = {
+const NotificationService = {
 
-  getComments: async ({ page, per_page, sortorder, keyword }) => {
-    return apiGet("/comment-news", {
-      params: { page, per_page, sortorder, keyword},
-    });
+  getCountOrder: async () => {
+    return apiGet("/notifications/order");
   },
 
-  getCommentById: async (id) => {
-    return apiGet(`/comment-news/getbyid/${id}`);
-  },
-
-  create: async (data) => {
-    return apiPost("/comment-news/create", data);
+  getProduct: async (data) => {
+    return apiGet("/notifications/product");
   },
   update: async (id, data) => {
     return apiPost(`/comment-news/update/${id}`, data);
@@ -44,4 +38,4 @@ const commentNewsService = {
     return apiGet("/comment_news/get-allnews");
   },
 };
-export { commentNewsService };
+export { NotificationService };

@@ -1,4 +1,4 @@
-export const PaymentStatusSelect = ({ order, onChange }) => {
+export const PaymentStatusSelect = ({ order, onChange, disabled = false }) => {
     const PaymentStatus = [
         { id: 1, name: "Chưa thanh toán" },
         { id: 2, name: "Đã thanh toán" },
@@ -12,6 +12,7 @@ export const PaymentStatusSelect = ({ order, onChange }) => {
       <select
         name="payment_status"
         value={order.payment_status}
+        disabled={disabled}
         onChange={(e) => handleStatusChange(e.target.value)}
         className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
       >

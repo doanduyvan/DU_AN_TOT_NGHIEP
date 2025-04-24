@@ -25,7 +25,8 @@ class Order extends Model
         'shipping_fee',
         'payment_status',
         'shipping_status',
-        'note'
+        'note',
+        'created_by_admin'
     ];
     public function user()
     {

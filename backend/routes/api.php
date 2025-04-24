@@ -33,7 +33,7 @@ use App\Http\Controllers\Trashed\TrashedNewsController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\BannerController;
-
+use App\Http\Controllers\NotificationController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -44,6 +44,10 @@ use App\Http\Controllers\BannerController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+route::group(['prefix' => 'notifications'], function () {
+    Route::get('order', [NotificationController::class, 'notificationOrder']);
+    Route::get('product', [NotificationController::class, 'notificationProduct']);
+});
 
 route::group(['prefix' => 'vouchers'], function () {
     Route::get('/', [VoucherController::class, 'index'])->middleware('auth:sanctum');
@@ -62,83 +66,65 @@ route::group(['prefix' => 'banners'], function () {
     Route::post('/destroy', [BannerController::class, 'destroy'])->middleware('check.permission:delete-banner');
 });
 
-
 Route::get('/provinces', [LocationController::class, 'getProvinces']);
 Route::get('/districts/{provinceCode}', [LocationController::class, 'getDistrictsByProvince']);
 Route::get('/wards/{districtCode}', [LocationController::class, 'getWardsByDistrict']);
 
-route::post('orders/search-by-phone', [OrderController::class, 'searchByPhone']);
+Route::group(['prefix' => 'statisticals'], function () {
+    Route::get('product-performance', [ChartDataController::class, 'getProductPerformance']);
+    Route::get('get-order-year', [ChartDataController::class, 'getOrderYear']);
+    Route::get('get-order-statistics/{year}', [ChartDataController::class, 'getOrderStatistics']);
+});
 
+Route::group(['prefix' => 'orders'], function () {
+    Route::get('/', [OrderController::class, 'index']);
+    Route::get('get-product-variant', [OrderController::class, 'getProductVariant']);
+    Route::get('get-order-count', [OrderController::class, 'getOrderCount']);
+    Route::get('category-products', [OrderController::class, 'getCategoryProducts']);
+    Route::post('update/{id}', [OrderController::class, 'update'])->middleware('check.permission:update-order');
+    route::post('search-variant-product', [ProductsController::class, 'searchVariantProduct'])->middleware('check.permission:update-order,create-order');
+    Route::post('destroy', [OrderController::class, 'destroy'])->middleware('check.permission:delete-order');
+    Route::post('create', [OrderController::class, 'create'])->middleware('check.permission:create-order');
+    Route::post('create-user', [OrderController::class, 'createUser'])->middleware('check.permission:create-order');
+    Route::post('update-order-status/{id}', [OrderController::class, 'updateOrderStatus'])->middleware('check.permission:update-order');
+    Route::post('update-payment-status/{id}', [OrderController::class, 'updatePaymentStatus'])->middleware('check.permission:update-order');
+    Route::post('update-shipping-status/{id}', [OrderController::class, 'updateShippingStatus'])->middleware('check.permission:update-order');
+    Route::post('update-order-detail', [OrderController::class, 'updateOrderDetail'])->middleware('check.permission:update-order');
+    Route::post('destroy-order-detail/{id}', [OrderController::class, 'deleteOrderDetail'])->middleware('check.permission:update-order');
+    Route::post('update-quantities', [OrderController::class, 'updateQuantities'])->middleware('check.permission:update-order');
+    Route::get('getbyid/{id}', [OrderController::class, 'getOrderById'])->middleware('check.permission:update-order');
+    route::post('search-by-phone', [OrderController::class, 'searchByPhone'])->middleware('check.permission:update-order');
+    route::get('trash', [TrashedOrderController::class, 'index'])->middleware('check.permission:delete-order');
+    route::get('trash/{id}', [TrashedOrderController::class, 'getOrderTrashById'])->middleware('check.permission:delete-order');
+    route::post('restore', [TrashedOrderController::class, 'restore'])->middleware('check.permission:delete-order');
+    route::delete('force-delete/{id}', [TrashedOrderController::class, 'forceDelete'])->middleware('check.permission:delete-order');
 
-route::get('/users/trash', [TrashedUserController::class, 'index']);
-route::post('/users/restore', [TrashedUserController::class, 'restore']);
-route::delete('/users/force-delete/{id}', [TrashedUserController::class, 'forceDelete']);
-
-route::get('/roles/trash', [TrashedRoleController::class, 'index']);
-route::post('/roles/restore', [TrashedRoleController::class, 'restore']);
-route::delete('/roles/force-delete/{id}', [TrashedRoleController::class, 'forceDelete']);
-
-route::get('/products/trash', [TrashedProductController::class, 'index']);
-route::post('/products/restore', [TrashedProductController::class, 'restore']);
-route::delete('/products/force-delete/{id}', [TrashedProductController::class, 'forceDelete']);
-
-route::get('/permissions/trash', [TrashedPermissionController::class, 'index']);
-route::post('/permissions/restore', [TrashedPermissionController::class, 'restore']);
-route::delete('/permissions/force-delete/{id}', [TrashedPermissionController::class, 'forceDelete']);
-
-route::get('/orders/trash', [TrashedOrderController::class, 'index']);
-route::post('/orders/restore', [TrashedOrderController::class, 'restore']);
-route::delete('/orders/force-delete/{id}', [TrashedOrderController::class, 'forceDelete']);
-
-route::get('/news/trash', [TrashedNewsController::class, 'index']);
-route::post('/news/restore', [TrashedNewsController::class, 'restore']);
-route::delete('/news/force-delete/{id}', [TrashedNewsController::class, 'forceDelete']);
-
-route::get('/categorynews/trash', [TrashedCategoryNewsController::class, 'index']);
-route::post('/categorynews/restore', [TrashedCategoryNewsController::class, 'restore']);
-route::delete('/categorynews/force-delete/{id}', [TrashedCategoryNewsController::class, 'forceDelete']);
-
-
-route::get('/categories/trash', [TrashedCategoryController::class, 'index']);
-route::post('/categories/restore', [TrashedCategoryController::class, 'restore']);
-route::delete('/categories/force-delete/{id}', [TrashedCategoryController::class, 'forceDelete']);
-
-
-Route::get('/statisticals/product-performance', [ChartDataController::class, 'getProductPerformance']);
-Route::get('/statisticals/get-order-year', [ChartDataController::class, 'getOrderYear']);
-Route::get('/statisticals/get-order-statistics/{year}', [ChartDataController::class, 'getOrderStatistics']);
-
-
-Route::get('orders', [OrderController::class, 'index']);
-Route::get('orders/get-product-variant', [OrderController::class, 'getProductVariant']);
-Route::get('orders/category-products', [OrderController::class, 'getCategoryProducts']);
-Route::post('orders/update/{id}', [OrderController::class, 'update']);
-Route::post('orders/destroy', [OrderController::class, 'destroy']);
-Route::post('orders/create', [OrderController::class, 'create']);
-Route::post('orders/create-user', [OrderController::class, 'createUser']);
-Route::post('orders/update-order-status/{id}', [OrderController::class, 'updateOrderStatus']);
-Route::post('orders/update-payment-status/{id}', [OrderController::class, 'updatePaymentStatus']);
-Route::post('orders/update-shipping-status/{id}', [OrderController::class, 'updateShippingStatus']);
-Route::post('orders/update-order-detail', [OrderController::class, 'updateOrderDetail']);
-Route::post('orders/destroy-order-detail/{id}', [OrderController::class, 'deleteOrderDetail']);
-Route::post('orders/update-quantities', [OrderController::class, 'updateQuantities']);
-Route::get('orders/{id}', [OrderController::class, 'getOrderById']);
-
-
+    Route::get('getorderlimit', [OrderController::class, 'getOrderLimit']);
+});
 
 Route::resource('roles', RoleController::class)->except(['create', 'show', 'destroy', 'update']);
-Route::get('roles/permissions', [RoleController::class, 'showPermissions']);
-Route::post('roles/create', [RoleController::class, 'create'])->middleware('check.permission:create-role');
-Route::get('roles/showrole/{id}', [RoleController::class, 'show'])->middleware('check.permission:update-role');
-Route::post('roles/update/{id}', [RoleController::class, 'update'])->middleware('check.permission:update-role');
-Route::post('roles/destroy', [RoleController::class, 'destroy'])->middleware('check.permission:delete-role');
+Route::group(['prefix' => 'roles'], function () {
+    Route::get('permissions', [RoleController::class, 'showPermissions']);
+    Route::post('create', [RoleController::class, 'create'])->middleware('check.permission:create-role');
+    Route::get('showrole/{id}', [RoleController::class, 'show'])->middleware('check.permission:update-role');
+    Route::post('update/{id}', [RoleController::class, 'update'])->middleware('check.permission:update-role');
+    Route::post('destroy', [RoleController::class, 'destroy'])->middleware('check.permission:delete-role');
+    route::get('trash', [TrashedRoleController::class, 'index'])->middleware('check.permission:delete-role');
+    route::post('restore', [TrashedRoleController::class, 'restore'])->middleware('check.permission:delete-role');
+    route::delete('force-delete/{id}', [TrashedRoleController::class, 'forceDelete'])->middleware('check.permission:delete-role');
+});
 
-Route::get('permissions', [PermissionController::class, 'index']);
-Route::post('permissions/create', [PermissionController::class, 'create'])->middleware('check.permission:create-permission');
-Route::get('permissions/show/{id}', [PermissionController::class, 'show'])->middleware('check.permission:update-permission');
-Route::post('permissions/update/{id}', [PermissionController::class, 'update'])->middleware('check.permission:update-permission');
-Route::post('permissions/destroy', [PermissionController::class, 'destroy'])->middleware('check.permission:update-permission');
 
+Route::group(['prefix' => 'permissions'], function () {
+    Route::get('/', [PermissionController::class, 'index']);
+    Route::post('create', [PermissionController::class, 'create'])->middleware('check.permission:create-permission');
+    Route::get('show/{id}', [PermissionController::class, 'show'])->middleware('check.permission:update-permission');
+    Route::post('update/{id}', [PermissionController::class, 'update'])->middleware('check.permission:update-permission');
+    Route::post('destroy', [PermissionController::class, 'destroy'])->middleware('check.permission:update-permission');
+    route::get('trash', [TrashedPermissionController::class, 'index'])->middleware('check.permission:delete-permission');
+    route::post('restore', [TrashedPermissionController::class, 'restore'])->middleware('check.permission:delete-permission');
+    route::delete('force-delete/{id}', [TrashedPermissionController::class, 'forceDelete'])->middleware('check.permission:delete-permission');
+});
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -154,65 +140,81 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/logout-all', [AuthController::class, 'logoutAll']);
     Route::get('/me', [AuthController::class, 'me']);
-    Route::get('/users', [UserController::class, 'index']);
 });
 
-route::post('/users/destroy', [UserController::class, 'destroy'])->middleware('check.permission:delete-customer');
-Route::middleware('check.permission:update-customer')->group(function () {
-    route::post('/users/search-users', [UserController::class, 'searchUser']);
-    Route::post('/users/updatestatus', [UserController::class, 'updateStatus']);
-    Route::post('/users/rolelevel/{id}', [UserController::class, 'roleLevel']);
-    Route::post('/users/update/{id}', [UserController::class, 'updateUser']);
-    Route::get('/users/showroles', [UserController::class, 'showRoles']);
-    route::get('/users/{id}', [UserController::class, 'getUserById']);
+Route::group(['prefix' => 'users'], function () {
+    route::get('/', [UserController::class, 'index']);
+    route::get('get-user-count', [UserController::class, 'getUserCount']);
+    route::post('destroy', [UserController::class, 'destroy'])->middleware('check.permission:delete-customer');
+    Route::post('updatestatus', [UserController::class, 'updateStatus'])->middleware('check.permission:update-customer');
+    Route::post('rolelevel/{id}', [UserController::class, 'roleLevel'])->middleware('check.permission:update-customer');
+    Route::post('update/{id}', [UserController::class, 'updateUser'])->middleware('check.permission:update-customer');
+    Route::get('showroles', [UserController::class, 'showRoles'])->middleware('check.permission:update-customer');
+    route::get('/getbyid/{id}', [UserController::class, 'getUserById'])->middleware('check.permission:update-customer');
+    route::get('trash', [TrashedUserController::class, 'index'])->middleware('check.permission:delete-customer');
+    route::post('restore', [TrashedUserController::class, 'restore'])->middleware('check.permission:delete-customer');
+    route::delete('force-delete/{id}', [TrashedUserController::class, 'forceDelete'])->middleware('check.permission:delete-customer');
+
+    Route::get('getuserlimit', [UserController::class, 'getUserLimit']);
+});
+
+Route::group(['prefix' => 'categories'], function () {
+    route::post('create', [CategoriesController::class, 'create'])->middleware('check.permission:create-category');
+    route::post('destroy', [CategoriesController::class, 'destroy'])->middleware('check.permission:delete-category');
+    route::post('update/{id}', [CategoriesController::class, 'update'])->middleware('check.permission:update-category');
+    route::get('/', [CategoriesController::class, 'index']);
+    route::get('getbyid/{id}', [CategoriesController::class, 'getCategoyById'])->middleware('check.permission:update-category');
+    route::get('trash', [TrashedCategoryController::class, 'index'])->middleware('check.permission:delete-category');
+    route::post('restore', [TrashedCategoryController::class, 'restore'])->middleware('check.permission:delete-category');
+    route::delete('force-delete/{id}', [TrashedCategoryController::class, 'forceDelete'])->middleware('check.permission:delete-category');
 });
 
 
-route::post('/categories/create', [CategoriesController::class, 'create'])->middleware('check.permission:create-category');
-route::post('/categories/destroy', [CategoriesController::class, 'destroy'])->middleware('check.permission:delete-category');
-route::post('/categories/update/{id}', [CategoriesController::class, 'update'])->middleware('check.permission:update-category');
-route::get('/categories', [CategoriesController::class, 'index']);
-route::get('/categories/getbyid/{id}', [CategoriesController::class, 'getCategoyById']);
+Route::group(['prefix' => 'categorynews'], function () {
+    route::get('/', [CategoryNewsController::class, 'index']);
+    route::get('getbyid/{id}', [CategoryNewsController::class, 'getCategoyById'])->middleware('check.permission:update-category-news');
+    route::post('create', [CategoryNewsController::class, 'create'])->middleware('check.permission:create-category-news');
+    route::post('destroy', [CategoryNewsController::class, 'destroy'])->middleware('check.permission:delete-category-news');
+    route::post('update/{id}', [CategoryNewsController::class, 'update'])->middleware('check.permission:update-category-news');
+    route::get('trash', [TrashedCategoryNewsController::class, 'index'])->middleware('check.permission:delete-category-news');
+    route::post('restore', [TrashedCategoryNewsController::class, 'restore'])->middleware('check.permission:delete-category-news');
+    route::delete('force-delete/{id}', [TrashedCategoryNewsController::class, 'forceDelete'])->middleware('check.permission:delete-category-news');
+});
 
+Route::group(['prefix' => 'products'], function () {
+    route::get('/', [ProductsController::class, 'index']);
+    route::get('get-product-count', [ProductsController::class, 'getProductCount']);
+    route::get('getcategories', [ProductsController::class, 'getAllCategories']);
+    route::post('update/{id}', [ProductsController::class, 'update'])->middleware('check.permission:update-product');
+    route::post('create', [ProductsController::class, 'create'])->middleware('check.permission:create-product');
+    route::post('destroy', [ProductsController::class, 'destroy'])->middleware('check.permission:delete-product');
+    route::get('/getbyid/{id}', [ProductsController::class, 'getProductById'])->middleware('check.permission:update-product');
+    route::get('trash', [TrashedProductController::class, 'index'])->middleware('check.permission:delete-product');
+    route::post('restore', [TrashedProductController::class, 'restore'])->middleware('check.permission:delete-product');
+    route::delete('force-delete/{id}', [TrashedProductController::class, 'forceDelete'])->middleware('check.permission:delete-product');
+});
 
-route::get('/categorynews', [CategoryNewsController::class, 'index']);
-route::get('/categorynews/getbyid/{id}', [CategoryNewsController::class, 'getCategoyById']);
-route::post('/categorynews/create', [CategoryNewsController::class, 'create'])->middleware('check.permission:create-category-news');
-route::post('/categorynews/destroy', [CategoryNewsController::class, 'destroy'])->middleware('check.permission:delete-category-news');
-route::post('/categorynews/update/{id}', [CategoryNewsController::class, 'update'])->middleware('check.permission:update-category-news');
+route::group(['prefix' => 'news'], function () {
+    route::get('/', [NewsController::class, 'index']);
+    route::get('get-category-news', [NewsController::class, 'getCategoryNews']);
+    route::post('update/{id}', [NewsController::class, 'update'])->middleware('check.permission:update-news');
+    route::post('create', [NewsController::class, 'create'])->middleware('check.permission:create-news');
+    route::post('destroy', [NewsController::class, 'destroy'])->middleware('check.permission:delete-news');
+    route::get('getbyid/{id}', [NewsController::class, 'getNewsById'])->middleware('check.permission:update-news');
+    route::get('trash', [TrashedNewsController::class, 'index'])->middleware('check.permission:delete-news');
+    route::post('restore', [TrashedNewsController::class, 'restore'])->middleware('check.permission:delete-news');
+    route::delete('force-delete/{id}', [TrashedNewsController::class, 'forceDelete'])->middleware('check.permission:delete-news');
+});
 
-route::get('/products', [ProductsController::class, 'index']);
-route::get('/products/getcategories', [ProductsController::class, 'getAllCategories']);
-route::post('/products/search-variant-product', [ProductsController::class, 'searchVariantProduct']);
-route::post('/products/search-product', [ProductsController::class, 'searchProduct']);
-route::post('/products/update/{id}', [ProductsController::class, 'update'])->middleware('check.permission:update-product');
-route::post('/products/create', [ProductsController::class, 'create'])->middleware('check.permission:create-product');
-route::post('/products/destroy', [ProductsController::class, 'destroy'])->middleware('check.permission:delete-product');
-route::get('/products/{id}', [ProductsController::class, 'getProductById'])->middleware('check.permission:update-product');
+Route::group(['prefix' => 'comment-products'], function () {
+    route::get('/', [CommentProductController::class, 'index'])->middleware('check.permission:view-comment-product');
+    route::post('destroy', [CommentProductController::class, 'destroy'])->middleware('check.permission:delete-comment-product');
+});
 
-
-route::get('/news', [NewsController::class, 'index']);
-route::get('/news/get-category-news', [NewsController::class, 'getCategoryNews']);
-route::post('/news/update/{id}', [NewsController::class, 'update'])->middleware('check.permission:update-news');
-route::post('/news/create', [NewsController::class, 'create'])->middleware('check.permission:create-news');
-route::post('/news/destroy', [NewsController::class, 'destroy'])->middleware('check.permission:delete-news');
-route::get('/news/{id}', [NewsController::class, 'getNewsById'])->middleware('check.permission:update-news');
-
-
-route::get('/comment-products', [CommentProductController::class, 'index']);
-route::post('/comment-products/create', [CommentProductController::class, 'create']);
-route::post('/comment-products/update/{id}', [CommentProductController::class, 'update']);
-route::post('/comment-products/destroy', [CommentProductController::class, 'destroy']);
-route::get('/comment-products/{id}', [CommentProductController::class, 'getById']);
-
-route::get('/comment-news', [CommentNewsController::class, 'index']);
-route::post('/comment-news/search-news', [CommentNewsController::class, 'searchNews']);
-route::get('/comment_news/get-allnews', [CommentNewsController::class, 'getAllNews']);
-route::post('/comment-news/create', [CommentNewsController::class, 'create']);
-route::post('/comment-news/update/{id}', [CommentNewsController::class, 'update']);
-route::post('/comment-news/destroy', [CommentNewsController::class, 'destroy']);
-route::get('/comment-news/{id}', [CommentNewsController::class, 'getById']);
-
+route::group(['prefix' => 'comment-news'], function () {
+    route::get('/', [CommentNewsController::class, 'index'])->middleware('check.permission:view-comment-news');
+    route::post('destroy', [CommentNewsController::class, 'destroy'])->middleware('check.permission:delete-comment-news');
+});
 
 
 Route::get('/testapi', function () {
@@ -222,9 +224,9 @@ Route::get('/testapi', function () {
 
 // route cho người dùng  
 
-Route::get('/vnpay/ipn',[CheckoutController::class, 'VnPay_IPN']);
+Route::get('/vnpay/ipn', [CheckoutController::class, 'VnPay_IPN']);
 
-Route::group(['prefix' => 'customer'],function(){
+Route::group(['prefix' => 'customer'], function () {
     Route::get('checklogin', function (Request $request) {
         return response()->json(['message' => 'Token hợp lệ'], 200);
     })->middleware('auth:sanctum');
@@ -245,15 +247,13 @@ Route::group(['prefix' => 'customer'],function(){
     Route::get('profile/get-address', [ProfileController::class, 'getAddress'])->middleware('auth:sanctum');
     Route::post('profile/add-address', [ProfileController::class, 'addAddress'])->middleware('auth:sanctum');
     Route::post('profile/delete-address/{id}', [ProfileController::class, 'deleteAddress'])->middleware('auth:sanctum');
-    Route::post('profile/set-default-address/{id}', [ProfileController::class, 'setDefaultAddress'])->middleware('auth:sanctum'); 
-    Route::get('profile/getorders',[ProfileController::class, 'getOrders'])->middleware('auth:sanctum');
-    Route::post('profile/cancel-order/{id}',[ProfileController::class, 'CancelOrder'])->middleware('auth:sanctum');
-    Route::post('profile/payment-again/{id}',[CheckoutController::class, 'PaymentAgain'])->middleware('auth:sanctum');
-    Route::get('cart/checkqtyproductvariant/{id}',[CartController::class, 'checkQtyProductVariant']);
-    Route::post('cart/getcart',[CartController::class, 'getCart']);
-    Route::post('checkout',[CheckoutController::class, 'Store'])->middleware('auth:sanctum');
-
-
+    Route::post('profile/set-default-address/{id}', [ProfileController::class, 'setDefaultAddress'])->middleware('auth:sanctum');
+    Route::get('profile/getorders', [ProfileController::class, 'getOrders'])->middleware('auth:sanctum');
+    Route::post('profile/cancel-order/{id}', [ProfileController::class, 'CancelOrder'])->middleware('auth:sanctum');
+    Route::post('profile/payment-again/{id}', [CheckoutController::class, 'PaymentAgain'])->middleware('auth:sanctum');
+    Route::get('cart/checkqtyproductvariant/{id}', [CartController::class, 'checkQtyProductVariant']);
+    Route::post('cart/getcart', [CartController::class, 'getCart']);
+    Route::post('checkout', [CheckoutController::class, 'Store'])->middleware('auth:sanctum');
 });
 
 

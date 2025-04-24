@@ -46,6 +46,7 @@ import { UsersTrash } from "./pages/admin/accounts/trash";
 import { Orders } from "./pages/admin/orders";
 import { Update_Order } from "./pages/admin/orders/update";
 import { Create_Order } from "./pages/admin/orders/create";
+import { OrdersTrash } from "./pages/admin/orders/trash";
 
 import Shop from "./pages/user/shop/shop";
 import Profile from "./pages/user/profile/profile";
@@ -75,6 +76,8 @@ import { Banners } from "./pages/admin/banners";
 import { Create_Banner } from "./pages/admin/banners/create";
 import { Update_Banner } from "./pages/admin/banners/update";
 
+import ForbiddenPage from "./components/forbiddenpage";
+
 import Checkout from "./pages/user/checkout/checkout";
 
 import ProductStatsChart from "./components/chart/product";
@@ -82,7 +85,7 @@ import ProductStatusChart from "./components/chart/status";
 import ProductPerformanceChart from "./components/chart/productper";
 import MyChart from "./components/chart/test1";
 import OrdersChart from "./components/chart/test2";
-import Revenue from "./components/chart/revenue";
+import StatisticRevenue from "./pages/admin/statistics/statistic_revenue";
 import VouchersChart from "./components/chart/voucher";
 import VnpayReturnPage from "./pages/user/vnpay/vnpayreturn";
 import VerifyEmail from "./pages/user/VerifyEmail";
@@ -141,6 +144,7 @@ function App() {
     { path: 'orders', element: < Orders /> },
     { path: 'orders/update/:id', element: < Update_Order /> },
     { path: 'orders/create', element: < Create_Order /> },
+    { path: 'orders/trash', element: < OrdersTrash /> },
 
     { path: 'category-news', element: < CategoryNews /> },
     { path: 'category-news/trash', element: < CategoryNewsTransh /> },
@@ -159,7 +163,7 @@ function App() {
     { path: 'chart', element: < ProductStatsChart /> },
     { path: 'status', element: < ProductStatusChart /> },
     { path: 'statisticals/productper', element: < ProductPerformanceChart /> },
-    { path: 'statisticals/revenue', element: < Revenue/> },
+    { path: 'statisticals/revenue', element: < StatisticRevenue/> },
 
     { path: 'vouchers', element: < Vouchers/> },
     { path: 'vouchers/create', element: < Create_Voucher/> },
@@ -172,6 +176,8 @@ function App() {
     { path: 'test1', element: < MyChart /> },
     { path: 'test2', element: < OrdersChart /> },
     { path: 'voucher', element: < VouchersChart /> },
+
+    { path: 'forbidden', element: < ForbiddenPage /> },
   ];
 
   const router = createBrowserRouter([

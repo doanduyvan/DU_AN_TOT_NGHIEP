@@ -185,7 +185,7 @@ export const AdminSidebar = () => {
                 {
                     id: "9.1",
                     name: "Thêm",
-                    link: "/admin/accounts",
+                    link: "/admin/accounts/create",
                 },
                 {
                     id: "9.2",
@@ -343,7 +343,7 @@ export const AdminSidebar = () => {
             }
             <aside
                 id="sidebar"
-                className={`flex fixed z-50 h-full top-0 left-0 pt-16 lg:flex flex-col w-64 transition-width select-none duration-300
+                className={`flex fixed z-40 h-full top-0 left-0 pt-16 lg:flex flex-col w-64 transition-width select-none duration-300
     ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
                 aria-label="Sidebar"
             >

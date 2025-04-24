@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateAccountRequest extends FormRequest
+class AccountRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,14 +23,24 @@ class UpdateAccountRequest extends FormRequest
      */
     public function rules()
     {
-        $id = $this->route('id'); // Lấy ID từ route parameter
+        $id = $this->route('id'); 
 
-        return [
+        $rules = [
             'fullname' => 'required|string',
             'email' => 'required|email|unique:users,email,' . $id,
-            'phone' => 'required|string|size:10', 
+            'phone' => 'required|string|size:10|unique:users,phone,' . $id,
             'status' => 'required|numeric',
         ];
+        if (!$id) {
+            $rules['password'] = 'required|string|min:6'; 
+        }
+
+        // Nếu có ID (update), không yêu cầu mật khẩu trừ khi thay đổi
+        if ($id) {
+            $rules['password'] = 'nullable|string|min:6';
+        }
+
+        return $rules;
     }
 
     /**
@@ -45,11 +55,15 @@ class UpdateAccountRequest extends FormRequest
             'email.required' => 'Email là bắt buộc.',
             'email.email' => 'Email không hợp lệ.',
             'email.unique' => 'Email đã được sử dụng.',
+            'phone.unique' => 'Số điện thoại đã được sử dụng.',
             'phone.required' => 'Số điện thoại là bắt buộc.',
             'phone.numeric' => 'Số điện thoại phải là dạng số.',
             'phone.size' => 'Số điện thoại phải có đúng 10 ký tự.',
             'status.required' => 'Trạng thái là bắt buộc.',
             'status.numeric' => 'Trạng thái phải là một số.',
+            'password.required' => 'Mật khẩu là bắt buộc.',
+            'password.string' => 'Mật khẩu phải là chuỗi ký tự.',
+            'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
         ];
     }
 }

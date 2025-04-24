@@ -1,13 +1,12 @@
 
 import { AntNotification } from '../../../components/notification';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { UsersService } from '../../../services/api-users';
 import { useAuth } from '../../../contexts/authcontext';
 
-export const UpdateAccount = () => {
+export const CreateAccount = () => {
     const Navigate = useNavigate();
-    const { userId } = useParams('');
     const [user, setUser] = useState({ fullname: '', status: 0 });
 
     useEffect(() => {
@@ -123,16 +122,6 @@ export const UpdateAccount = () => {
                             name="phone"
                             style={{ borderRadius: '4px', padding: '11px' }}
                             placeholder="Nhập số điện thoại"
-                            className="shadow-sm border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 w-full"
-                        />
-                    </div>
-                    <div className="mb-5">
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">Mật khẩu</label>
-                        <input type="password"
-                            defaultValue={user.password}
-                            name="password"
-                            style={{ borderRadius: '4px', padding: '11px' }}
-                            placeholder="Nhập mật khẩu"
                             className="shadow-sm border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 w-full"
                         />
                     </div>

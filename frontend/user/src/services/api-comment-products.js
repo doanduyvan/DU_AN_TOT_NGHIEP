@@ -18,10 +18,6 @@ const apiDelete = async (url, data) => {
 
 const commentProductsService = {
 
-  searchUsers: async (query) => {
-    return apiPost("/users/search-users",  query);
-  },
-
   getComments: async ({ page, per_page, sortorder, keyword }) => {
     return apiGet("/comment-products", {
       params: { page, per_page, sortorder, keyword},
@@ -29,7 +25,7 @@ const commentProductsService = {
   },
 
   getCommentById: async (id) => {
-    return apiGet(`/comment-products/${id}`);
+    return apiGet(`/comment-products/getbyid/${id}`);
   },
 
   create: async (data) => {

@@ -218,11 +218,11 @@ class AuthController extends Controller
         $messages = [
             'email.required' => 'Email không được để trống.',
             'email.email' => 'Vui lòng nhập đúng định dạng email.',
-            'email.exists' => 'Email không tồn tại trong hệ thống.',
+            'email.exists' => 'Email không tồn tại, hoặc chưa được kích hoạt.',
         ];
 
         $request->validate([
-            'email' => 'required|email|exists:users,email'
+            'email' => 'required|email|exists:users,email,is_verify,1'
         ], $messages);
 
         $token = Str::random(64);

@@ -1,19 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import { Tabs } from "antd";
 import AccountInfo from "./accountInfo";
 import ChangePassword from "./changePassword";
 import AddressBook from "./addressBook";
 import MyOrders from "./myOders";
 import { useUserContext } from "../../../context/user/userContext";
-import { Navigate } from "react-router-dom";
+import { Navigate,useSearchParams  } from "react-router-dom";
 
 const baseUrlImg = import.meta.env.VITE_URL_IMG;
 
 const Profile = () => {
-
+  const [searchParams,setSearchParams] = useSearchParams();
   const { isLoggedIn,user } = useUserContext();
+  const allowedTabs = ["1", "2", "3", "4"];
   const [activeTab, setActiveTab] = useState("1");
-  // if (!isLoggedIn) return <Navigate to="/login" />;
+  const hasInitialized = useRef(false);
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (allowedTabs.includes(tab)) setActiveTab(tab);
+    else {
+      if (activeTab !== "1") setActiveTab("1");
+      if (searchParams.get("tab") !== "1") setSearchParams({ tab: "1" });
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      return;
+    }
+
+    if (searchParams.get("tab") !== activeTab) setSearchParams({ tab: activeTab });
+
+  },[activeTab]);
+
+  if (!isLoggedIn) return <Navigate to="/login" />;
   return (
     <>
       <div className="pt-[70px]"></div>
@@ -114,16 +135,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
-        // <TabPane tab="Quản lý tài khoản" key="1">
-        //         <AccountInfo />
-        //     </TabPane>
-        //     <TabPane tab="Đơn hàng của tôi" key="4">
-        //         <MyOrders />
-        //     </TabPane>
-        //     <TabPane tab="Số địa chỉ nhận hàng" key="2">
-        //       <AddressBook />
-        //     </TabPane>
-        //     <TabPane tab="Thay đổi mật khẩu" key="3">
-        //       <ChangePassword />
-        //     </TabPane>

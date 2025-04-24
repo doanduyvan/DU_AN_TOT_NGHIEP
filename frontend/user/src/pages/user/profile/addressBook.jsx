@@ -3,6 +3,7 @@ import { Popconfirm, Button, List, Card, Select, message } from "antd";
 import  AddAddress  from "/src/components/address/addaddress";
 import AxiosUser from "../../../utils/axios_user";
 import { FullScreenLoader } from "../../../utils/helpersjsx";
+import { useUserContext } from "../../../context/user/userContext";
 const { Option } = Select;
 
 const urlAddAddress = "customer/profile/get-address";
@@ -10,6 +11,8 @@ const urlDeleteAddress = "customer/profile/delete-address/";
 const urlSetDefaultAddress = "customer/profile/set-default-address/";
 
 const AddressBook = () => {
+
+    const { isLoggedIn } = useUserContext();
 
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -47,7 +50,7 @@ const AddressBook = () => {
       }
     };
     fetchAddresses();
-  },[forceReload]);
+  },[forceReload,isLoggedIn]);
 
   const handleDeleteAddress = async (id) => {
     try {

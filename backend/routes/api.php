@@ -237,12 +237,20 @@ Route::group(['prefix' => 'customer'], function () {
     Route::get('shop/getcategory', [ShopController::class, 'getCategory']);
     Route::get('shop/getproducts', [ShopController::class, 'getProducts']);
     Route::get('shop/getvariantfilter', [ShopController::class, 'getVariantFilter']);
+    Route::get('productdetail/getproductbyid/{id}',[ProductdetailController::class, 'getProductById']);
+    Route::get('productdetail/getrelatedproducts/{id}',[ProductdetailController::class, 'getRelatedProducts']);
+    Route::post('productdetail/add-comment',[ProductdetailController::class, 'Comment'])->middleware('auth:sanctum');
+    Route::get('productdetail/get-comment/{id}',[ProductdetailController::class, 'getComment']);
+    Route::post('productdetail/delete-comment/{id}',[ProductdetailController::class, 'deleteComment'])->middleware('auth:sanctum');
+    Route::get('news/categorynews',[CustomerNewsController::class, 'getCategoryNews']);
+    Route::get('news/getnews',[CustomerNewsController::class, 'getNews']);
+    Route::get('newsdetail/getnewsbyid/{id}',[NewsdetailController::class, 'getNewsById']);
+    Route::get('newsdetail/getnewsrelated/{id}',[NewsdetailController::class, 'getNewsRelated']);
+    Route::post('newsdetail/add-comment',[NewsdetailController::class, 'Comment'])->middleware('auth:sanctum');
+    Route::get('newsdetail/get-comment/{id}',[NewsdetailController::class, 'getComment']);
+    Route::post('newsdetail/delete-comment/{id}',[NewsdetailController::class, 'deleteComment'])->middleware('auth:sanctum');
     Route::get('productdetail/getproductbyid/{id}', [ProductdetailController::class, 'getProductById']);
     Route::get('productdetail/getrelatedproducts/{id}', [ProductdetailController::class, 'getRelatedProducts']);
-    Route::get('news/categorynews', [CustomerNewsController::class, 'getCategoryNews']);
-    Route::get('news/getnews', [CustomerNewsController::class, 'getNews']);
-    Route::get('newsdetail/getnewsbyid/{id}', [NewsdetailController::class, 'getNewsById']);
-    Route::get('newsdetail/getnewsrelated/{id}', [NewsdetailController::class, 'getNewsRelated']);
     Route::post('profile/update-avatar', [ProfileController::class, 'updateAvatar'])->middleware('auth:sanctum');
     Route::post('profile/update-info', [ProfileController::class, 'updateInfo'])->middleware('auth:sanctum');
     Route::get('profile/get-address', [ProfileController::class, 'getAddress'])->middleware('auth:sanctum');
@@ -255,6 +263,16 @@ Route::group(['prefix' => 'customer'], function () {
     Route::get('cart/checkqtyproductvariant/{id}', [CartController::class, 'checkQtyProductVariant']);
     Route::post('cart/getcart', [CartController::class, 'getCart']);
     Route::post('checkout', [CheckoutController::class, 'Store'])->middleware('auth:sanctum');
+    Route::post('profile/set-default-address/{id}', [ProfileController::class, 'setDefaultAddress'])->middleware('auth:sanctum'); 
+    Route::get('profile/getorders',[ProfileController::class, 'getOrders'])->middleware('auth:sanctum');
+    Route::post('profile/cancel-order/{id}',[ProfileController::class, 'CancelOrder'])->middleware('auth:sanctum');
+    Route::post('profile/payment-again/{id}',[CheckoutController::class, 'PaymentAgain'])->middleware('auth:sanctum');
+    Route::post('profile/change-password',[ProfileController::class, 'ChangePassword'])->middleware('auth:sanctum');
+    Route::get('cart/checkqtyproductvariant/{id}',[CartController::class, 'checkQtyProductVariant']);
+    Route::post('cart/getcart',[CartController::class, 'getCart']);
+    Route::post('checkout',[CheckoutController::class, 'Store'])->middleware('auth:sanctum');
+
+
 });
 
 

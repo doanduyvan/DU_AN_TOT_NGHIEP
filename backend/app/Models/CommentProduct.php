@@ -13,6 +13,8 @@ class CommentProduct extends Model
         'content',
         'rating',
         'product_id',
+        'is_verified_buyer',
+        'is_admin',
         'user_id',
         'comment_product_id',
     ];
@@ -52,5 +54,30 @@ class CommentProduct extends Model
     public function scopeWithRelations($query)
     {
         return $query->with(['product', 'user']);
+    }
+    public function scopeWithCount($query)
+    {
+        return $query->withCount(['product', 'user']);
+    }
+    public function scopeWithTrashed($query)
+    {
+        return $query->withTrashed();
+    }
+    public function scopeOnlyTrashed($query)
+    {
+        return $query->onlyTrashed();
+    }
+    public function scopeRestore($query)
+    {
+        return $query->restore();
+    }
+    public function scopeForceDelete($query)
+    {
+        return $query->forceDelete();
+    }
+
+    public function replies()
+    {
+        return $this->hasMany(CommentProduct::class, 'comment_product_id');
     }
 }

@@ -28,8 +28,8 @@ const UsersService = {
   getUserCount: async () => {
     return apiGet("/users/get-user-count");
   },
-  login: async (credentials) => {
-    return apiPost("/login", credentials);
+  create: async (formData) => {
+    return apiPost("/users/create", formData);
   },
   upadteStatus: async (data) => {
     return apiPost("/users/updatestatus", data);

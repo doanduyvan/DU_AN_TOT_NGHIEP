@@ -8,7 +8,6 @@ import { Pagination } from 'antd';
 
 export const Users = () => {
     const urlSRC = import.meta.env.VITE_URL_IMG;
-    const [imageSrc, setImageSrc] = useState(null);
     const [users, setUser] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -17,14 +16,6 @@ export const Users = () => {
     const [sortorder, setSortOrder] = useState(null);
     const [keyword, setKeyword] = useState("");
     const [inputValue, setInputValue] = useState('');
-
-    const openModal = (src) => {
-        setImageSrc(src);
-    };
-
-    const closeModal = () => {
-        setImageSrc(null);
-    };
 
     const checkUser = (e, id) => {
         setSelectedUsers((prevselectedUsers) => {
@@ -170,6 +161,12 @@ export const Users = () => {
                     <h5 className="text-xl font-medium leading-tight text-primary">
                         Quản Lý Tài Khoản
                     </h5>
+                    <Link
+                        to="/admin/accounts/create"
+                        className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
+                    >
+                        Thêm Tài Khoản
+                    </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
                     <div>

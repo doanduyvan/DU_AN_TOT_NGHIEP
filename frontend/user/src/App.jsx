@@ -39,6 +39,7 @@ import RegisterForm from './components/auth/register';
 import CartPage from "./components/cartPage/cartPage";
 
 import { Users } from "./pages/admin/accounts";
+import { CreateAccount } from "./pages/admin/accounts/create";
 import { Set_User_Role } from "./pages/admin/accounts/rolelevel";
 import { UpdateAccount } from "./pages/admin/accounts/update";
 import { UsersTrash } from "./pages/admin/accounts/trash";
@@ -107,10 +108,10 @@ function App() {
     { path: 'news', element: <News /> },
     { path: 'news/:id/:categoryname', element: <NewsDetail /> },
     { path: 'contact', element: <ContactPage /> },
-    { path: 'checkout',element: <Checkout />},
-    { path: 'vnpay-return', element: <VnpayReturnPage />},
-    { path: 'verify-email', element: <VerifyEmail />},
-    { path: 'reset-password', element: <ResetPassword />},
+    { path: 'checkout', element: <Checkout /> },
+    { path: 'vnpay-return', element: <VnpayReturnPage /> },
+    { path: 'verify-email', element: <VerifyEmail /> },
+    { path: 'reset-password', element: <ResetPassword /> },
 
   ];
 
@@ -127,6 +128,7 @@ function App() {
     { path: 'permissions/trash', element: < PermissionsTrash /> },
 
     { path: 'accounts/', element: < Users /> },
+    { path: 'accounts/create', element: < CreateAccount /> },
     { path: 'accounts/rolelevel/:userId', element: < Set_User_Role /> },
     { path: 'accounts/update/:userId', element: < UpdateAccount /> },
     { path: 'accounts/trash', element: < UsersTrash /> },
@@ -159,19 +161,19 @@ function App() {
     { path: 'comment-products', element: < Comment_Products /> },
 
     { path: 'comment-news', element: < Comment_News /> },
-    
+
     { path: 'chart', element: < ProductStatsChart /> },
     { path: 'status', element: < ProductStatusChart /> },
     { path: 'statisticals/productper', element: < ProductPerformanceChart /> },
-    { path: 'statisticals/revenue', element: < StatisticRevenue/> },
+    { path: 'statisticals/revenue', element: < StatisticRevenue /> },
 
-    { path: 'vouchers', element: < Vouchers/> },
-    { path: 'vouchers/create', element: < Create_Voucher/> },
-    { path: 'vouchers/update/:voucherId', element: < Update_Voucher/> },
+    { path: 'vouchers', element: < Vouchers /> },
+    { path: 'vouchers/create', element: < Create_Voucher /> },
+    { path: 'vouchers/update/:voucherId', element: < Update_Voucher /> },
 
-    {path: 'banners', element: <Banners />},
-    {path: 'banners/create', element: <Create_Banner />},
-    {path: 'banners/update/:bannerId', element: <Update_Banner />},
+    { path: 'banners', element: <Banners /> },
+    { path: 'banners/create', element: <Create_Banner /> },
+    { path: 'banners/update/:bannerId', element: <Update_Banner /> },
 
     { path: 'test1', element: < MyChart /> },
     { path: 'test2', element: < OrdersChart /> },

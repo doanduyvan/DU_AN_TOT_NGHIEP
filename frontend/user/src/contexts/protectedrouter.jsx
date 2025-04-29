@@ -4,7 +4,6 @@ import { useAuth } from './authcontext';
 
 const ProtectedRoute = ({ children }) => {
     const { currentUser, isAuthenticated, permissions } = useAuth();
-    console.log(permissions);
     if (isAuthenticated) {
         if (permissions && permissions.length > 0) {
             return <Navigate to="/admin" />;

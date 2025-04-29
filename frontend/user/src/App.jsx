@@ -195,7 +195,7 @@ function App() {
       ]
     },
     {
-      path: '/admin/',
+      path: '/admin',
       element: <CheckRoute role={'Users'}><AdminLayout /></CheckRoute>,
       children: [
         {

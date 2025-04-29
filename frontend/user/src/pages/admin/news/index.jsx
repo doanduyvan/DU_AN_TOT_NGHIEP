@@ -258,6 +258,9 @@ export const NewsAdmin = () => {
                                 Hình ảnh
                             </th>
                             <th scope="col" className="px-6 py-3">
+                                Người tạo
+                            </th>
+                            <th scope="col" className="px-6 py-3">
                                 Action
                             </th>
                         </tr>
@@ -310,6 +313,9 @@ export const NewsAdmin = () => {
                                         Hình ảnh
                                     </a>
                                     <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
+                                </td>
+                                <td className="px-6 py-4 text-gray-700 tracking-wide">
+                                    {item.user?.fullname || 'Không có người tạo'}
                                 </td>
                                 <td className="px-6 py-4">
                                     <Link

@@ -115,6 +115,7 @@ export const Categories = () => {
         const sortOrder = value === "asc" ? "asc" : "desc";
         setSortOrder(sortOrder);
     };
+    console.log(selectedCategories);
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <nav className="rounded-md w-full">

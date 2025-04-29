@@ -10,8 +10,9 @@ use Illuminate\Database\QueryException;
 class TrashedOrderController extends Controller
 {
     public function index(){
-        $filters = request()->only(['per_page', 'sortorder', 'keyword']);
+        $filters = request()->only(['per_page', 'sortorder', 'keyword', 'filter_status', 'filter_payment_status', 'filter_shipping_status']);
         $orders = Order::onlyTrashed()->search($filters['keyword'] ?? null)
+        ->filterStatus($filters ?? null)
         ->applyFilters($filters);
         $orders->load('user');
         $orders->getCollection()->transform(function ($order) {
@@ -19,6 +20,12 @@ class TrashedOrderController extends Controller
             return $order;
         });
         return response()->json($orders);
+    }
+
+    public function getOrderTrashById($id)
+    {
+        $order = Order::onlyTrashed()->with('orderDetails.productvariant.product')->find($id);
+        return response()->json($order);
     }
 
     public function restore(Request $request)

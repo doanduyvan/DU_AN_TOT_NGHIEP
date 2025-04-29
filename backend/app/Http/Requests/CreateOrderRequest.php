@@ -13,7 +13,7 @@ class CreateOrderRequest extends FormRequest
      */
     public function authorize()
     {
-        return true; 
+        return true;
     }
 
     /**
@@ -27,9 +27,9 @@ class CreateOrderRequest extends FormRequest
             'payment_status' => 'required|numeric',
             'shipping_status' => 'required|numeric',
             'status' => 'required|numeric',
-            'shipping_fee' => 'required|numeric',
-            'fullname' => 'required|string|min:3|max:255', 
-            'phone' => 'required|string|size:10', 
+            'shipping_fee' => 'required|numeric|min:0', // Kiểm tra phí vận chuyển có giá trị dương
+            'fullname' => 'required|string|min:3|max:255',
+            'phone' => ['required', 'string', 'size:10', 'regex:/^0[3-9]{1}[0-9]{8}$/'], // Kiểm tra số điện thoại đúng định dạng (10 ký tự, bắt đầu bằng 0 và theo đúng mẫu số điện thoại ở VN)
             'shipping_address' => 'required|string|max:255',
             'payment_method' => 'required|string|max:50',
             'carrier' => 'nullable|string|max:50',
@@ -41,11 +41,6 @@ class CreateOrderRequest extends FormRequest
         ];
     }
 
-    /**
-     * Get the custom messages for the validation rules.
-     *
-     * @return array
-     */
     public function messages()
     {
         return [
@@ -57,13 +52,11 @@ class CreateOrderRequest extends FormRequest
             'status.numeric' => 'Trạng thái đơn hàng phải là một số.',
             'shipping_fee.required' => 'Phí vận chuyển là bắt buộc.',
             'shipping_fee.numeric' => 'Phí vận chuyển phải là một số.',
-            'fullname.required' => 'Tên đầy đủ là bắt buộc.',
-            'fullname.string' => 'Tên đầy đủ phải là một chuỗi ký tự.',
-            'fullname.min' => 'Tên đầy đủ phải có ít nhất 3 ký tự.',
-            'fullname.max' => 'Tên đầy đủ không được vượt quá 255 ký tự.',
+            'shipping_fee.min' => 'Phí vận chuyển phải lớn hơn hoặc bằng 0.',
             'phone.required' => 'Số điện thoại là bắt buộc.',
             'phone.string' => 'Số điện thoại phải là một chuỗi ký tự.',
             'phone.size' => 'Số điện thoại phải có đúng 10 ký tự.',
+            'phone.regex' => 'Số điện thoại không đúng định dạng. Vui lòng nhập lại.',
             'shipping_address.required' => 'Địa chỉ giao hàng là bắt buộc.',
             'shipping_address.string' => 'Địa chỉ giao hàng phải là một chuỗi ký tự.',
             'shipping_address.max' => 'Địa chỉ giao hàng không được vượt quá 255 ký tự.',

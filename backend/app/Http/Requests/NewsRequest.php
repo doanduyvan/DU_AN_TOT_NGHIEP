@@ -25,7 +25,7 @@ class NewsRequest extends FormRequest
     {
         $rules = [
             'category_news_id' => 'required|exists:category_news,id',
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:news,title,' . $this->route('id'),
             'content' => 'string',
             'avatar' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ];
@@ -36,6 +36,7 @@ class NewsRequest extends FormRequest
         return [
             'category_news_id.required' => 'Danh mục không được để trống',
             'category_news_id.exists' => 'Danh mục không tồn tại',
+            'title.unique' => 'Tin đã tồn tại',
             'title.required' => 'Tiêu đề không được để trống',
             'title.string' => 'Tiêu đề phải là chuỗi',
             'title.max' => 'Tiêu đề không được vượt quá 255 ký tự',

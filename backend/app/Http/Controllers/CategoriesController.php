@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Category;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\QueryException;
+use App\Http\Requests\CategoryRequest;
 
 class CategoriesController extends Controller
 {
@@ -25,12 +26,9 @@ class CategoriesController extends Controller
             'category' => $category
         ]);
     }
-    public function create(Request $request)
+    public function create(CategoryRequest $request)
     {
-        $validateData = $request->validate([
-            'category_name' => 'required|string',
-            'img' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-        ]);
+        $validateData = $request->validated();
         try {
             $path = $request->file('img')->storePublicly('uploads', 'public');
             $validateData['img'] = $path;
@@ -57,7 +55,6 @@ class CategoriesController extends Controller
                 foreach ($ids as $id) {
                     $category = Category::find($id);
 
-                    // Kiểm tra xem sản phẩm có biến thể không
                     if ($category && $category->products()->count() > 0) {
                         return response()->json(['message' => 'Không thể xóa danh mục vì có sản phẩm liên quan', 'status' => 'error'], 400);
                     }
@@ -75,12 +72,9 @@ class CategoriesController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(CategoryRequest $request, $id)
     {
-        $validateData = $request->validate([
-            'category_name' => 'required|string',
-            'img' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-        ]);
+        $validateData = $request->validated();
         try {
             $category = Category::findOrFail($id);
             if ($request->hasFile('img')) {

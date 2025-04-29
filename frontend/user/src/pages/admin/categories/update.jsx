@@ -3,24 +3,37 @@ import { AntNotification } from "../../../components/notification";
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 export const Update_Category = () => {
+    const urlImg = import.meta.env.VITE_URL_IMG;
     const Navigate = useNavigate();
     const { id } = useParams();
-
+    const [Img, setImg] = useState(null);
     const [category, setCategoryId] = useState({});
     useEffect(() => {
         const fetchCategory = async () => {
             const res = await getById(id);
             setCategoryId(res.category);
+            setImg(res.category.img);
         }
         fetchCategory();
     }, [id]);
+
+    const handleImgChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImg(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
     const handSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
         try {
             const res = await update(id, formData);
             if (res?.status === 200) {
-                AntNotification.showNotification("Cập nhật thành công",res?.message || "Cập nhật danh mục thành công", "success"
+                AntNotification.showNotification("Cập nhật thành công", res?.message || "Cập nhật danh mục thành công", "success"
                 );
                 Navigate('/admin/categories');
             } else {
@@ -35,7 +48,7 @@ export const Update_Category = () => {
             <nav className="rounded-md w-full">
                 <ol className="list-reset flex">
                     <li>
-                    <Link
+                        <Link
                             to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
@@ -74,11 +87,24 @@ export const Update_Category = () => {
                 <form onSubmit={handSubmit} className="max-w-sm mt-5" method="post">
                     <div className="mb-5">
                         <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Tên Danh Mục</label>
-                        <input type="name" name="category_name" id="name" defaultValue={category.category_name} className="shadow-sm bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required />
+                        <input type="name" name="category_name" id="name" defaultValue={category.category_name} className="shadow-sm bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" />
                     </div>
                     <div className="mb-5">
                         <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Hình ảnh</label>
-                        <input type="file" id="img" name="img" className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" />
+                        <input type="file" onChange={handleImgChange} name="img" className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" />
+                        {Img && (
+                            <div className="mt-3">
+                                <img
+                                    src={Img.startsWith('data:image/jpeg;base64,')
+                                        ? Img 
+                                        : `${urlImg + '/' + Img}` 
+                                    }
+                                    alt="Xem trước ảnh"
+                                    className="max-w-full h-auto max-h-64 rounded-lg border border-gray-300"
+                                />
+                            </div>
+                        )}
+
                     </div>
                     <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
                 </form>

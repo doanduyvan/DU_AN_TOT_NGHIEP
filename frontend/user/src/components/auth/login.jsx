@@ -15,7 +15,7 @@ const urlSendVerifyEmail = "resend-verify-email";
 const LoginForm = () => {
   const navigate = useNavigate();
   const { setUser,setIsLoggedIn } = useUserContext();
-  const { setCurrentUser } = useAuth();
+  const { setCurrentUser, setPermissions } = useAuth();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -40,9 +40,11 @@ const LoginForm = () => {
         localStorage.setItem("token", response.token);
         message.success("Đăng nhập thành công");
         const user = response.user;
+        const permissions = response.permissions || [];
         setCurrentUser(user);
         setUser(user);
         setIsLoggedIn(true);
+        setPermissions(permissions);
       } else if (response.status === 401) {
         console.log("401");
         Notification.warning({

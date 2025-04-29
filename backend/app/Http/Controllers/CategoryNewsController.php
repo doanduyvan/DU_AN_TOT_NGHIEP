@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\CategoryNews;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\CategoryNewsRequest;
 
 class CategoryNewsController extends Controller
 {
@@ -24,12 +25,9 @@ class CategoryNewsController extends Controller
             'category' => $category
         ]);
     }
-    public function create(Request $request)
+    public function create(CategoryNewsRequest $request)
     {
-        $validateData = $request->validate([
-            'category_news_name' => 'required|string',
-            'img' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-        ]);
+        $validateData = $request->validated();
         try {
             $path = $request->file('img')->storePublicly('uploads', 'public');
             $validateData['img'] = $path;
@@ -72,12 +70,9 @@ class CategoryNewsController extends Controller
         }
     }
     
-    public function update(Request $request, $id)
+    public function update(CategoryNewsRequest $request, $id)
     {
-        $validateData = $request->validate([
-            'category_news_name' => 'required|string',
-            'img' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-        ]);
+        $validateData = $request->validated();
         try {
             $category = CategoryNews::findOrFail($id);
             if ($request->hasFile('img')) {

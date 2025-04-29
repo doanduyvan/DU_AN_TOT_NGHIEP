@@ -58,7 +58,6 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-
         $messages = [
             'email.required' => 'Email không được để trống.',
             'email.email' => 'Vui lòng nhập đúng định dạng email.',
@@ -66,14 +65,11 @@ class AuthController extends Controller
             'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
             'password.max' => 'Mật khẩu không được vượt quá 255 ký tự.',
         ];
-
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string|min:6|max:255',
         ], $messages);
-
         $user = User::where('email', $request->email)->first();
-
         if ($user) {
             if ($user->is_verify == 0) {
                 return response()->json([

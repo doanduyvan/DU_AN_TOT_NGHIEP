@@ -51,7 +51,6 @@ export const Create_Order = () => {
     const [isUserResultVisible, setIsUserResultVisible] = useState(false);
     const [userLoading, setUserLoading] = useState(false);
     const userSearchRef = useRef(null);
-
     const handleChange_payment_status = (orderId, newStatus) => {
         setOrderId((order) =>
             order.id === orderId ? { ...order, payment_status: newStatus } : order
@@ -198,10 +197,19 @@ export const Create_Order = () => {
     useEffect(() => {
         setOrderId((prev) => ({
             ...prev,
-            total_amount: orderDetails.reduce((total, item) => total + item.price * (tempQuantities[item.product_variant_id] || item.quantity), 0),
-            total_quantity: orderDetails.reduce((total, item) => total + (tempQuantities[item.product_variant_id] || item.quantity), 0),
+            total_amount: orderDetails.reduce(
+                (total, item) =>
+                    total +
+                    item.price * (tempQuantities[item.product_variant_id] || item.quantity),
+                0
+            ) + parseFloat(prev.shipping_fee || 0),
+            total_quantity: orderDetails.reduce(
+                (total, item) =>
+                    total + (tempQuantities[item.product_variant_id] || item.quantity),
+                0
+            ),
         }));
-    }, [orderDetails, tempQuantities]);
+    }, [orderDetails, tempQuantities, order.shipping_fee]); 
 
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
@@ -302,7 +310,7 @@ export const Create_Order = () => {
                                 },
                                 size: variant.size,
                                 price: variant.price,
-                                quantity: tempQuantities[variant.id] || 0,
+                                quantity: 1,
                             },
                             quantity: 1,
                             price: variant.price,
@@ -314,14 +322,32 @@ export const Create_Order = () => {
     };
 
     const handleQuantityChange = (variantId, newQuantity) => {
+        // Kiểm tra nếu giá trị mới không phải là số âm
+        if (newQuantity < 0) return;
+    
         setTempQuantities(prev => ({
             ...prev,
-            [variantId]: newQuantity
+            [variantId]: newQuantity 
         }));
+    
+        setOrderDetails(prev => 
+            prev.map(item => 
+                item.product_variant_id === variantId
+                    ? { ...item, quantity: newQuantity }  // Cập nhật số lượng nếu trùng với variantId
+                    : item
+            )
+        );
     };
+    
+
 
     const handleOrderDataChange = (e) => {
         const { name, value } = e.target;
+    
+        if (name === "shipping_fee" && parseFloat(value) < 0) {
+            AntNotification.showNotification('Lỗi', 'Phí vận chuyển không được là số âm', 'error');
+            return;
+        }
         setOrderId(prev => ({
             ...prev,
             [name]: value
@@ -352,7 +378,6 @@ export const Create_Order = () => {
                     const newUser = await OrderService.createUser(userData);
                     console.log(newUser);
                     if (newUser?.status === 201) {
-                        AntNotification.showNotification('Thành công', 'Lưu tài khoản thành công', 'success');
                         userId = newUser.id;
                         setOrderId(prev => ({
                             ...prev,
@@ -701,7 +726,6 @@ export const Create_Order = () => {
                                     onChange={handleOrderDataChange}
                                     name="shipping_fee"
                                     className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-8 p-2.5"
-                                    required
                                 />
                             </div>
                         </div>
@@ -822,7 +846,7 @@ export const Create_Order = () => {
                                                 <input
                                                     type="number"
                                                     min="1"
-                                                    value={tempQuantities[product.product_variant_id] || product.quantity}
+                                                    value={tempQuantities[product.product_variant_id] || product.quantity}  // Đồng bộ giá trị nhập
                                                     onChange={(e) => handleQuantityChange(product.product_variant_id, parseInt(e.target.value))}
                                                     className="w-20 border border-gray-300 rounded px-3 py-2 text-center focus:ring-blue-500 focus:border-blue-500"
                                                 />

@@ -1,5 +1,6 @@
 export const OrderDetail = ({ orderDetail, closeModal }) => {
     if (!orderDetail) return null;
+    console.log(orderDetail);
 
     const urlSRC = import.meta.env.VITE_URL_IMG;
     const productList = orderDetail.order_details.map((item) => item);

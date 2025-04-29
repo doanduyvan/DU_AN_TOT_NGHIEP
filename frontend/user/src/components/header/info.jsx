@@ -30,12 +30,13 @@ const LoggedIn = () => {
     const { user,setUser,setIsLoggedIn } = useUserContext();
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
-    const { currentUser, setCurrentUser } = useAuth();
+    const { currentUser, setCurrentUser, setPermissions } = useAuth();
     const handleLogout = async () => {
         try {
             await AuthService.logout();
             setCurrentUser(null);
             setUser(null);
+            setPermissions([]);
             setIsLoggedIn(false);
             navigate('/');
             message.success("Đăng xuất thành công");

@@ -1,27 +1,13 @@
 
 import { AntNotification } from '../../../components/notification';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { UsersService } from '../../../services/api-users';
 import { useAuth } from '../../../contexts/authcontext';
 
-export const UpdateAccount = () => {
+export const CreateAccount = () => {
     const Navigate = useNavigate();
-    const { userId } = useParams('');
     const [user, setUser] = useState({ fullname: '', status: 0 });
-
-    useEffect(() => {
-        (async () => {
-            try {
-                const res = await UsersService.getUserById(userId);
-                console.log(res);
-                setUser(res);
-                setselectRole(res.roles.map((role) => role.id));
-            } catch (error) {
-                console.log(error.message);
-            }
-        })();
-    }, []);
     const toggleStatus = () => {
         setUser((prevUser) => {
             const updatedUser = {
@@ -33,21 +19,21 @@ export const UpdateAccount = () => {
         });
     };
 
-
     const handSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
         formData.append('status', user.status);
         formData.forEach((value, key) => {
             console.log(key, value);
-        });
+        }
+        );
         try {
-            const res = await UsersService.updateUser(formData, userId);
+            const res = await UsersService.create(formData);
             if (res?.status === 200) {
-                AntNotification.showNotification("Cập nhật thành công", res.message, "success");
+                AntNotification.showNotification("Thêm tài khoản thành công", res.message, "success");
                 Navigate('/admin/accounts');
             } else {
-                AntNotification.showNotification("Cập nhật thất bại", res.message, "error");
+                AntNotification.showNotification("Thêm tài khoản thất bại", res.message, "error");
             }
         } catch (error) {
             AntNotification.handleError(error);
@@ -85,14 +71,14 @@ export const UpdateAccount = () => {
                         </span>
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
-                        Cập nhật người dùng
+                        Thêm tài khoản
                     </li>
                 </ol>
             </nav>
             <div className="bg-white shadow rounded-lg mb-4 p-4 sm:p-6 h-full">
                 <div className="flex justify-between items-center my-2">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Cập nhật người dùng: {user?.fullname}
+                        Thêm tài khoản
                     </h5>
                 </div>
                 <form className="mt-5 max-w-sm" onSubmit={handSubmit}>
@@ -108,7 +94,7 @@ export const UpdateAccount = () => {
                     </div>
                     <div className="mb-5">
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input type="text"
+                        <input type="email"
                             defaultValue={user.email}
                             name="email"
                             style={{ borderRadius: '4px', padding: '11px' }}
@@ -129,7 +115,7 @@ export const UpdateAccount = () => {
                     <div className="mb-5">
                         <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">Mật khẩu</label>
                         <input type="password"
-                            defaultValue={user.password}
+                            defaultValue={user.passowrd}
                             name="password"
                             style={{ borderRadius: '4px', padding: '11px' }}
                             placeholder="Nhập mật khẩu"

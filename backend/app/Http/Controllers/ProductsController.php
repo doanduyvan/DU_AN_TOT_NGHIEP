@@ -32,6 +32,10 @@ class ProductsController extends Controller
         return response()->json($products);
     }
     
+    public function getProductCount(){
+        $productCount = Product::count();
+        return response()->json($productCount);
+    }
 
     public function getProductById($id)
     {
@@ -276,13 +280,6 @@ class ProductsController extends Controller
             $queryBuilder->where('sku', 'like', '%' . $query . '%');
         })->get();
         $products->load('variants');
-        return response()->json($products);
-    }
-    public function searchProduct(Request $request)
-    {
-        $query = $request->input('search_product');
-        $products = Product::where('product_name', 'like', '%' . $query . '%')->get();
-
         return response()->json($products);
     }
 }

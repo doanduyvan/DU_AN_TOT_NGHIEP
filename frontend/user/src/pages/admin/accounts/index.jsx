@@ -7,7 +7,7 @@ import DeleteConfirmationModal from "../../../components/delete_confirm";
 import { Pagination } from 'antd';
 
 export const Users = () => {
-    const [imageSrc, setImageSrc] = useState(null);
+    const urlSRC = import.meta.env.VITE_URL_IMG;
     const [users, setUser] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -16,14 +16,6 @@ export const Users = () => {
     const [sortorder, setSortOrder] = useState(null);
     const [keyword, setKeyword] = useState("");
     const [inputValue, setInputValue] = useState('');
-
-    const openModal = (src) => {
-        setImageSrc(src);
-    };
-
-    const closeModal = () => {
-        setImageSrc(null);
-    };
 
     const checkUser = (e, id) => {
         setSelectedUsers((prevselectedUsers) => {
@@ -120,7 +112,7 @@ export const Users = () => {
             AntNotification.handleError(error);
         }
     }
-    
+
     useEffect(() => {
         const debounceTimer = setTimeout(() => {
             if (inputValue !== "") {
@@ -169,6 +161,12 @@ export const Users = () => {
                     <h5 className="text-xl font-medium leading-tight text-primary">
                         Quản Lý Tài Khoản
                     </h5>
+                    <Link
+                        to="/admin/accounts/create"
+                        className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
+                    >
+                        Thêm Tài Khoản
+                    </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
                     <div>
@@ -286,7 +284,8 @@ export const Users = () => {
                                     scope="row"
                                     className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                 >
-                                    <img className="w-12 h-12 rounded-full" alt="" />
+                                    <img src={urlSRC + user.avatar} className="w-12 h-12 rounded-full" alt={user.fullname} />
+
                                     <div className="ps-3">
                                         <div className="text-base font-semibold">
                                             {user.fullname}

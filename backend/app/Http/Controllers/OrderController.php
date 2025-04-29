@@ -14,6 +14,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Models\Category;
+
 class OrderController extends Controller
 {
     //
@@ -21,13 +22,24 @@ class OrderController extends Controller
     {
         $filters = request()->only(['per_page', 'sortorder', 'keyword', 'filter_status', 'filter_payment_status', 'filter_shipping_status']);
         $orders = Order::search($filters['keyword'] ?? null)
-        ->filterStatus($filters ?? null)
-        ->applyFilters($filters);
+            ->filterStatus($filters ?? null)
+            ->applyFilters($filters);
         $orders->load('user');
         $orders->getCollection()->transform(function ($order) {
             $order->user_name = $order->user ? $order->user->fullname : null;
             return $order;
         });
+        return response()->json($orders);
+    }
+    public function getOrderLimit()
+    {
+        $orders = Order::with('orderDetails.productvariant')
+            ->orderBy('id', 'desc')->limit(5)->get();
+        return response()->json($orders);
+    }
+    public function getOrderCount()
+    {
+        $orders = Order::count();
         return response()->json($orders);
     }
     public function getOrderById($id)
@@ -40,28 +52,29 @@ class OrderController extends Controller
     {
         $filters = request()->only(['per_page', 'sortorder', 'keyword', 'filter_category']);
         $products = Product::search($filters['keyword'] ?? null)
-        ->filterCategory($filters['filter_category'] ?? null)
-        ->applyFilters($filters);
+            ->filterCategory($filters['filter_category'] ?? null)
+            ->applyFilters($filters);
         $products->load('variants');
         return response()->json($products);
     }
 
     public function getCategoryProducts()
     {
-        $categories = Category::orderBy('id', 'desc')->get();
+        $categories = Category::orderBy('created_at', 'desc')->get();
         return response()->json($categories);
     }
 
     public function create(CreateOrderRequest $request)
     {
         $validateData = $request->validated();
-        $orderNumber = strtoupper('ORD' . time() . rand(1000, 9999));
-        // Kiểm tra xem mã đơn hàng đã tồn tại trong cơ sở dữ liệu chưa
-        while (Order::where('tracking_number', $orderNumber)->exists()) {
-            // Nếu mã trùng, tạo lại mã đơn hàng
-            $orderNumber = strtoupper('ORD' . time() . rand(1000, 9999));
-        }
-        $validateData['tracking_number'] = $orderNumber;
+        // $orderNumber = strtoupper('ORD' . time() . rand(1000, 9999));
+        // // Kiểm tra xem mã đơn hàng đã tồn tại trong cơ sở dữ liệu chưa
+        // while (Order::where('tracking_number', $orderNumber)->exists()) {
+        //     // Nếu mã trùng, tạo lại mã đơn hàng
+        //     $orderNumber = strtoupper('ORD' . time() . rand(1000, 9999));
+        // }
+        // $validateData['tracking_number'] = $orderNumber;
+        $validateData['created_by_admin'] = 1;
         DB::beginTransaction();
         try {
             $user = auth()->user();
@@ -71,7 +84,9 @@ class OrderController extends Controller
             $totalAmount = collect($validateData['order_details'])->reduce(function ($total, $item) {
                 return $total + $item['price'] * $item['quantity'];
             }, 0);
-
+            if (isset($validateData['shipping_fee'])) {
+                $totalAmount += $validateData['shipping_fee'];
+            }
             $validateData['total_amount'] = $totalAmount;
             $validateData['user_id'] = $user->id;
             $order = Order::create($validateData);
@@ -97,13 +112,27 @@ class OrderController extends Controller
     }
     public function destroy(Request $request)
     {
+        DB::beginTransaction();
         $ids = $request->ids;
         if (is_array($ids) && !empty($ids)) {
             try {
-                $orders = Order::whereIn('id', $ids)->get();
-                Order::whereIn('id', $ids)->delete();
+                $orders = Order::whereIn('id', $ids)
+                    ->where('created_by_admin', 1)
+                    ->get();
+                if ($orders->isEmpty()) {
+                    return response()->json([
+                        'message' => 'Không thể xóa. Chỉ các đơn hàng được tạo bởi admin mới có thể bị xóa.',
+                        'status' => 'error'
+                    ], 400);
+                }
+                foreach ($orders as $order) {
+                    $order->orderDetails()->delete();
+                }
+                Order::whereIn('id', $orders->pluck('id'))->delete();
+                DB::commit();
                 return response()->json(['message' => 'Xóa đơn hàng thành công', 'status' => 200], 200);
             } catch (QueryException $e) {
+                DB::rollBack();
                 if ($e->getCode() == '23000') {
                     return response()->json(['message' => 'Không thể xóa đơn hàng vì có dữ liệu liên quan', 'status' => 'error'], 400);
                 }
@@ -321,14 +350,14 @@ class OrderController extends Controller
             'phone' => 'required|string|max:255',
         ]);
         $user = User::where('phone', 'LIKE', '%' . $request->phone . '%')
-        ->with('shippingAddresses')
-        ->limit(5)->get();
-            return response()->json($user);
+            ->with('shippingAddresses')
+            ->limit(5)->get();
+        return response()->json($user);
     }
 
     public function createUser(Request $request)
     {
-        $request->validate( [
+        $request->validate([
             'fullname' => 'required|string|max:255',
             'phone' => 'required|string',
             'provinces' => 'required|string|max:255',
@@ -362,7 +391,7 @@ class OrderController extends Controller
                 'user' => $user,
                 'status' => 201,
                 'message' => 'Thành công',
-        ], 201);
+            ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([

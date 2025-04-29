@@ -9,11 +9,13 @@ import { PaymentStatusSelect } from "../../../components/admin/orders/payment_st
 import { FilterShippingStatusSelect } from "../../../components/admin/orders/filter_shipping_status";
 import { ShippingStatusSelect } from "../../../components/admin/orders/shipping_status";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import RestoreConfirmationModal from "../../../components/restore_confirm";
 import { OrderDetail } from "../../../components/admin/order_detail";
 import { Pagination } from 'antd';
 
 
-export const Orders = () => {
+
+export const OrdersTrash = () => {
     const [orders, setOrders] = useState([]);
     const [selectedOrders, setSelectedOrders] = useState([]);
     const [orderDetail, setOrderDetail] = useState(null);
@@ -28,89 +30,19 @@ export const Orders = () => {
     const [inputValue, setInputValue] = useState('');
 
     const openModal = async (id) => {
-        const res = await OrderService.getOrderById(id);
-        console.log(res);
-        setOrderDetail(res);
+        const res = await OrderService.getOrderTrashById(id);
+        if (res) {
+            setOrderDetail(res);
+        }else {
+            AntNotification.showNotification(
+                "Có lỗi xảy ra",
+                res?.message || "Vui lòng thử lại sau",
+                "error"
+            );
+        }
     };
     const closeModal = () => {
         setOrderDetail(null);
-    };
-
-    const handleOrderStatusChange = async (orderId, newStatus) => {
-        try {
-            const res = await OrderService.updateOrderStatus(orderId, newStatus);
-            if (res) {
-                setOrders((orders) =>
-                    orders.map((order) =>
-                        order.id === orderId ? { ...order, status: newStatus } : order
-                    )
-                );
-                AntNotification.showNotification(
-                    "Cập nhật trạng thái thành công!",
-                    res?.message || "Vui lòng thử lại sau",
-                    "success"
-                );
-            } else {
-                AntNotification.showNotification(
-                    "Có lỗi xảy ra",
-                    res?.message || "Vui lòng thử lại sau",
-                    "error"
-                );
-            }
-        } catch (error) {
-            AntNotification.handleError(error);
-        }
-    };
-
-    const handlePaymentStatusChange = async (orderId, newStatus) => {
-        try {
-            const res = await OrderService.updatePaymentStatus(orderId, newStatus);
-            if (res) {
-                setOrders((orders) =>
-                    orders.map((order) =>
-                        order.id === orderId ? { ...order, payment_status: newStatus } : order
-                    )
-                );
-                AntNotification.showNotification(
-                    "Cập nhật trạng thái thành công!",
-                    res?.message,
-                    "success"
-                );
-            } else {
-                AntNotification.showNotification(
-                    "Có lỗi xảy ra",
-                    res?.message || "Vui lòng thử lại sau",
-                    "error"
-                );
-            }
-        } catch (error) {
-            AntNotification.handleError(error);
-        }
-    };
-    const handleShippingStatusChange = async (orderId, newStatus) => {
-        try {
-            const res = await OrderService.updateShippingStatus(orderId, newStatus);
-            if (res) {
-                setOrders((orders) =>
-                    orders.map((order) =>
-                        order.id === orderId ? { ...order, shipping_status: newStatus } : order
-                    )
-                );
-                AntNotification.showNotification(
-                    "Cập nhật trạng thái thành công!",
-                    res?.message,
-                    "success"
-                );
-            } else {
-                AntNotification.showNotification(
-                    "Có lỗi xảy ra",
-                    res?.message,
-                    "error"
-                );
-            }
-        } catch (error) {
-            AntNotification.handleError(error);
-        }
     };
 
     const checkOrder = (e, id) => {
@@ -122,28 +54,35 @@ export const Orders = () => {
             }
         });
     };
-    const hanDleDelete = async () => {
+    const hanDleRestore = async () => {
         if (selectedOrders.length === 0) {
-            AntNotification.showNotification(
-                "Chưa có đơn hàng nào được chọn",
-                "Vui lòng chọn ít nhất một đơn hàng để xóa",
-                "warning"
-            );
+            AntNotification.showNotification("Lỗi", "Không đơn hàng nào được chọn", "error");
             return;
         }
         try {
-            const res = await OrderService.destroy(selectedOrders);
+            const res = await OrderService.restore(selectedOrders);
             if (res?.status === 200) {
-                setOrders((prevOrders) => {
-                    return prevOrders.filter(
-                        (order) => !selectedOrders.includes(order.id)
-                    );
-                });
+                fetchData();
+                setSelectedOrders([]);
+                AntNotification.showNotification("Khôi phục đơn hàng thành công", res?.message, "success");
+            } else {
+                AntNotification.showNotification("Khôi phục đơn hàng thất bại", res?.message, "error");
+            }
+        } catch (error) {
+            AntNotification.handleError(error);
+        }
+    };
+    const handleDelete = async (id) => {
+        try {
+            const res = await OrderService.forceDelete(id);
+            if (res?.status === 200) {
+                setSelectedOrders([]);
                 AntNotification.showNotification(
                     "Xóa đơn hàng thành công",
-                    res?.message,
+                    res?.message || "Xóa thành công",
                     "success"
                 );
+                fetchData();
             } else {
                 AntNotification.showNotification(
                     "Có lỗi xảy ra",
@@ -157,7 +96,7 @@ export const Orders = () => {
     };
     const fetchData = async () => {
         try {
-            const res = await OrderService.getAllOrder({
+            const res = await OrderService.orderTrash({
                 page: currentPage,
                 per_page: pageSize,
                 sortorder: sortorder,
@@ -242,12 +181,8 @@ export const Orders = () => {
             <div className="relative overflow-x-auto shadow-md my-4 sm:rounded-lg bg-white">
                 <div className="flex justify-between items-center p-4">
                     <h5 className="text-xl font-medium leading-tight text-primary">
-                        Quản Lý Đơn Hàng
+                        Đơn Hàng Đã Xóa
                     </h5>
-                    <Link to="/admin/orders/create"
-                        className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto">
-                        Thêm đơn hàng
-                    </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
                     <div className="flex items-center space-x-4">
@@ -267,12 +202,10 @@ export const Orders = () => {
                         <FilterShippingStatusSelect onChange={handleFilterShippingStatusChange} />
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
-                        {(selectedOrders.length > 0) ?
-                            <DeleteConfirmationModal
-                                data={`Bạn có chắc chắn muốn xóa ${selectedOrders.length} đơn hàng này không?`}
-                                onDelete={hanDleDelete}
-                            /> : null
-                        }
+                        <RestoreConfirmationModal
+                            data={`Bạn có chắc chắn muốn khôi phục ${selectedOrders.length} đơn hàng này không?`}
+                            onDelete={hanDleRestore}
+                        />
                         <label htmlFor="table-search" className="sr-only">
                             Tìm kiếm
                         </label>
@@ -349,9 +282,6 @@ export const Orders = () => {
                                 Ngày đặt
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Người tạo
-                            </th>
-                            <th scope="col" className="px-6 py-3">
                                 Tổng tiền
                             </th>
                             <th scope="col" className="px-6 py-3">
@@ -394,7 +324,7 @@ export const Orders = () => {
                                 </th>
                                 <td className="px-6 py-4">
                                     <button
-                                        className="text-left underline cursor-pointer min-w-[100px]"
+                                        className="underline cursor-pointer"
                                         onClick={(e) => {
                                             openModal(order.id);
                                         }}
@@ -403,23 +333,18 @@ export const Orders = () => {
                                     </button>
                                     <OrderDetail orderDetail={orderDetail} closeModal={closeModal} />
                                 </td>
-                                <td className="px-6 py-4 min-w-[200px]">
-                                    <PaymentStatusSelect order={order} onChange={handlePaymentStatusChange} />
+                                <td className="px-6 py-4">
+                                    <PaymentStatusSelect order={order} disabled={true} />
                                 </td>
-                                <td className="px-6 py-4 min-w-[200px]">
-                                    <OrderStatusSelect order={order} onChange={handleOrderStatusChange} />
+                                <td className="px-6 py-4">
+                                    <OrderStatusSelect order={order} disabled={true} />
                                 </td>
-                                <td className="px-6 py-4 min-w-[200px]">
-                                    <ShippingStatusSelect order={order} onChange={handleShippingStatusChange} />
+                                <td className="px-6 py-4">
+                                    <ShippingStatusSelect order={order} disabled={true} />
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="text-base font-semibold">
                                         {new Date(order.created_at).toLocaleString('vi-VN')}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="text-base font-semibold">
-                                        {order.user.fullname}
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">
@@ -431,15 +356,11 @@ export const Orders = () => {
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <Link
-                                        to={`/admin/orders/update/${order.id}`}
-                                        type="button"
-                                        data-modal-target="editUserModal"
-                                        data-modal-show="editUserModal"
-                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                    >
-                                        Edit
-                                    </Link>
+                                    <DeleteConfirmationModal
+                                        data={`Bạn có chắc chắn muốn xóa vĩnh viễn đơn hàng: ${order.fullname} không?`}
+                                        id={order.id}
+                                        onDelete={() => handleDelete(order.id)}
+                                    />
                                 </td>
                             </tr>
                         ))}

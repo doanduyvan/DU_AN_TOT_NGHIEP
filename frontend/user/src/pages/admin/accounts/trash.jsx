@@ -8,7 +8,7 @@ import RestoreConfirmationModal from "../../../components/restore_confirm";
 import { Pagination } from 'antd';
 
 export const UsersTrash = () => {
-    const [imageSrc, setImageSrc] = useState(null);
+    const urlSRC = import.meta.env.VITE_URL_IMG;
     const [users, setUser] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -17,14 +17,6 @@ export const UsersTrash = () => {
     const [sortorder, setSortOrder] = useState(null);
     const [keyword, setKeyword] = useState("");
     const [inputValue, setInputValue] = useState('');
-
-    const openModal = (src) => {
-        setImageSrc(src);
-    };
-
-    const closeModal = () => {
-        setImageSrc(null);
-    };
 
     const checkUser = (e, id) => {
         setSelectedUsers((prevselectedUsers) => {
@@ -292,7 +284,7 @@ export const UsersTrash = () => {
                                     scope="row"
                                     className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                 >
-                                    <img className="w-12 h-12 rounded-full" alt="" />
+                                    <img src={urlSRC + user.avatar} className="w-12 h-12 rounded-full" alt={user.fullname} />
                                     <div className="ps-3">
                                         <div className="text-base font-semibold">
                                             {user.fullname}

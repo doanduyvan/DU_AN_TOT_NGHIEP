@@ -45,6 +45,7 @@ class ChartDataController extends Controller
         DB::raw('MONTH(created_at) as month'),
         DB::raw('COUNT(id) as total_order'),
         DB::raw('SUM(total_amount) as total_revenue'))
+        ->where('status', 6)
         ->whereYear('created_at', $year)
         ->groupBy(DB::raw('YEAR(created_at), MONTH(created_at)'))
         ->orderBy('month', 'asc')

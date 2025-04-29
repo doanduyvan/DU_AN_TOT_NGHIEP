@@ -45,6 +45,7 @@ export const AuthProvider = ({ children }) => {
         roles,
         loading,
         error,
+        setPermissions,
         hasPermission,
         hasRole,
         isAuthenticated: AuthService.isAuthenticated(),

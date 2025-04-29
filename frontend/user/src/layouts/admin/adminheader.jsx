@@ -10,36 +10,43 @@ const baseUrlImg = import.meta.env.VITE_URL_IMG;
 
 export const AdminHeader = () => {
     const navigate = useNavigate();
-    const { isLoggedIn, setIsLoggedIn, setUser } = useUserContext() || {};
-    const [hasNotifications, setHasNotifications] = useState(false); // Mặc định không có thông báo
+    const userContext = useUserContext();
+    const { isLoggedIn, setIsLoggedIn, setUser } = userContext || {};
+    const [hasNotifications, setHasNotifications] = useState(false);
     const [countOrder, setCountOrder] = useState(0);
     const [products, setProducts] = useState([]);
-    const { currentUser, setCurrentUser } = useAuth();
+    const { currentUser, setCurrentUser, setPermissions } = useAuth() || {};
 
     const handleLogout = async () => {
         try {
             await AuthService.logout();
             setCurrentUser(null);
             setUser(null);
-            setIsLoggedIn(false);
-            navigate('/');
+            setIsLoggedIn && setIsLoggedIn(false);
+            setPermissions([]);
             message.success("Đăng xuất thành công");
+            navigate('/');
         } catch (error) {
-            console.log(error);
+            console.error("Lỗi khi đăng xuất:", error);
+            message.error("Đăng xuất thất bại");
         }
     };
 
     useEffect(() => {
+        let isMounted = true;
+
         const fetchCountOrder = async () => {
             try {
                 const order = await NotificationService.getCountOrder();
                 const product = await NotificationService.getProduct();
-                setCountOrder(order);
+
+                if (!isMounted) return;
+
+                setCountOrder(order || 0);
                 setProducts(Array.isArray(product) ? product : []);
 
-                // Kiểm tra nếu có thông báo (đơn hàng hoặc sản phẩm hết hàng)
-                if (order > 0 || product.length > 0) {
-                    setHasNotifications(true); // Nếu có thông báo, cập nhật trạng thái
+                if ((order && order > 0) || (Array.isArray(product) && product.length > 0)) {
+                    setHasNotifications(true);
                     notification.info({
                         message: 'Thông báo',
                         description: order > 0
@@ -48,60 +55,79 @@ export const AdminHeader = () => {
                         duration: 5,
                     });
                 } else {
-                    setHasNotifications(false); // Nếu không có thông báo, set false
+                    setHasNotifications(false);
                 }
             } catch (error) {
-                console.error("Error fetching count order:", error);
+                console.error("Lỗi khi lấy dữ liệu thông báo:", error);
+                if (isMounted) {
+                    message.error("Không thể tải thông báo");
+                }
             }
         };
 
         fetchCountOrder();
-    }, []); // Chạy khi component mount
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
-    const menuNotifi = {
-        items: [
-            hasNotifications ? (
-                {
-                    label: (
-                        <Link to="/admin/orders">
-                            Có {countOrder} đơn hàng chưa được xử lý. Hãy kiểm tra ngay!
-                        </Link>
-                    ),
+    const buildNotificationMenu = () => {
+        const items = [];
+
+        if (countOrder > 0) {
+            items.push({
+                key: 'orders',
+                label: (
+                    <Link to="/admin/orders">
+                        Có {countOrder} đơn hàng chưa được xử lý. Hãy kiểm tra ngay!
+                    </Link>
+                ),
+            });
+        }
+
+        if (Array.isArray(products) && products.length > 0) {
+            products.forEach((item) => {
+                if (item && item.id && item.product_name) {
+                    items.push({
+                        key: `product-${item.id}`,
+                        label: (
+                            <Link to={`/admin/products/update/${item.id}`} className="flex">
+                                Sản phẩm: <p className="w-24 font-bold mx-1 truncate">{item.product_name}</p> hết hàng, hãy xem và nhập lại
+                            </Link>
+                        ),
+                    });
                 }
-            ) : (
-                {
-                    label: <Link>Không có thông báo nào.</Link>,
-                }
-            ),
-            ...products.length > 0
-                ? products.map((item) => ({
-                    key: item.id,
-                    label: (
-                        <Link to={`/admin/products/update/${item.id}`} className="flex">
-                            Sản phẩm: <p className="w-24 font-bold mx-1 truncate">{item.product_name}</p> hết hàng, hãy xem và nhập lại
-                        </Link>
-                    ),
-                }))
-                : [
-                    {
-                        label: <Link></Link>,
-                    },
-                ],
-        ],
+            });
+        }
+
+        if (items.length === 0) {
+            items.push({
+                key: 'no-notifications',
+                label: <span>Không có thông báo nào.</span>,
+            });
+        }
+
+        return { items };
     };
 
-    const menuUser = {
-        items: [
-            {
-                key: "profile",
-                label: <Link>{(currentUser) ? currentUser.fullname : ''}</Link>,
-            },
-            {
-                key: "logout",
-                label: <Link onClick={handleLogout} className="text-red-500">Log out</Link>,
-            },
-        ],
+    const buildUserMenu = () => {
+        return {
+            items: [
+                {
+                    key: "profile",
+                    label: <span>{currentUser ? currentUser.fullname : 'Người dùng'}</span>,
+                },
+                {
+                    key: "logout",
+                    label: <span onClick={handleLogout} className="text-red-500">Đăng xuất</span>,
+                },
+            ],
+        };
     };
+
+    // Sử dụng các function xây dựng menu
+    const menuNotifi = buildNotificationMenu();
+    const menuUser = buildUserMenu();
 
     return (
         <nav className="bg-white border-b border-gray-200 fixed z-50 w-full">
@@ -126,13 +152,14 @@ export const AdminHeader = () => {
                             <div className="flex items-center justify-center">
                                 <span className="text-base font-normal text-gray-500 mr-5">
                                     {
-                                        currentUser.avatar ? <img src={`${baseUrlImg}${currentUser.avatar}`} className="w-11 h-11 rounded-full object-cover" />
-                                            : <img src="../../src/assets/lovepik-avatar-png-image_401708318_wh1200.png" className="w-11 h-11 rounded-full object-cover" />
+                                        currentUser && currentUser.avatar
+                                            ? <img src={`${baseUrlImg}${currentUser.avatar}`} className="w-11 h-11 rounded-full object-cover" alt="Avatar" />
+                                            : <img src="../../src/assets/lovepik-avatar-png-image_401708318_wh1200.png" className="w-11 h-11 rounded-full object-cover" alt="Default avatar" />
                                     }
                                 </span>
                                 <Dropdown menu={menuUser} trigger={['click']} className="cursor-pointer">
                                     <div className="flex items-center cursor-pointer">
-                                        <span className="mr-2">{currentUser.fullname}</span>
+                                        <span className="mr-2">{currentUser ? currentUser.fullname : 'Người dùng'}</span>
                                         <svg width="12" height="12" viewBox="0 0 16 16" className="" fill="currentColor">
                                             <path d="M12 6l-4 4-4-4"></path>
                                         </svg>

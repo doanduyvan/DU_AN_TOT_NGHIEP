@@ -11,10 +11,6 @@ const apiGet = async (url, options = {}) => {
   return response;
 };
 
-const apiDelete = async (url, data) => {
-  const response = await axios.delete(url, data);
-  return response;
-};
 
 const NotificationService = {
 
@@ -24,18 +20,6 @@ const NotificationService = {
 
   getProduct: async (data) => {
     return apiGet("/notifications/product");
-  },
-  update: async (id, data) => {
-    return apiPost(`/comment-news/update/${id}`, data);
-  },
-  destroy: async (ids) => {
-    return apiPost("/comment-news/destroy", { ids });
-  },
-  getAllUsers: async () => {
-    return apiGet("/users");
-  },
-  getAllNews: async () => {
-    return apiGet("/comment_news/get-allnews");
   },
 };
 export { NotificationService };

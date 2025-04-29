@@ -16,7 +16,6 @@ export const AdminSidebar = () => {
         }
         ));
     }
-
     const Menu = [
         {
             id: "1",
@@ -147,11 +146,6 @@ export const AdminSidebar = () => {
             svg: <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M14 22.5L11.2 19H6C5.44772 19 5 18.5523 5 18V7.10256C5 6.55028 5.44772 6.10256 6 6.10256H22C22.5523 6.10256 23 6.55028 23 7.10256V18C23 18.5523 22.5523 19 22 19H16.8L14 22.5ZM15.8387 17H21V8.10256H7V17H11.2H12.1613L14 19.2984L15.8387 17ZM2 2H19V4H3V15H1V3C1 2.44772 1.44772 2 2 2Z"></path></svg>,
             sub_menu: [
                 {
-                    id: "7.1",
-                    name: "Thêm",
-                    link: "/admin/comment-news/create",
-                },
-                {
                     id: "7.2",
                     name: "Danh sách",
                     link: "/admin/comment-news",
@@ -165,11 +159,6 @@ export const AdminSidebar = () => {
             svg: <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 13.5h8m-8-5h4M6.099 19q-1.949-.192-2.927-1.172C2 16.657 2 14.771 2 11v-.5c0-3.771 0-5.657 1.172-6.828S6.229 2.5 10 2.5h4c3.771 0 5.657 0 6.828 1.172S22 6.729 22 10.5v.5c0 3.771 0 5.657-1.172 6.828S17.771 19 14 19c-.56.012-1.007.055-1.445.155c-1.199.276-2.309.89-3.405 1.424c-1.563.762-2.344 1.143-2.834.786c-.938-.698-.021-2.863.184-3.865" color="currentColor" /></svg>,
             sub_menu: [
                 {
-                    id: "8.1",
-                    name: "Thêm",
-                    link: "/admin/comment-products/create",
-                },
-                {
                     id: "8.2",
                     name: "Danh sách",
                     link: "/admin/comment-products",
@@ -178,7 +167,7 @@ export const AdminSidebar = () => {
         },
         {
             id: "9",
-            name: "Người dùng",
+            name: "Tài khoản",
             link: "/admin/accounts",
             svg: <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 32 32"><path fill="currentColor" d="M16 4a5 5 0 1 1-5 5a5 5 0 0 1 5-5m0-2a7 7 0 1 0 7 7a7 7 0 0 0-7-7zm10 28h-2v-5a5 5 0 0 0-5-5h-6a5 5 0 0 0-5 5v5H6v-5a7 7 0 0 1 7-7h6a7 7 0 0 1 7 7z" /></svg>,
             sub_menu: [
@@ -267,7 +256,7 @@ export const AdminSidebar = () => {
             id: "13",
             name: "Banner",
             link: "/admin/banners",
-            svg: <svg width={28} height={28} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect fill="none" height="256" width="256"/><polyline fill="none" points="40 216 40 48 40 48 224 48 176 108 224 168 40 168" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="12"/></svg>,
+            svg: <svg height={28} width={28} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect fill="none"/><polygon opacity="0.2" points="40 48 40 48 224 48 176 108 224 168 40 168 40 48"/><polyline fill="none" points="40 216 40 48 40 48 224 48 176 108 224 168 40 168" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/></svg>,
             sub_menu: [
                 {
                     id: "13.1",

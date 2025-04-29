@@ -1,4 +1,5 @@
 export function formatCurrency(value) {
+    if(value == 0) return '0 ₫';
     if (!value) return '';
     return Number(value).toLocaleString('vi-VN', {
       style: 'currency',

@@ -34,28 +34,6 @@ class RolePermissionSeeder extends Seeder
         $admin->assignRole($adminRole);
 
         // Nhập mảng permission tại đây:
-        $permissions = [
-            'create-product',
-            'update-product',
-            'delete-product',
-            'update-customer',
-            'delete-customer',
-            'create-category',
-            'update-category',
-            'delete-category',
-            'create-role',
-            'update-role',
-            'delete-role',
-            'create-permission',
-            'update-permission',
-            'delete-permission',
-            'create-category-news',
-            'update-category-news',
-            'delete-category-news',
-            'create-news',
-            'update-news',
-            'delete-news'
-        ];
 
         $permissions2 = [
             'create-role',
@@ -76,8 +54,23 @@ class RolePermissionSeeder extends Seeder
             'update-product',
             'update-news',
             'create-news',
-            'delete-news'
-        ];
+            'delete-news',
+            'create-banner',
+            'update-banner',
+            'delete-banner',
+            'update-voucher',
+            'create-voucher',
+            'delete-voucher',
+            'update-order',
+            'create-order',
+            'delete-order',
+            'delete-permission',
+            'view-comment-product',
+            'delete-comment-product',
+            'view-comment-news',
+            'delete-comment-news',
+            'create-customer'
+        ]; 
 
         // Tạo permission và gán cho Admin
         foreach ($permissions2 as $permission) {

@@ -128,6 +128,7 @@ Route::group(['prefix' => 'permissions'], function () {
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login-google', [AuthController::class, 'loginGoogle']);
 Route::get('/verify-email', [AuthController::class, 'verifyEmail']);
 Route::post('/forgot-password', [AuthController::class, 'sendResetPasswordEmail']);
 Route::get('/check-reset-token', [AuthController::class, 'checkResetToken']);

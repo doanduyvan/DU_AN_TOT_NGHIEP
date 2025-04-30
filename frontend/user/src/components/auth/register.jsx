@@ -82,7 +82,7 @@ const RegisterForm = () => {
           Bạn đã có tài khoản? <NavLink to='/login' className="text-blue-500">Đăng nhập</NavLink>
         </p>
 
-        <div className="my-4 flex items-center justify-center">
+        {/* <div className="my-4 flex items-center justify-center">
           <span className="h-px w-full bg-gray-300"></span>
           <span className="mx-3 text-gray-400 text-sm">or</span>
           <span className="h-px w-full bg-gray-300"></span>
@@ -90,7 +90,7 @@ const RegisterForm = () => {
 
         <div className="flex justify-center space-x-4">
           <Button shape="circle" icon={<GoogleOutlined />} />
-        </div>
+        </div> */}
       </div>
     </div>
     <FullScreenLoader visible={loading} tip='vui lòng đợi trong giây lát...' />

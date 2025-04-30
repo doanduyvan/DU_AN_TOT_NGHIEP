@@ -1,8 +1,11 @@
-import React from "react";
+import React, {useEffect} from "react";
 import Email from "./email";
+import MessengerButton from "./MessengerButton";
+import ScrollToTopButton from "./ScrollToTopButton";
 
 const Footer = () => {
   return (
+    <>
     <footer className="bg-white border-t border-black">
       <div className="swapper mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 ">
@@ -115,30 +118,9 @@ const Footer = () => {
           </div>
 
           {/* Customer Service Links */}
-          <div className="p-4 md:p-6 md:border-l border-black">
-            <div>
-              <ul className="space-y-2 md:space-y-3">
-                <li>
-                  <a href="#" className="hover:underline text-sm md:text-base">
-                    Returns and Refunds
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:underline text-sm md:text-base">
-                    Contact us
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:underline text-sm md:text-base">
-                    Privacy Policy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:underline text-sm md:text-base">
-                    Terms & Conditions
-                  </a>
-                </li>
-              </ul>
+          <div className="p-4 md:border-l border-black">
+            <div className="max-w-md w-full mx-auto">
+              <FanpageFB />
             </div>
           </div>
         </div>
@@ -152,7 +134,43 @@ const Footer = () => {
         </div>
       </div>
     </footer>
+    <MessengerButton />
+    <ScrollToTopButton />
+
+    </>
   );
 };
 
 export default Footer;
+
+
+const FanpageFB = () => {
+  useEffect(() => {
+    // Nạp SDK Facebook nếu chưa có
+    if (!window.FB) {
+      const script = document.createElement("script");
+      script.src = "https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v19.0";
+      script.async = true;
+      script.defer = true;
+      script.crossOrigin = "anonymous";
+      script.onload = () => window.FB && window.FB.XFBML.parse();
+      document.body.appendChild(script);
+    } else {
+      // Nếu đã có FB SDK, gọi lại để render plugin
+      window.FB.XFBML.parse();
+    }
+  }, []);
+
+  return (
+    <div className="fb-page w-full"
+      data-href="https://www.facebook.com/profile.php?id=61575793263076"
+      data-tabs=""
+      data-width=""
+      data-height=""
+      data-small-header="false"
+      data-adapt-container-width="true"
+      data-hide-cover="false"
+      data-show-facepile="true">
+    </div>
+  );
+};

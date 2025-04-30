@@ -39,3 +39,12 @@ export function formatCurrency(value) {
       year: "numeric"
     });
   };
+
+  export const urlAvatar = (avatar) => {
+    if (!avatar) return null;
+    const baseUrl = import.meta.env.VITE_URL_IMG;
+    if (avatar.startsWith("http://") || avatar.startsWith("https://")) {
+      return avatar;
+    }
+    return baseUrl + avatar;
+  }

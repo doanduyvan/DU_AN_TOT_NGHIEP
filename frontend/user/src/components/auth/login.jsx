@@ -8,6 +8,7 @@ import { useAuth } from "../../contexts/authcontext";
 import { FullScreenLoader } from "../../utils/helpersjsx";
 import { useUserContext } from "../../context/user/userContext";
 import AxiosUser from "../../utils/axios_user";
+import LoginGoogle from "./logingoogle/logingoogle";
 
 const urlForgotPassword = "forgot-password";
 const urlSendVerifyEmail = "resend-verify-email";
@@ -37,14 +38,15 @@ const LoginForm = () => {
       setLoading(true);
       const response = await AuthService.login(formData);
       if (response.status === 200) {
-        localStorage.setItem("token", response.token);
-        message.success("Đăng nhập thành công");
-        const user = response.user;
-        const permissions = response.permissions || [];
-        setCurrentUser(user);
-        setUser(user);
-        setIsLoggedIn(true);
-        setPermissions(permissions);
+        // localStorage.setItem("token", response.token);
+        // message.success("Đăng nhập thành công");
+        // const user = response.user;
+        // const permissions = response.permissions || [];
+        // setCurrentUser(user);
+        // setUser(user);
+        // setIsLoggedIn(true);
+        // setPermissions(permissions);
+        Thenlogingoogle(response);
       } else if (response.status === 401) {
         console.log("401");
         Notification.warning({
@@ -74,8 +76,18 @@ const LoginForm = () => {
     }finally{
       setLoading(false);
     }
-    
   };
+
+  const Thenlogingoogle = (response) => {
+    localStorage.setItem("token", response.token);
+    message.success("Đăng nhập thành công");
+    const user = response.user;
+    const permissions = response.permissions || [];
+    setCurrentUser(user);
+    setUser(user);
+    setIsLoggedIn(true);
+    setPermissions(permissions);
+  }
 
   return (
     <>
@@ -113,7 +125,8 @@ const LoginForm = () => {
         </div>
 
         <div className="flex justify-center space-x-4">
-          <Button shape="circle" icon={<GoogleOutlined />} />
+          {/* <Button shape="circle" icon={<GoogleOutlined />} /> */}
+          <LoginGoogle onSuccess={Thenlogingoogle} />
         </div>
       </div>
     </div>

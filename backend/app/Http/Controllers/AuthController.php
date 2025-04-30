@@ -15,6 +15,9 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifyEmail;
 use App\Models\EmailVerification;
+use Google\Client as GoogleClient;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -107,6 +110,67 @@ class AuthController extends Controller
             'permissions' => $user->getAllPermissions()->pluck('name'),
             'roles' => $user->getRoleNames(),
             'token' => $token
+        ]);
+    }
+
+    public function loginGoogle(Request $request)
+    {
+        $accessToken = $request->input('accessToken');
+        $client = new GoogleClient();
+        $client->setAccessToken($accessToken);
+        // Kiểm tra token hợp lệ và lấy thông tin người dùng
+        $oauth2 = new \Google\Service\Oauth2($client);
+        try {
+            $googleUser = $oauth2->userinfo->get();
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Token không hợp lệ'], 401);
+        }
+
+        // Tìm hoặc tạo user trong database
+        $user = User::firstOrCreate([
+            'email' => $googleUser->email,
+        ], [
+            'fullname' => $googleUser->name,
+            'avatar' => null,
+            'is_verify' => 1,
+            'status' => 1,
+            'password' => Hash::make(Str::random(20)), // Tạo mật khẩu ngẫu nhiên
+        ]);
+
+        if ($user->avatar == null) {
+            // Tải ảnh từ link
+            try {
+                $response = Http::get($googleUser->picture);
+                if ($response->successful()) {
+                    $extension = 'jpg';
+                    $filename = 'avatars/' . Str::uuid() . '.' . $extension;
+                    Storage::disk('public')->put($filename, $response->body());
+                } else {
+                    $filename = null;
+                }
+            } catch (\Exception $e) {
+                $filename = null;
+            }
+            $user->avatar = $filename;
+            $user->save();
+        }
+
+        if($user->is_verify == 0) {
+           $user->is_verify = 1;
+            $user->save();
+        }
+
+
+        $user->tokens()->delete();
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Login successful',
+            'user' => $user,
+            'permissions' => $user->getAllPermissions()->pluck('name'),
+            'roles' => $user->getRoleNames(),
+            'token' => $token,
         ]);
     }
 

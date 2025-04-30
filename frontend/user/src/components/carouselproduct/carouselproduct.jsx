@@ -9,7 +9,7 @@ import { useUserContext } from "/src/context/user/userContext";
 const baseUrlImg = import.meta.env.VITE_URL_IMG;
 const { useBreakpoint } = Grid;
 
-const CarouselProducts = ({products,nameSection}) => {
+const CarouselProducts = ({products,nameSection, styleName}) => {
 
   const flyRef = useRef();
   const [flyImage, setFlyImage] = useState('');
@@ -81,7 +81,7 @@ const CarouselProducts = ({products,nameSection}) => {
   return (
     <>
       <div className="py-5 text-center">
-        <h1 className="text-3xl md:text-3xl font-bold text-gray-900">
+        <h1 className={styleName ?? "text-3xl md:text-4xl font-bold text-gray-900"}>
           {nameSection}
         </h1>
       </div>

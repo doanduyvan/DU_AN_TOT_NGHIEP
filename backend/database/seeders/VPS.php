@@ -16,7 +16,7 @@ class VPS extends Seeder
     public function run()
     {
         $this->call(RolePermissionSeeder::class);
-        if (!Schema::hasTable('provinces')) {
+        if (DB::table('provinces')->count() === 0) {
             $path = base_path('database/sql/tinhthanh.sql');
             $sql = file_get_contents($path);
             DB::unprepared($sql);

@@ -23,8 +23,6 @@ class ProductdetailController extends Controller
     }
 
     function getRelatedProducts($id){
-
-
         $product = Product::findOrFail($id);
 
         $productSelect = ['id', 'avatar', 'product_name', 'rating_avg','total_reviews'];
@@ -70,6 +68,14 @@ class ProductdetailController extends Controller
         $user = $request->user();
         $isBought = $user->hasPurchasedProduct($productId);
         $isAdmin = $user->getAllPermissions()->isNotEmpty();
+
+        if(!$isAdmin){
+            if (!$isBought) {
+                return response()->json([
+                    'message' => 'Bạn chưa mua sản phẩm này, không thể đánh giá'
+                ], 403);
+            }
+        }
 
         $newComment = CommentProduct::create([
             'user_id'            => $user->id,

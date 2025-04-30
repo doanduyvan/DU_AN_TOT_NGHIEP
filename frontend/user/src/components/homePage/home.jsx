@@ -5,6 +5,7 @@ import HomeSection8 from "./homeSection8";
 import ProductCarousel from "./productCarousel";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import  CarouselProducts from "/src/components/carouselproduct/carouselproduct";
 
 const baseUrl = import.meta.env.VITE_API_URL;
 const urlGetNewProducts = `${baseUrl}/customer/home/getnewproducts`;
@@ -67,10 +68,15 @@ const Home = () => {
         <Banners />
       </div>
 
-      {/* component 3 */}
+      {/* 10 Sản phẩm mới */}
       <div className="swapper mt-5">
-        <ProductCarousel products={newProducts} />
+          <CarouselProducts products={newProducts} nameSection={'Sản phẩm mới nhất'} />
       </div>
+
+      {/* component 3 */}
+      {/* <div className="swapper mt-5">
+        <ProductCarousel products={newProducts} />
+      </div> */}
 
       {/* component 4 */}
 

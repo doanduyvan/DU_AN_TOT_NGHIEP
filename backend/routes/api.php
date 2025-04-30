@@ -234,6 +234,7 @@ Route::group(['prefix' => 'customer'], function () {
     Route::get('home/getnewproducts', [HomeController::class, 'getNewProducts']);
     Route::get('home/getcategory', [HomeController::class, 'getCategory']);
     Route::get('home/get3news', [HomeController::class, 'get3News']);
+    Route::get('home/getbanner', [HomeController::class, 'getBanner']);
     Route::get('shop/getcategory', [ShopController::class, 'getCategory']);
     Route::get('shop/getproducts', [ShopController::class, 'getProducts']);
     Route::get('shop/getvariantfilter', [ShopController::class, 'getVariantFilter']);
@@ -261,7 +262,7 @@ Route::group(['prefix' => 'customer'], function () {
     Route::post('profile/cancel-order/{id}', [ProfileController::class, 'CancelOrder'])->middleware('auth:sanctum');
     Route::post('profile/payment-again/{id}', [CheckoutController::class, 'PaymentAgain'])->middleware('auth:sanctum');
     Route::get('cart/checkqtyproductvariant/{id}', [CartController::class, 'checkQtyProductVariant']);
-    Route::post('cart/getcart', [CartController::class, 'getCart']);
+    Route::post('cart/getcart',[CartController::class, 'getCart']);
     Route::post('checkout', [CheckoutController::class, 'Store'])->middleware('auth:sanctum');
     Route::post('profile/set-default-address/{id}', [ProfileController::class, 'setDefaultAddress'])->middleware('auth:sanctum'); 
     Route::get('profile/getorders',[ProfileController::class, 'getOrders'])->middleware('auth:sanctum');
@@ -269,7 +270,7 @@ Route::group(['prefix' => 'customer'], function () {
     Route::post('profile/payment-again/{id}',[CheckoutController::class, 'PaymentAgain'])->middleware('auth:sanctum');
     Route::post('profile/change-password',[ProfileController::class, 'ChangePassword'])->middleware('auth:sanctum');
     Route::get('cart/checkqtyproductvariant/{id}',[CartController::class, 'checkQtyProductVariant']);
-    Route::post('cart/getcart',[CartController::class, 'getCart']);
+    // Route::post('cart/getcart',[CartController::class, 'getCart']);
     Route::post('checkout',[CheckoutController::class, 'Store'])->middleware('auth:sanctum');
     Route::get('checkout/get-voucher',[CheckoutController::class, 'getVoucher'])->middleware('auth:sanctum');
     Route::get('checkout/check-voucher',[CheckoutController::class, 'checkVoucher'])->middleware('auth:sanctum');

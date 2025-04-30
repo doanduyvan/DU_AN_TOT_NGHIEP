@@ -1,7 +1,27 @@
 import { Carousel } from 'antd';
+import { useState, useEffect } from 'react';
+import AxiosUser from '/src/utils/axios_user';
+
+const urlGetBanners = 'customer/home/getbanner';
+const baseUrlImg = import.meta.env.VITE_URL_IMG;
 
 
 const Banners = () => {
+
+    const [banners, setBanners] = useState([]);
+
+    useEffect(() => {
+        const fetchBanners = async () => {
+            try {
+                const res = await AxiosUser.get(urlGetBanners);
+                setBanners(res.banners || []);
+            } catch (error) {
+                console.error('Error fetching banners:', error);
+            }
+        };
+
+        fetchBanners();
+    }, []);
 
     const contentStyle = {
         margin: 0,
@@ -25,37 +45,25 @@ const Banners = () => {
         arrows: true
       }
 
-    return(
-        <>
-    <Carousel  {...conFigCarousel}>
-      <div>
-        <div style={contentStyle}>
-        <a href="https://facebook.com">
-            <img style={styleImg} src="/images/home/b1.jpg" alt="" />
-        </a>
-        </div>
-      </div>
-      <div>
-        <div style={contentStyle}>
-        <img style={styleImg} src="/images/home/b2.png" alt="" />
-
-        </div>
-      </div>
-      <div>
-        <div style={contentStyle}>
-        <img style={styleImg} src="/images/home/b3.png" alt="" />
-
-        </div>
-      </div>
-      <div>
-        <div style={contentStyle}>
-        <img style={styleImg} src="/images/home/b4.jpg" alt="" />
-
-        </div>
-      </div>
-    </Carousel>
-  </>
-    )
+    return (
+      <>
+        <Carousel {...conFigCarousel}>
+          {banners.map((item, index) => (
+            <div key={`banner-${index}`}>
+              <div style={contentStyle}>
+                {item?.link !== null ? (
+                  <a href={item?.link} target="_blank">
+                    <img style={styleImg} src={baseUrlImg + item.img} alt="" />
+                  </a>
+                ) : (
+                  <img style={styleImg} src={baseUrlImg + item.img} alt="" />
+                )}
+              </div>
+            </div>
+          ))}
+        </Carousel>
+      </>
+    );
 }
 
 export default Banners;

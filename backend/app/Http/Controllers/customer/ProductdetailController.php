@@ -66,10 +66,13 @@ class ProductdetailController extends Controller
         ], $message);
 
         $user = $request->user();
-        $isBought = $user->hasPurchasedProduct($productId);
         $isAdmin = $user->getAllPermissions()->isNotEmpty();
+        $isBought = $user->hasPurchasedProduct($productId);
+        if($commentId !== null){
+            $rating = null;
+        }
 
-        if(!$isAdmin){
+        if(!$isAdmin && $commentId === null){
             if (!$isBought) {
                 return response()->json([
                     'message' => 'Bạn chưa mua sản phẩm này, không thể đánh giá'

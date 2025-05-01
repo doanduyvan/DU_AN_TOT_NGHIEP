@@ -15,21 +15,6 @@ class HomeController extends Controller
 
     public function getNewProducts()
     {
-        // $newProducts = Product::select('id', 'avatar', 'product_name', 'rating_avg')
-        //     ->where('status', 1)
-        //     ->with(['variants' => function ($query) {
-        //         $query->select('id','product_id', 'price', 'promotional_price', 'sold_quantity');
-        //     }])
-        //     ->orderBy('created_at', 'desc')
-        //     ->take(10)
-        //     ->get();
-
-        // foreach ($newProducts as $product) {
-        //     $product->total_sold = $product->variants->sum('sold_quantity');
-        //     $product->cheapest_variant = $product->variants->sortBy('price')->first();
-        //     unset($product->variants);
-        // }
-
 
         $productSelect = ['id', 'avatar', 'product_name', 'rating_avg','total_reviews'];
         $newProducts = Product::where('status', 1)
@@ -45,6 +30,25 @@ class HomeController extends Controller
     
         return response()->json([
             'newProducts' => $newProducts
+        ], 200);
+    }
+
+    public function getBestSellingProducts()
+    {
+        $productSelect = ['id', 'avatar', 'product_name', 'rating_avg','total_reviews'];
+        $bestSellingProducts = Product::where('status', 1)
+            ->whereNull('deleted_at')
+            ->with(['variants' => function ($query) {
+                $variantSelect = ['id', 'product_id', 'size', 'price', 'promotional_price','sold_quantity'];
+                $query->select($variantSelect);
+            }])
+            ->select($productSelect)
+            ->sortBy('sold_qty', 'desc')
+            ->limit(10)
+            ->get();
+    
+        return response()->json([
+            'bestSellingProducts' => $bestSellingProducts
         ], 200);
     }
 

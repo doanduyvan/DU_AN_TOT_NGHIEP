@@ -93,10 +93,9 @@ export const ProductDetail = () => {
       <div className="h-[100px]"></div>
       <div className="swapper p-3">
         <div className="mx-auto flex flex-col md:flex-row md:gap-8 gap-4">
-
           <div className="md:w-1/2 w-full flex flex-col lg:flex-row gap-2 lg:max-h-[430px]">
-          <div className="max-w-[100px] max-h-full overflow-y-auto hidden lg:block">
-              <ProductImages images={imgs} xy={'Y'} />
+            <div className="max-w-[100px] max-h-full overflow-y-auto hidden lg:block">
+              <ProductImages images={imgs} xy={"Y"} />
             </div>
             <div className="w-full">
               <img
@@ -106,17 +105,18 @@ export const ProductDetail = () => {
               />
             </div>
             <div className="mt-3 lg:hidden">
-              <ProductImages images={imgs} xy={'X'} />
+              <ProductImages images={imgs} xy={"X"} />
             </div>
           </div>
 
           <div className="md:w-1/2 w-full bg-white p-5 flex flex-col justify-start">
-            <p className="text-3xl md:text-4xl font-semibold text-gray-800 mb-4">
+            <p className="text-2xl md:text-3xl font-semibold text-gray-800">
               {product?.product_name || "Loading..."}
             </p>
 
             <div className="flex flex-col lg:flex-row gap-4">
-              <div className="w-full lg:w-1/2 flex flex-col gap-4">
+              <div className="w-full lg:w-1/2 flex flex-col gap-2">
+                <p className="mt-2">Mã sản phẩm: {currentVariant.sku}</p>
                 <div className="flex items-center gap-3">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -128,10 +128,21 @@ export const ProductDetail = () => {
                   >
                     <path d="M12.0006 18.26L4.94715 22.2082L6.52248 14.2799L0.587891 8.7918L8.61493 7.84006L12.0006 0.5L15.3862 7.84006L23.4132 8.7918L17.4787 14.2799L19.054 22.2082L12.0006 18.26Z"></path>
                   </svg>
-                  <p className="font-medium text-lg">
-                    ({product.rating_avg}) {product.total_reviews} Đánh giá
+                  <p className="font-medium text-base">
+                    ({product?.rating_avg?.toFixed(1)}) {product.total_reviews}{" "}
+                    Đánh giá
                   </p>
                 </div>
+
+                {currentVariant.stock_quantity == 0 ? (
+                  <p className="text-base text-red-500">
+                    Sản phẩm đã hết hàng
+                  </p>
+                ) : (
+                  <p className="text-base">
+                    Còn {currentVariant.stock_quantity} Sản phẩm
+                  </p>
+                )}
 
                 <div className="flex flex-col gap-2">
                   <p className="text-base font-normal">Phân loại:</p>
@@ -244,21 +255,20 @@ export const ProductDetail = () => {
                   </p>
                   <p className="text-lg font-medium text-gray-400 line-through">
                     {" "}
-                    {formatCurrency(price_delete)}{" "}
+                    {price_delete != 0 && formatCurrency(price_delete)}{" "}
                   </p>
                 </div>
                 <Button
-                className="bg-yellow-300 p-2 rounded-lg hover:!bg-yellow-400 transition-colors"
-                type="text"
-                ref={buttonRef}
-                onClick={handleAddToCart}
-                loading={addProductLoading}
+                  className="bg-yellow-300 p-2 rounded-lg hover:!bg-yellow-400 transition-colors"
+                  type="text"
+                  ref={buttonRef}
+                  onClick={handleAddToCart}
+                  loading={addProductLoading}
                 >
                   Thêm giỏ hàng
                 </Button>
               </div>
             </div>
-
           </div>
         </div>
         <div className="p-2 lg:p-6 bg-[#fdf8f2]">
@@ -301,7 +311,10 @@ export const ProductDetail = () => {
 
         <div>
           <div>
-            <CarouselProducts products={relatedProducts} nameSection="Các Sản phẩm liên quan" />
+            <CarouselProducts
+              products={relatedProducts}
+              nameSection="Các Sản phẩm liên quan"
+            />
           </div>
         </div>
       </div>
@@ -313,7 +326,6 @@ export const ProductDetail = () => {
         startRef={buttonRef}
         endId="cart-icon"
       />
-
     </>
   );
 };

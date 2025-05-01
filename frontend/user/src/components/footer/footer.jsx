@@ -2,57 +2,67 @@ import React, {useEffect} from "react";
 import Email from "./email";
 import MessengerButton from "./MessengerButton";
 import ScrollToTopButton from "./ScrollToTopButton";
+import { Link } from "react-router-dom";
+
+const arrMenu = [
+  {
+      name: 'Trang Chủ',
+      link: '/',
+  },
+  {
+      name: 'Cửa Hàng',
+      link: '/shop'
+  },
+  {
+      name: 'Tin Tức',
+      link: '/news'
+  },
+  {
+      name: 'Giới Thiệu',
+      link: '/about'
+  },
+  {
+      name: 'Liên Hệ',
+      link: '/contact'
+  }
+]
 
 const Footer = () => {
   return (
     <>
     <footer className="bg-white border-t border-black">
       <div className="swapper mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12">
           {/* Left Column */}
-          <div className="p-4 md:p-6 border-b lg:border-b-0 border-black bg-white flex flex-col justify-center">
+          <div className="p-4 md:p-6 border-b lg:col-span-3 lg:border-b-0 border-black bg-white flex flex-col justify-center">
             <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">
-              La Belle
+              MesSkin
             </h2>
             <p className="mb-3 md:mb-4 text-sm">
-              Sign up for 15% off & updates straight to your inbox.
+              Đăng ký nhận bản tin của chúng tôi để nhận thông tin mới nhất về sản phẩm và ưu đãi.
             </p>
             <Email />
           </div>
 
           {/* Middle Column */}
-          <div className="p-4 md:p-6 border-b lg:border-b-0 md:border-l lg:border-r border-black">
+          <div className="p-4 md:p-6 border-b lg:col-span-2 lg:border-b-0 md:border-l lg:border-r border-black">
             <ul className="space-y-2 md:space-y-3">
-              <li>
-                <a href="#" className="hover:underline text-sm md:text-base">
-                  Home
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:underline text-sm md:text-base">
-                  Brand
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:underline text-sm md:text-base">
-                  Shop
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:underline text-sm md:text-base">
-                  About
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:underline text-sm md:text-base">
-                  Community
-                </a>
-              </li>
+                   {arrMenu.map((item,i)=> (
+                    <li key={`menu1_${i}`}>
+                        <Link
+                        to={item.link}
+                        className="hover:underline text-sm md:text-base"
+                        >
+                        {item.name}
+                        </Link>
+                      </li>
+                    ))}
+    
             </ul>
           </div>
 
           {/* Right Column */}
-          <div className="p-4 md:p-6 border-b md:border-b-0 border-black">
+          <div className="p-4 md:p-6 border-b lg:col-span-2 md:border-b-0 border-black">
             {/* Social Media Links */}
             <div className="">
               <ul className="space-y-2 md:space-y-3">
@@ -116,10 +126,9 @@ const Footer = () => {
               </ul>
             </div>
           </div>
-
-          {/* Customer Service Links */}
-          <div className="p-4 md:border-l border-black">
-            <div className="max-w-md w-full mx-auto">
+          {/* FanpageFB */}
+          <div className="p-4 md:p-6 md:border-l border-black lg:col-span-5">
+            <div className="max-w-md w-fit mx-auto">
               <FanpageFB />
             </div>
           </div>
@@ -162,7 +171,7 @@ const FanpageFB = () => {
   }, []);
 
   return (
-    <div className="fb-page w-full"
+    <div className="fb-page w-fit"
       data-href="https://www.facebook.com/profile.php?id=61575793263076"
       data-tabs=""
       data-width=""

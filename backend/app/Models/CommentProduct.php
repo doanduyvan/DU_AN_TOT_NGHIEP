@@ -20,6 +20,11 @@ class CommentProduct extends Model
     ];
     protected $dates = ['deleted_at'];
     protected $table = 'comment_products';
+
+    protected $casts = [
+        'is_admin' => 'boolean',
+    ];
+
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id');

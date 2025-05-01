@@ -29,7 +29,7 @@ const Navbar = () => {
         <Menu isOpen={isOpen} setIsOpen={setIsOpen}/>
 
         <div className="flex-1 lg:flex-none logo-primary">
-          <Link to="/" className="font-bold text-2xl text-gray-900">Mes Skin</Link>
+          <Link to="/" className="font-bold text-2xl text-gray-900">MesSkin</Link>
         </div>
 
         <div className="flex items-stretch gap-3">

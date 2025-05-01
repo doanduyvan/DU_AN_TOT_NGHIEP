@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Tabs, Card, Tag, Divider, Pagination, Select, Button, message, Modal } from "antd";
 import AxiosUser from "/src/utils/axios_user";
 import { FullScreenLoader } from "/src/utils/helpersjsx";
+import { Link } from "react-router-dom";
+import { toSlug } from "/src/utils/helpers";
 
 
 const { Option } = Select;
@@ -132,13 +134,18 @@ const MyOrders = () => {
         const product = item.productvariant?.product || {};
         return (
           <div key={index} className="flex items-start gap-4 mb-3">
-            <img
-              src={baseUrlImg + product.avatar}
-              alt=""
-              className="w-20 h-20 rounded border object-cover"
-            />
+            <Link to={`/product/${product.id}/${toSlug(product.product_name)}`}>
+              <img
+                src={baseUrlImg + product.avatar}
+                alt=""
+                className="w-20 h-20 rounded border object-cover"
+              />
+            </Link>
+
             <div className="flex-1">
+            <Link to={`/product/${product.id}/${toSlug(product.product_name)}`}>
               <p className="font-medium text-base">{product.product_name}</p>
+            </Link>
               <p className="text-sm text-gray-500">
                 Size: {item.productvariant?.size}
               </p>

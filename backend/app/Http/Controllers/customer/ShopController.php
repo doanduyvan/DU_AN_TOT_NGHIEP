@@ -67,7 +67,6 @@ class ShopController extends Controller
 
         // Lọc theo khoảng giá 
         if ($request->has('price_min') || $request->has('price_max')) {
-            $stringSort = 'Có lọc theo giá';
             $query->withPriceMin();
             if ($request->price_min) {
                 $query->having('price_min', '>=', $request->price_min);

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { UpOutlined } from "@ant-design/icons";
+import { useLocation } from "react-router-dom";
 
 const ScrollToTopButton = () => {
+  const location = useLocation();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -21,13 +23,18 @@ const ScrollToTopButton = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+ // mỗi lần chuyển trang thì scroll về đầu trang
+  useEffect(() => {
+    scrollToTop();
+  }, [location.pathname]);
+
   return visible ? (
     <button
       onClick={scrollToTop}
-      className="fixed bottom-[140px] right-[26px] z-[5] bg-gray-800 text-white p-3 rounded-full shadow-lg hover:bg-gray-700 transition size-12"
+      className="fixed bottom-[80px] right-[18px] z-[5] bg-white/50 border text-white p-3 rounded-full shadow-lg hover:bg-white transition size-12"
       title="Lên đầu trang"
     >
-      <UpOutlined style={{ fontSize: 20 }} />
+      <UpOutlined style={{ fontSize: 20, color: "black" }} />
     </button>
   ) : null;
 };

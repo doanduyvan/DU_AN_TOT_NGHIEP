@@ -233,6 +233,7 @@ Route::group(['prefix' => 'customer'], function () {
         return response()->json(['message' => 'Token hợp lệ'], 200);
     })->middleware('auth:sanctum');
     Route::get('home/getnewproducts', [HomeController::class, 'getNewProducts']);
+    Route::get('home/getbestsellingproducts', [HomeController::class, 'getBestSellingProducts']);
     Route::get('home/getcategory', [HomeController::class, 'getCategory']);
     Route::get('home/get3news', [HomeController::class, 'get3News']);
     Route::get('home/getbanner', [HomeController::class, 'getBanner']);

@@ -7,10 +7,10 @@ const MessengerButton = () => {
   return (
     <button
       onClick={openMessenger}
-      className="fixed z-[3] bottom-16 right-4 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-all"
+      className="fixed z-[3] bottom-[20px] right-4 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-all"
       title="Chat với Facebook"
     >
-      <img src="/images/png/messenger.png" alt="Messenger" className="size-8 object-contain MessengerButton" />
+      <img src="/images/png/messenger.png" alt="Messenger" className="size-6 object-contain MessengerButton" />
     </button>
   );
 };

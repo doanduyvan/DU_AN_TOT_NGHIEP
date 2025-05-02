@@ -263,7 +263,7 @@ export const Vouchers = () => {
                                 Trạng thái
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Thời gian sử dụng
+                                Thời hạn sử dụng
                             </th>
                             <th scope="col" className="px-6 py-3">
                                 Số lượng

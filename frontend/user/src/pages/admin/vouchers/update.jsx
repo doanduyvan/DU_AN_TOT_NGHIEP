@@ -6,19 +6,24 @@ import { DatePicker } from 'antd';
 import { AntNotification } from "../../../components/notification";
 import dayjs from 'dayjs';
 import Select from "react-select";
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
 export const Update_Voucher = () => {
     const { voucherId } = useParams();
     const navigate = useNavigate();
     const [voucher, setVoucher] = useState({});
     const [expiryDate, setExpiryDate] = useState(null);
 
+    dayjs.extend(timezone);
+    dayjs.extend(utc);
     useEffect(() => {
         const fetchVoucher = async () => {
             const res = await VoucherService.getVoucherById(voucherId);
-            console.log(res);
             if (res) {
                 setVoucher(res);
                 setExpiryDate(res.expiry_date);
+                console.log(res.expiry_date);
 
             } else {
                 AntNotification.handleError(error);
@@ -158,7 +163,7 @@ export const Update_Voucher = () => {
                             Thời gian hết hạn
                         </label>
                         <DatePicker
-                            value={expiryDate ? dayjs(expiryDate, 'YYYY-MM-DDTHH:mm:ss') : null}
+                            value={expiryDate ? dayjs(expiryDate).isValid() ? dayjs(expiryDate) : null : null}
                             onChange={handleDateChange}
                             name="expiry_date"
                             showTime

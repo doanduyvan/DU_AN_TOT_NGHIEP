@@ -28,16 +28,6 @@ export const Create_Banner = () => {
             console.log(key, value);
         }
         );
-        const imgFile = document.querySelector('input[name="img"]').files[0];
-
-        if (!imgFile) {
-            AntNotification.showNotification('Thất bại', 'Vui lòng chọn hình ảnh', 'warning');
-            return;
-        }
-        if(!formData.get('link')) {
-            AntNotification.showNotification('Thất bại', 'Vui lòng nhập link', 'warning');
-            return;
-        }
         try {
             const res = await BannerService.create(formData);
             if (res?.status === 201) {

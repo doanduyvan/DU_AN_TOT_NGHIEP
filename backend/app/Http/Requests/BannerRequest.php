@@ -25,15 +25,16 @@ class BannerRequest extends FormRequest
     {
         return [
             'link' => 'nullable|url', 
-            'img' => 'nullable|image|max:2048',
+            'img' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ];
     }
     
     public function messages()
     {
         return [
-            'link.required' => 'Link không được để trống',
             'link.url' => 'Link không đúng định dạng URL', 
+            'img.required' => 'Hình ảnh không được để trống',
+            'img.max' => 'Hình ảnh không được lớn hơn 2MB',
             'img.image' => 'Hình ảnh không đúng định dạng',
             'img.mimes' => 'Hình ảnh phải có định dạng jpeg, png, jpg, gif, svg',
         ];

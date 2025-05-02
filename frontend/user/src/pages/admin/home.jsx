@@ -25,11 +25,11 @@ export const Home_Admin = () => {
                 const orderResponseCount = await OrderService.getOrderCount();
                 const productResponseCount = await productService.getProductCount();
                 const userResponseCount = await UsersService.getUserCount();
-                setOrders(orderResponse);
-                setUsers(userResponseLimit);
-                setOrderCount(orderResponseCount?.data || 0);
-                setProductCount(productResponseCount?.data || 0);
-                setUserCount(userResponseCount?.data || 0);
+                setOrders(orderResponse || []);
+                setUsers(userResponseLimit || []);
+                setOrderCount(orderResponseCount?.count || 0);
+                setProductCount(productResponseCount?.count || 0);
+                setUserCount(userResponseCount || 0);
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching data:", error);

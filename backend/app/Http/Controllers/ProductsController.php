@@ -34,7 +34,10 @@ class ProductsController extends Controller
     
     public function getProductCount(){
         $productCount = Product::count();
-        return response()->json($productCount);
+        return response()->json([
+            'count' => $productCount,
+            'status' => 200
+        ]);
     }
 
     public function getProductById($id)

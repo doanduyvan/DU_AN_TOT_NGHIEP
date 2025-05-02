@@ -40,7 +40,10 @@ class OrderController extends Controller
     public function getOrderCount()
     {
         $orders = Order::count();
-        return response()->json($orders);
+        return response()->json([
+            'count' => $orders,
+            'status' => 200,
+        ], 200);
     }
     public function getOrderById($id)
     {

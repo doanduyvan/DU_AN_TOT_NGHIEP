@@ -54,7 +54,7 @@ class AuthController extends Controller
             ], 500);
         }
     }
-    
+
 
     /**
      * Đăng nhập người dùng
@@ -80,7 +80,7 @@ class AuthController extends Controller
                     'status' => 403,
                     'email' => $user->email,
                     'message' => 'Tài khoản của bạn chưa được xác nhận.'
-                ],403);
+                ], 403);
             }
         }
 
@@ -89,7 +89,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 401,
                 'message' => 'Thông tin đăng nhập không chính xác.'
-            ],403);
+            ], 403);
         }
 
         if ($user->status == 0) {
@@ -99,7 +99,7 @@ class AuthController extends Controller
             ]);
         }
 
-        
+
         $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -155,8 +155,8 @@ class AuthController extends Controller
             $user->save();
         }
 
-        if($user->is_verify == 0) {
-           $user->is_verify = 1;
+        if ($user->is_verify == 0) {
+            $user->is_verify = 1;
             $user->save();
         }
 
@@ -209,7 +209,7 @@ class AuthController extends Controller
      */
     public function me(Request $request)
     {
-        if($request->user()->status == 0){
+        if ($request->user()->status == 0) {
             return response()->json([
                 'status' => 401,
                 'message' => 'Tài khoản của bạn đã bị khóa'
@@ -277,7 +277,8 @@ class AuthController extends Controller
         return response()->json(['message' => 'Xác nhận email thành công.'], 200);
     }
 
-    public function sendResetPasswordEmail(Request $request){
+    public function sendResetPasswordEmail(Request $request)
+    {
 
         $messages = [
             'email.required' => 'Email không được để trống.',
@@ -334,25 +335,25 @@ class AuthController extends Controller
             'token' => 'required|string',
             'password' => 'required|confirmed|min:6|max:255',
         ], $message);
-    
+
         $row = DB::table('password_resets')->where('token', $request->token)->first();
-    
+
         if (!$row) {
             return response()->json(['message' => 'Token không hợp lệ hoặc đã hết hạn.'], 400);
         }
-    
+
         $user = User::where('email', $row->email)->first();
         if (!$user) {
             return response()->json(['message' => 'Không tìm thấy người dùng.'], 404);
         }
-    
+
         // cập nhật mật khẩu mới
         $user->password = Hash::make($request->password);
         $user->save();
-    
+
         // xoá token reset sau khi dùng
         DB::table('password_resets')->where('email', $row->email)->delete();
-    
+
         return response()->json(['message' => 'Đặt lại mật khẩu thành công.']);
     }
 }

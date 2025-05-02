@@ -27,9 +27,9 @@ export const Home_Admin = () => {
                 const userResponseCount = await UsersService.getUserCount();
                 setOrders(orderResponse);
                 setUsers(userResponseLimit);
-                setOrderCount(orderResponseCount);
-                setProductCount(productResponseCount);
-                setUserCount(userResponseCount);
+                setOrderCount(orderResponseCount?.data || 0);
+                setProductCount(productResponseCount?.data || 0);
+                setUserCount(userResponseCount?.data || 0);
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -37,7 +37,7 @@ export const Home_Admin = () => {
         };
         fetchData();
     }, []);
-    console.log(userCount, orderCount, productCount);
+    console.log(userCount, orderCount, productCount, users, orders);
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <div className="mt-2 w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 bg-white shadow rounded-lg p-6">

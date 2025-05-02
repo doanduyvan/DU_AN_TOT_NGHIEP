@@ -419,8 +419,9 @@ const price_delete = currentVariant.promotional_price ? currentVariant.price : n
               </div>
 
               <Link
+                title={item.product_name}
                 to={changeLink}
-                className="text-gray-800 text-sm md:text-base font-serif font-medium block"
+                className="text-gray-800 text-sm md:text-base font-medium block line-clamp-2 hover:text-blue-500"
               >
                 {item.product_name}
               </Link>

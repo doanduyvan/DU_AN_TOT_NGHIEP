@@ -4,7 +4,7 @@ import Sidebar from "./sidebar";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import AxiosUser from "../../../utils/axios_user";
 import { FullScreenLoader } from "../../../utils/helpersjsx";
-import { toSlug } from "../../../utils/helpers";
+import { toSlug,formatTime } from "../../../utils/helpers";
 
 const urlGetNews = "/customer/news/getnews";
 const baseUrlImg = import.meta.env.VITE_URL_IMG;
@@ -123,10 +123,10 @@ const ContentY = ({data}) => {
                 </Link>
                 <div className="p-4 flex-1 flex flex-col justify-between">
                 <div>
+                  <Link to={`/news/${news.id}/${toSlug(news.title)}`} className="block text-base font-semibold mb-2 hover:text-blue-500">{news.title}</Link>
                   <p className="text-xs text-gray-500 mb-1">
-                    {news.created_at}
+                    {formatTime(news.created_at)}
                   </p>
-                  <Link to={`/news/${news.id}/${toSlug(news.title)}`} className="block text-base font-semibold mb-2">{news.title}</Link>
                 </div>
                   <Link to={`/news/${news.id}/${toSlug(news.title)}`} className="block text-blue-500 hover:underline text-sm">
                     Xem thêm

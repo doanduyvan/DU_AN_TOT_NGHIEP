@@ -276,6 +276,7 @@ Route::group(['prefix' => 'customer'], function () {
     Route::post('checkout',[CheckoutController::class, 'Store'])->middleware('auth:sanctum');
     Route::get('checkout/get-voucher',[CheckoutController::class, 'getVoucher'])->middleware('auth:sanctum');
     Route::get('checkout/check-voucher',[CheckoutController::class, 'checkVoucher'])->middleware('auth:sanctum');
+    Route::get('shop/searchsuggest',[ShopController::class, 'searchSuggest']);
 
 });
 

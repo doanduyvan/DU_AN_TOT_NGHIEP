@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import AxiosUser from "../../utils/axios_user";
 import { Link } from "react-router-dom";
-import { toSlug } from "../../utils/helpers";
+import { toSlug,formatTime } from "../../utils/helpers";
 
 const urlGet3News = "/customer/home/get3news";
 const baseUrlImg = import.meta.env.VITE_URL_IMG;
@@ -62,8 +62,9 @@ const Item = ({data}) => {
       </Link>
       <div className="p-4">
         <Link
+          title={data.title}
           to={linkChange}
-          className="block text-lg font-semibold text-gray-900"
+          className="block text-lg font-semibold text-gray-900 line-clamp-2 hover:text-blue-500"
         >
           {data.title}
         </Link>

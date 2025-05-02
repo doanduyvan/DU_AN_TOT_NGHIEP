@@ -95,6 +95,28 @@ class ShopController extends Controller
             'variants' => $variants
         ]);
     }
+
+    public function searchSuggest(Request $request)
+    {
+        $keyword = $request->query('keyword');
+        if (!$keyword) {
+            return response()->json(['products' => []]);
+        }
+        $productSelect = ['id', 'avatar', 'product_name'];
+        $variantSelect = ['id', 'product_id', 'price', 'promotional_price'];
+
+        $products = Product::where('product_name', 'like', "%$keyword%")
+            ->where('status', 1)
+            ->whereNull('deleted_at')
+            ->with(['variants' => function ($query) use ($variantSelect) {
+                $query->select($variantSelect);
+            }])
+            ->select($productSelect)
+            ->limit(15)
+            ->get();
+
+        return response()->json(['products' => $products]);
+    }
     
 
 }

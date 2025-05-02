@@ -123,3 +123,10 @@ h5 {
     transform: rotate(-10deg);
   }
 }
+
+.image-description-center img {
+  max-width: 100%;
+  display: block;
+  object-fit: cover;
+  margin: 0 auto;
+}

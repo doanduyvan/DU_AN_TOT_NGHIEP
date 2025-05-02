@@ -26,7 +26,10 @@ class UserController extends Controller
     public function getUserCount()
     {
         $users = User::whereNotNull('email')->count();
-        return response()->json($users);
+        return response()->json([
+            'count' => $users,
+            'status' => 200,
+        ]);
     }
     public function test1()
     {

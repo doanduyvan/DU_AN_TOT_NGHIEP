@@ -29,7 +29,7 @@ export const Home_Admin = () => {
                 setUsers(userResponseLimit || []);
                 setOrderCount(orderResponseCount?.count || 0);
                 setProductCount(productResponseCount?.count || 0);
-                setUserCount(userResponseCount || 0);
+                setUserCount(userResponseCount?.count || 0);
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching data:", error);

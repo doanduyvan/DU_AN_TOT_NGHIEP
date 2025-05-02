@@ -9,6 +9,8 @@ import CommentProduct from "./commentproduct";
 import { FullScreenLoader, FlyToCart } from "/src/utils/helpersjsx";
 import CarouselProducts from "/src/components/carouselproduct/carouselproduct";
 import { useUserContext } from "../../../context/user/userContext";
+import 'quill/dist/quill.snow.css';
+
 
 const baseUrlImg = import.meta.env.VITE_URL_IMG;
 const urlProductDetail = '/customer/productdetail/getproductbyid/';
@@ -290,9 +292,10 @@ export const ProductDetail = () => {
 
           <div className="mt-3">
             {activeTab === 0 && (
-              <div className="bg-white p-4 rounded-lg shadow-md">
+              <div className="bg-white p-4 rounded-lg shadow-md image-description-center">
                 {product.description ? (
                   <div
+                    className="ql-editor ql-container"
                     dangerouslySetInnerHTML={{ __html: product.description }}
                   />
                 ) : (

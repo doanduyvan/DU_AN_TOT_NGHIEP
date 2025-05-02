@@ -1,4 +1,5 @@
 export function formatCurrency(value) {
+    if(value == 0) return '0 ₫';
     if (!value) return '';
     return Number(value).toLocaleString('vi-VN', {
       style: 'currency',
@@ -38,3 +39,12 @@ export function formatCurrency(value) {
       year: "numeric"
     });
   };
+
+  export const urlAvatar = (avatar) => {
+    if (!avatar) return null;
+    const baseUrl = import.meta.env.VITE_URL_IMG;
+    if (avatar.startsWith("http://") || avatar.startsWith("https://")) {
+      return avatar;
+    }
+    return baseUrl + avatar;
+  }

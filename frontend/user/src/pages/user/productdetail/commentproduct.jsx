@@ -86,6 +86,8 @@ const CommentProduct = ({product_id}) => {
       setNewComment(""); // reset nội dung bình luận
       message.success("Gửi đánh giá thành công!");
     }catch(err){
+      const message2 = err.response?.data?.message || "Lỗi không xác định";
+      message.error(message2);
       console.error("Error adding comment:", err);
     }finally{
       setLoading(false);
@@ -348,7 +350,8 @@ const CommentItem = ({ comment, activeReplyId, setActiveReplyId, isLoggedIn, set
                         </p>
                       </div>
                       <div>
-                        {reply.is_admin && (
+                        {reply.is_admin &&  (
+                          
                           <Tag color="default" className="text-xs font-medium">
                             👤 Admin
                           </Tag>

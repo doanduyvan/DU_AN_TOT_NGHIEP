@@ -1,23 +1,23 @@
 export const About = () => {
   const appcart = [
     {
-      title: "Authentic Beauty Products, Guaranteed",
+      title: "Sản phẩm chính hãng 100%",
       textContent:
-        "We work closely with your favorite beauty brands as an authorized retailer to make sure all the products we ship are guaranteed authentic.",
+        "Chúng tôi làm việc trực tiếp với các thương hiệu mỹ phẩm uy tín để đảm bảo mọi sản phẩm đều là hàng chính hãng.",
       image: "/images/png/star.png",
       link: "#",
     },
     {
-      title: "Expert Tips and Advice",
+      title: "Tư vấn và mẹo làm đẹp từ chuyên gia",
       textContent:
-        "We give you all the information you need to make intelligent shopping decisions for yourself. We work with top dermatologists, estheticians, hairstylists and makeup artistst.",
+        "Cung cấp thông tin cần thiết để bạn tự tin lựa chọn sản phẩm, với sự hỗ trợ từ bác sĩ da liễu, chuyên gia trang điểm và làm tóc.",
       image: "/images/png/comment.png",
       link: "#",
     },
     {
-      title: "Award-Winning Customer Service Team",
+      title: "Đội ngũ chăm sóc khách hàng tận tâm",
       textContent:
-        "Winner of the Bizrate Platinum Circle of Excellence Award for over ten years, our team of highly trained beauty experts are ready to help.",
+        "Đội ngũ chuyên gia giàu kinh nghiệm của chúng tôi luôn sẵn sàng hỗ trợ bạn nhanh chóng và chuyên nghiệp.",
       image: "/images/png/suport.png",
       link: "#",
     },
@@ -29,11 +29,10 @@ export const About = () => {
       <div className="ml:p-6 swapper">
         <div className="text-center">
           <p className="text-4xl font-semibold text-gray-800">
-            Let's face it-we're all different,
+          Chúng ta đều khác biệt
           </p>
           <p className="mt-4 text-1xl text-gray-600">
-            our cultures, ethnicities, genders, sexualities. And there's
-            vitality and power in those differences.
+          Văn hóa, sắc tộc, giới tính, xu hướng – và sự khác biệt ấy mang đến sức mạnh và vẻ đẹp riêng.
           </p>
           <div className="mt-8 mx-auto w-full px-5 md:px-16">
             <iframe
@@ -51,12 +50,12 @@ export const About = () => {
       <div className="w-full md:mt-28 mt-14 mb-10">
         <div className="text-center mb-10">
           <p className="text-4xl font-semibold text-gray-800">
-            We're Dermstore
+          Chúng tôi là MesSkin
           </p>
           <p className="mt-4 text-1xl text-gray-600">
-            We care about what goes on your skin, because of what's within.
+          Chúng tôi quan tâm đến làn da của bạn, vì bạn xứng đáng được chăm sóc đúng cách.
             <br />
-            Our assortment is top-rated, curated & authenticated.
+            Mỗi sản phẩm đều được chọn lọc kỹ lưỡng và xác thực chất lượng.
           </p>
         </div>
         <div className="bg-gray-200 border-t-2 border-b-2 border-gray-400 w-full">
@@ -64,19 +63,13 @@ export const About = () => {
             <div className="mx-auto flex flex-col lg:flex-row items-center justify-center w-full gap-10">
               <div className="lg:w-1/2 md:pl-10">
                 <p className="text-4xl font-semibold text-gray-800">
-                  The Dermstore Difference
+                Điểm khác biệt của MesSkin
                 </p>
                 <p className="mt-8 text-1xl text-gray-600">
-                  Dermstore was created in 1999 by a dermatologist who wanted to
-                  better serve his patients with easier access to the treatments
-                  their skin needed.
+                MesSkin được xây dựng với mục tiêu giúp bạn tiếp cận dễ dàng hơn các giải pháp chăm sóc da chuyên sâu và đáng tin cậy.
                 </p>
                 <p className="mt-8 text-1xl text-gray-600">
-                  We offer professional-strength formulas from top skin care
-                  brands (otherwise only available at a dermatologist's office),
-                  hard-to-find spa care and natural beauty brands, professional
-                  hair care and makeup products, and specialty brands from
-                  around the world.
+                Chúng tôi cung cấp sản phẩm từ thương hiệu spa cao cấp, mỹ phẩm thiên nhiên, chăm sóc tóc, trang điểm chuyên nghiệp và các nhãn hàng đặc biệt từ khắp nơi trên thế giới.
                 </p>
               </div>
               <div className="lg:w-1/2 mt-6 lg:mt-0 md:pr-10">
@@ -118,7 +111,7 @@ export const About = () => {
                         SEE ALL BRANDS
                       </a>
                       <a href={item.link} className="side front">
-                        Read More
+                      Xem thêm
                       </a>
                     </div>
                   </div>

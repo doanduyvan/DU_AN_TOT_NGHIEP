@@ -29,6 +29,7 @@ class CreateOrdersTable extends Migration
             $table->integer('payment_status')->default(0);
             $table->integer('shipping_status')->default(0);
             $table->text('note')->nullable();
+            $table->tinyInteger('created_by_admin')->default(0);
             $table->timestamps();
 
             // Khóa ngoại

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -37,17 +38,17 @@ class Voucher extends Model
     public function isValid()
     {
         return $this->status == 1 &&
-            $this->expiry_date >= now() &&
+            $this->expiry_date >= Carbon::now() &&
             $this->quantity_used < $this->quantity;
     }
 
     // Tính số tiền được giảm
     public function getDiscountAmount($orderTotal)
     {
-        if ($this->discount_type == 0) {
+        if ($this->discount_type == 1) {
             // Theo %
             return round($orderTotal * ($this->discount_value / 100), 2);
-        } elseif ($this->discount_type == 1) {
+        } elseif ($this->discount_type == 0) {
             // Theo số tiền
             return round(min($this->discount_value, $orderTotal), 2);
         }

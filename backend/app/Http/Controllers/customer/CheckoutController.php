@@ -70,7 +70,11 @@ class CheckoutController extends Controller
                 $voucher->incrementUsage();
             }
 
-            $payment_status = $request['payment_method'] === 'cod' ? 3 : 1;
+            if($total <= 0) {
+                $payment_status = 2;
+            }else{
+                $payment_status = $request['payment_method'] === 'cod' ? 3 : 1;
+            }
 
             // Tạo đơn hàng
             $order = Order::create([
@@ -102,6 +106,8 @@ class CheckoutController extends Controller
                 $variant->increment('sold_quantity', $item['qty']);
             }
 
+            
+
             DB::commit();
 
 
@@ -109,9 +115,14 @@ class CheckoutController extends Controller
 
             // Xử lý thanh toán VNPAY
             if ($request['payment_method'] === 'vnpay') {
-                $paymentUrl = $this->VnPay_Payment_Create($order);
-                $dataRes['payment_method'] = 'vnpay';
-                $dataRes['payment_url'] = $paymentUrl;
+                if ($total <= 0) {
+                    $dataRes['payment_method'] = 'cod';
+                    $dataRes['payment_url'] = null;
+                }else{
+                    $paymentUrl = $this->VnPay_Payment_Create($order);
+                    $dataRes['payment_method'] = 'vnpay';
+                    $dataRes['payment_url'] = $paymentUrl;
+                }
             }else{
                 $dataRes['payment_method'] = 'cod';
                 $dataRes['payment_url'] = null;
@@ -250,5 +261,48 @@ class CheckoutController extends Controller
             'Message' => $isSuccess ? 'Confirm Success' : 'Payment Failed',
         ]);
     }
-    
+
+    public function getVoucher()
+    {
+        $vouchers = Voucher::where('status', 1)
+            ->where('expiry_date', '>=', Carbon::now())
+            ->whereRaw('quantity > quantity_used')
+            ->get();
+
+        return response()->json([
+            'vouchers' => $vouchers
+        ]);
+    }
+
+    public function checkVoucher(Request $request)
+    {
+        $voucherCode = $request->input('voucher_code');
+        $total = $request->input('total');
+
+        if (empty($voucherCode)) {
+            return response()->json(['message' => 'Vui lòng nhập mã khuyến mãi'], 400);
+        }
+
+        $voucher = Voucher::where('code', $voucherCode)->first();
+
+        if (!$voucher) {
+            return response()->json(['message' => 'Mã giảm giá không tồn tại'], 400);
+        }
+
+        if (!$voucher->isValid()) {
+            return response()->json(['message' => 'Mã giảm giá đã hết hạn'], 400);
+        }
+
+        info('total_request: ' . $total);
+
+        $discount = $voucher->getDiscountAmount($total);
+        $totalDiscount = round(max(0, $total - $discount));
+
+        return response()->json([
+            'message' => 'Mã giảm giá hợp lệ',
+            'voucher' => $voucher,
+            'total_discount' => $totalDiscount,
+            'discount' => $discount,
+        ]);
+    }
 }

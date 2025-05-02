@@ -1,25 +1,25 @@
-import { Input, Select, Radio, Divider, Button,Modal } from "antd";
+import { Input, Select, Radio, Divider, Button,Modal, message, Empty } from "antd";
 import React, { useState, useEffect } from "react";
 import AddAddress from "/src/components/address/addaddress";
 import { FullScreenLoader } from "../../../utils/helpersjsx";
 import { useUserContext } from "../../../context/user/userContext";
 import { formatCurrency } from "../../../utils/helpers";
 import AxiosUser from "../../../utils/axios_user";
-import { message } from "antd";
-import { Link, useNavigate, Navigate } from "react-router-dom";
+import { Link, useNavigate, Navigate,useLocation  } from "react-router-dom";
 
 const { Option } = Select;
 
 const baseUrlImg = import.meta.env.VITE_URL_IMG;
 const urlAddAddress = "customer/profile/get-address";
 const urlCheckOut = "customer/checkout";
-
+const urlGetVouchers = "customer/checkout/get-voucher";
+const urlCheckVoucher = "customer/checkout/check-voucher";
 
 const Checkout = () => {
 
+  const location = useLocation();
+
   const { cartItems,setCart,setCartItems, isLoggedIn } = useUserContext();
-
-
 
   const [showModal, setShowModal] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
@@ -30,6 +30,11 @@ const Checkout = () => {
   const [note, setNote] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
+  const [vouchersModal, setVouchersModal] = useState(false);
+  const [vouchers, setVouchers] = useState([]);
+  const [isApplyVoucher, setIsApplyVoucher] = useState(null);
+  const [totalDiscount, setTotalDiscount] = useState(null);
+  const [discountValue, setDiscountValue] = useState(null);
 
   const total = cartItems.reduce(
     (sum, item) => sum + parseFloat(item.price) * item.qty,
@@ -65,7 +70,7 @@ const Checkout = () => {
       }
     };
     if(isLoggedIn) fetchAddresses();
-  },[isLoggedIn]);
+  },[isLoggedIn,location]);
 
   const onAfterAddAddress = (address) => {
     const newAddress = handleFomatAddress(address);
@@ -93,6 +98,11 @@ const Checkout = () => {
       message.error("Giỏ hàng của bạn đang trống.");
       return;
     }
+
+    if(isApplyVoucher === false){
+      message.error("Mã giảm giá không hợp lệ hoặc đã hết hạn.");
+      return;
+    }
     
     try{
       setLoadingCheckout(true);
@@ -113,6 +123,56 @@ const Checkout = () => {
     }finally{
       setLoadingCheckout(false);
     }
+  }
+
+  useEffect(() => {
+    const fetchVouchers = async () => {
+      try {
+        const res = await AxiosUser.get(urlGetVouchers, { useToken: true });
+        const data = res.vouchers;
+        setVouchers(data);
+      } catch (error) {
+        const message2 = error.response?.data?.message || "Có lỗi xảy ra khi tải mã giảm giá.";
+        message.error(message2);
+      }
+    };
+    if(isLoggedIn) fetchVouchers();
+  },[isLoggedIn,location]);
+
+  const onCheckVoucher = async (chooseVoucher = null) => {
+
+    let voucher_code = voucherCode;
+    if(chooseVoucher !== null){
+      voucher_code = chooseVoucher;
+    }
+    voucher_code = voucher_code.trim();
+    if(voucher_code == "") return;
+
+    try {
+      setLoadingCheckout(true);
+      const res = await AxiosUser.get(urlCheckVoucher, { params: { voucher_code: voucher_code , total: total}, useToken: true });
+      const total_discount = res.total_discount;
+      const discount_value = res.discount;
+      const message2 = res.message;
+      setIsApplyVoucher(true);
+      setDiscountValue(discount_value);
+      setTotalDiscount(total_discount);
+      message.success(message2);
+    }catch(err){
+        setIsApplyVoucher(false);
+        const message2 = err.response?.data?.message || "Có lỗi xảy ra khi kiểm tra mã giảm giá.";
+        setTotalDiscount(null);
+        message.error(message2);
+    }finally{
+      setLoadingCheckout(false);
+    }
+  }
+
+  const onCancelVoucher = () => {
+    setIsApplyVoucher(null);
+    setTotalDiscount(null);
+    setDiscountValue(null);
+    setVoucherCode("");
   }
 
   if (!isLoggedIn) return <Navigate to="/login" />;
@@ -202,35 +262,47 @@ const Checkout = () => {
               ))}
             </div>
             <div className="mt-3">
-              <Link to='/cart' className="text-sm text-blue-400 hover:text-blue-500 whitespace-nowrap">&larr; Quay lại giỏ hàng</Link>
+              <Link
+                to="/cart"
+                className="text-sm text-blue-400 hover:text-blue-500 whitespace-nowrap"
+              >
+                &larr; Quay lại giỏ hàng
+              </Link>
             </div>
           </div>
 
           {/* RIGHT SIDEBAR */}
           <div className="col-span-12 md:col-span-5 lg:col-span-4 bg-white p-4 rounded-md shadow">
-          <Divider orientation="left">Ghi chú đơn hàng</Divider>
+            <Divider orientation="left">Ghi chú đơn hàng</Divider>
 
             <Input.TextArea
-            placeholder="Nhập ghi chú đơn hàng"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            >
-            </Input.TextArea>
+              placeholder="Nhập ghi chú đơn hàng"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+            ></Input.TextArea>
 
             <Divider orientation="left">Khuyến mãi</Divider>
-            <Select
-              className="w-full mb-2"
-              placeholder="Chọn mã khuyến mãi"
-              onChange={(value) => setVoucherCode(value)}
-            >
-              <Option value="SALE10">SALE10 - Giảm 10%</Option>
-              <Option value="FREESHIP">FREESHIP - Miễn phí vận chuyển</Option>
-            </Select>
-            <Input
-              placeholder="Nhập mã khuyến mãi"
-              value={voucherCode}
-              onChange={(e) => setVoucherCode(e.target.value)}
-            />
+
+            <div>
+            <div>
+              <Button type="primary" onClick={()=> setVouchersModal(true)}>Chọn mã khuyến mãi</Button>
+            </div>
+              <div className="flex gap-2 mt-2">
+                <Input
+                  placeholder="Nhập mã khuyến mãi"
+                  value={voucherCode}
+                  onChange={(e) => setVoucherCode(e.target.value)}
+                  allowClear={true}
+                  disabled={isApplyVoucher !== null}
+                  className={`${isApplyVoucher !== null ? isApplyVoucher ? "!border-green-500" : "!border-red-500" : ""}`}
+                />
+                {isApplyVoucher === null ? (
+                <Button type="primary" onClick={()=> onCheckVoucher()}>Áp dụng</Button>
+                ):(
+                <Button type="primary" danger onClick={onCancelVoucher}>Hủy</Button>
+                )}
+              </div>
+            </div>
 
             <Divider orientation="left">Phương thức thanh toán</Divider>
             <Radio.Group
@@ -244,18 +316,40 @@ const Checkout = () => {
 
             <Divider />
 
-            <div className="flex justify-between text-lg font-medium mb-4">
-              <span>Tổng cộng:</span>
-              <span className="text-red-500">{formatCurrency(total)}</span>
+            <div className="text-sm font-medium mb-4">
+              <div className="flex flex-col">
+              {totalDiscount !== null ? (
+                <>
+                <div className="flex gap-2 items-center justify-between">
+                  <span className="text-sm">Tạm tính:</span>
+                  <span className="text-gray-400 text-sm line-through">{formatCurrency(total)}</span>
+                </div>
+                <div className="flex gap-2 items-center justify-between">
+                  <span className="text-sm">Đã giảm:</span>
+                  <span className="text-green-500">{formatCurrency(discountValue)}</span>
+                </div>
+                <div className="flex gap-2 items-center justify-between">
+                  <span className="text-lg">Tổng cộng:</span>
+                  <span className="text-red-500 text-lg">{formatCurrency(totalDiscount)}</span>
+                </div>
+                </>
+              ) : (
+                <div className="flex gap-2 items-center justify-between">
+                  <span className="text-lg">Tổng cộng:</span>
+                  <span className="text-red-500 text-lg">{formatCurrency(total)}</span>
+                </div>
+              )}
+              </div>
             </div>
 
             <Button type="primary" className="w-full h-10" onClick={onSubmit}>
-              Xác nhận thanh toán
+              Đặt hàng
             </Button>
           </div>
         </div>
       </div>
       <SuccessModal open={showSuccessModal} onClose={setShowSuccessModal} />
+      <VoucherModal open={vouchersModal} onClose={setVouchersModal} vouchers={vouchers} onCheckVoucher={onCheckVoucher} setVoucherCode={setVoucherCode} />
       <FullScreenLoader visible={loadingCheckout} tip="Vui lòng chờ..." />
     </>
   );
@@ -336,6 +430,56 @@ const SuccessModal = ({ open, onClose }) => {
           </Button>
           <Button onClick={handleGoOrder}>Xem đơn hàng</Button>
         </div>
+      </div>
+    </Modal>
+  );
+};
+
+const VoucherModal = ({ open, onClose, vouchers, onCheckVoucher,setVoucherCode }) => {
+
+  const onSelectVoucher = (voucher) => {
+    onCheckVoucher(voucher.code);
+    setVoucherCode(voucher.code);
+    onClose(false);
+  }
+
+  return (
+    <Modal
+      title="Chọn mã giảm giá"
+      open={open}
+      footer={null} 
+      onCancel={() => onClose(false)}
+    >
+ <div className="space-y-4 max-h-[450px] overflow-y-auto">
+        {vouchers.length === 0 ? (
+          <Empty description="Không có mã giảm giá nào" />
+        ) : (
+          vouchers.map((voucher) => (
+            <div
+              key={voucher.id}
+              className="border border-gray-300 rounded-lg p-4 flex items-center justify-between hover:shadow-md transition"
+            >
+              <div>
+                <div className="font-semibold text-lg">{voucher.title}</div>
+                <div className="text-sm text-gray-500">
+                  Mã: {voucher.code}
+                </div>
+                <div className="text-sm text-gray-500">
+                  Hạn sử dụng: {new Date(voucher.expiry_date).toLocaleString('vi-VN')}
+                </div>
+                <div className="text-sm text-gray-500">
+                  Giá trị: {voucher.discount_type === 0 ? `${formatCurrency(voucher.discount_value)}` : `${voucher.discount_value}%`}
+                </div>
+                <div className="text-sm text-gray-500">
+                  Lượt sử dụng: {voucher.quantity_used} / {voucher.quantity}
+                </div>
+              </div>
+              <Button type="primary" onClick={() => onSelectVoucher(voucher)}>
+                Chọn
+              </Button>
+            </div>
+          ))
+        )}
       </div>
     </Modal>
   );

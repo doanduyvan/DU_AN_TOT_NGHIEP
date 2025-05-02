@@ -137,6 +137,11 @@ class AuthController extends Controller
             'password' => Hash::make(Str::random(20)), // Tạo mật khẩu ngẫu nhiên
         ]);
 
+        // Kiểm tra xem người dùng đã có quyền chưa, nếu chưa thì gán quyền mặc định
+        if (!$user->hasRole('Users')) {
+            $user->assignRole('Users');
+        }
+
         if ($user->avatar == null) {
             // Tải ảnh từ link
             try {

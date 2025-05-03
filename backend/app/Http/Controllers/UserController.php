@@ -74,6 +74,7 @@ class UserController extends Controller
                         ->where('guard_name', 'api')
                         ->get();
                     $user->syncRoles($roles);
+                    app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
                     return response()->json(['message' => 'Cập nhập thành công thành công', 'status' => 200], 200);
                 }
                 return response()->json(['message' => 'Không có vai trò để cập nhật', 'status' => 400], 400);

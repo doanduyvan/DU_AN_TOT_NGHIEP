@@ -23,7 +23,7 @@ class RoleController extends Controller
         ->applyFilters($filters);
         return response()->json($roles);
     }
-    public function create(RoleRequest $request)
+    public function create(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255|unique:roles',
@@ -40,7 +40,7 @@ class RoleController extends Controller
             $permissions = Permission::whereIn('id', $request->permissions)->get();
             $role->syncPermissions($permissions);
         }
-
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
         return response()->json([
             'role' => $role,
             'assigned_permissions' => $permissions ?? [],
@@ -94,6 +94,7 @@ class RoleController extends Controller
             } else {
                 $role->syncPermissions([]);
             }
+            app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
             return response()->json([
                 'status' => 200,
                 'role' => $role,
@@ -117,6 +118,7 @@ class RoleController extends Controller
         if (is_array($ids) && !empty($ids)) {
             try {
                 Role::whereIn('id', $ids)->delete();
+                app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
                 return response()->json(['message' => 'Xóa vai trò thành công', 'status' => 200]);
             } catch (QueryException $e) {
                 return response()->json(['message' => 'Xóa thất bại: ' . $e->getMessage(), 'status' => 'error'], 500);

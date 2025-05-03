@@ -1,7 +1,6 @@
 import { Button, Dropdown, notification } from 'antd';
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useUserContext } from "../../../src/context/user/userContext";
 import { useAuth } from '../../contexts/authcontext';
 import { AuthService } from '../../services/api-auth';
 import { message } from "antd";
@@ -10,7 +9,6 @@ const baseUrlImg = import.meta.env.VITE_URL_IMG;
 
 export const AdminHeader = () => {
     const navigate = useNavigate();
-    const userContext = useUserContext();
     const [hasNotifications, setHasNotifications] = useState(false);
     const [countOrder, setCountOrder] = useState(0);
     const [products, setProducts] = useState([]);
@@ -151,7 +149,7 @@ export const AdminHeader = () => {
                                     {
                                         currentUser && currentUser.avatar
                                             ? <img src={`${baseUrlImg}${currentUser.avatar}`} className="w-11 h-11 rounded-full object-cover" alt="Avatar" />
-                                            : <img src="../../public/images/home/lovepik-avatar-png-image_401708318_wh1200.png" className="w-11 h-11 rounded-full object-cover" alt="Default avatar" />
+                                            : <img src="/images/home/lovepik-avatar-png-image_401708318_wh1200.png" className="w-11 h-11 rounded-full object-cover" alt="Default avatar" />
                                     }
                                 </span>
                                 <Dropdown menu={menuUser} trigger={['click']} className="cursor-pointer">

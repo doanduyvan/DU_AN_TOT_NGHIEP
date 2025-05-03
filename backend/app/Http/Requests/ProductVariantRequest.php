@@ -17,9 +17,31 @@ class ProductVariantRequest extends FormRequest
             'variants' => 'required|array|min:1',
             'variants.*.size' => 'required|string|regex:/^[a-zA-Z0-9]+$/',
             'variants.*.price' => 'required|numeric|min:0',
-            'variants.*.promotional_price' => 'nullable|numeric|min:0|lt:variants.*.price',
             'variants.*.sku' => 'nullable|string|regex:/^[a-zA-Z0-9]+$/',
             'variants.*.stock_quantity' => 'required|integer|min:0',
+            'variants.*.promotional_price' => [
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    if($value === 'null') return;
+                    if($value === '') return;
+                    if ($value === null) return;
+
+                    if (!is_numeric($value)) {
+                        return $fail("Giá khuyến mãi phải là một số. $value");
+                    }
+
+                    if ($value < 0) {
+                        return $fail("Giá khuyến mãi phải lớn hơn hoặc bằng 0.");
+                    }
+
+                    $index = explode('.', $attribute)[1];
+                    $price = $this->input("variants.$index.price");
+            
+                    if ($price !== null && $value < $price) {
+                        $fail("Giá khuyến mãi không thể lớn hơn hoặc bằng giá gốc. $price, $value");
+                    }
+                }
+            ],
         ];
     }
 

@@ -58,7 +58,7 @@ const Home = () => {
           <div className="w-full md:w-1/2 flex flex-col justify-center p-8 md:p-12 lg:p-16">
             <h1 className="md:mt-10 lg:mt-0 text-2xl md:text-3xl lg:text-4xl font-sans font-bold text-stone-900 mb-3 pt-[80px] md:pt-0">
               Vẻ đẹp thuần khiết
-              <br className="hidden md:block" />
+              <br className="" />
               Dễ dàng hơn bao giờ hết
             </h1>
 

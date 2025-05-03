@@ -126,7 +126,7 @@ const LoginForm = () => {
 
         <div className="flex justify-center space-x-4">
           {/* <Button shape="circle" icon={<GoogleOutlined />} /> */}
-          <LoginGoogle onSuccess={Thenlogingoogle} />
+          <LoginGoogle onSuccess={Thenlogingoogle} setLoading={setLoading} />
         </div>
       </div>
     </div>

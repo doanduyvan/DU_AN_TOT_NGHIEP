@@ -159,7 +159,10 @@ export const Update_Product = () => {
             }
             formData.append(`variants[${index}][size]`, variant.size);
             formData.append(`variants[${index}][price]`, variant.price);
-            if (variant.promotional_price) {
+
+            if (!variant.promotional_price) {
+                formData.append(`variants[${index}][promotional_price]`, null);
+            }else{
                 formData.append(`variants[${index}][promotional_price]`, variant.promotional_price);
             }
             formData.append(`variants[${index}][sku]`, variant.sku);
@@ -184,6 +187,7 @@ export const Update_Product = () => {
         const { name, value } = e.target;
         const newVariants = [...variants];
         newVariants[index][name] = value;
+        console.log(newVariants);
         setVariants(newVariants);
     };
     const addVariant = () => {

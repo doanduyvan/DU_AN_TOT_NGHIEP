@@ -297,7 +297,7 @@ export const Users = () => {
                                     {
                                         user && user.avatar
                                             ? <img src={`${urlSRC}${user.avatar}`} className="w-12 h-12 rounded-full object-cove" alt="Avatar" />
-                                            : <img src="../../public/images/home/lovepik-avatar-png-image_401708318_wh1200.png" className="w-12 h-12 rounded-full object-cover" alt="Default avatar" />
+                                            : <img src="/images/home/lovepik-avatar-png-image_401708318_wh1200.png" className="w-12 h-12 rounded-full object-cover" alt="Default avatar" />
                                     }
                                     <div className="ps-3">
                                         <div className="text-base font-semibold">

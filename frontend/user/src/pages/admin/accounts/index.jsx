@@ -4,10 +4,13 @@ import { UsersService } from "../../../services/api-users";
 import { AntNotification } from "../../../components/notification";
 import { ImageModal } from "../../../components/admin/imgmodal";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import { Loading } from '../../../contexts/loading';
+
 import { Pagination } from 'antd';
 
 export const Users = () => {
     const urlSRC = import.meta.env.VITE_URL_IMG;
+    const [loading, setLoading] = useState(false);
     const [users, setUser] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -56,9 +59,9 @@ export const Users = () => {
             AntNotification.handleError(error);
         }
     };
-    console.log(selectedUsers);
     const fetchData = async () => {
         try {
+            setLoading(true);
             const res = await UsersService.getAllUsers({
                 page: currentPage,
                 per_page: pageSize,
@@ -68,7 +71,6 @@ export const Users = () => {
             if (res) {
                 setUser(Array.isArray(res.data) ? res.data : []);
                 setTotalItems(res.total || 0);
-                console.log(res);
             } else {
                 AntNotification.showNotification(
                     "Có lỗi xảy ra",
@@ -78,6 +80,8 @@ export const Users = () => {
             }
         } catch (error) {
             AntNotification.handleError(error);
+        } finally {
+            setLoading(false);
         }
     };
     useEffect(() => {
@@ -258,7 +262,13 @@ export const Users = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map((user) => (
+                        {users.length === 0 ? (
+                            <tr className="">
+                                <td colSpan={4} className="text-center py-4 text-gray-500">
+                                    Không có tài khoản nào
+                                </td>
+                            </tr>
+                        ) : users.map((user) => (
                             <tr
                                 key={user.id}
                                 className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
@@ -284,8 +294,11 @@ export const Users = () => {
                                     scope="row"
                                     className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                 >
-                                    <img src={urlSRC + user.avatar} className="w-12 h-12 rounded-full" alt={user.fullname} />
-
+                                    {
+                                        user && user.avatar
+                                            ? <img src={`${urlSRC}${user.avatar}`} className="w-12 h-12 rounded-full object-cove" alt="Avatar" />
+                                            : <img src="../../public/images/home/lovepik-avatar-png-image_401708318_wh1200.png" className="w-12 h-12 rounded-full object-cover" alt="Default avatar" />
+                                    }
                                     <div className="ps-3">
                                         <div className="text-base font-semibold">
                                             {user.fullname}
@@ -336,6 +349,7 @@ export const Users = () => {
                         onChange={handlePageChange} />
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

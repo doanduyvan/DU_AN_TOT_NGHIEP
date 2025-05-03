@@ -3,16 +3,18 @@ import { RolesService } from "../../../services/api-roles";
 import { AntNotification } from "../../../components/notification";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import { Loading } from "../../../contexts/loading";
 import { Pagination } from 'antd';
 export const Roles = () => {
+    const [loading, setLoading] = useState(false);
     const [roles, setRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
-        const [currentPage, setCurrentPage] = useState(1);
-        const [pageSize, setPageSize] = useState(10);
-        const [totalItems, setTotalItems] = useState(0);
-        const [sortorder, setSortOrder] = useState(null);
-        const [keyword, setKeyword] = useState("");
-        const [inputValue, setInputValue] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalItems, setTotalItems] = useState(0);
+    const [sortorder, setSortOrder] = useState(null);
+    const [keyword, setKeyword] = useState("");
+    const [inputValue, setInputValue] = useState('');
 
     const checkRoles = (e, id) => {
         setSelectedRoles((prevSelect) => {
@@ -36,7 +38,7 @@ export const Roles = () => {
                         (role) => !selectedRoles.includes(role.id)
                     );
                 });
-                setSelectedRoles([]); 
+                setSelectedRoles([]);
                 AntNotification.showNotification("Xóa thành công", res.message, "success");
             } else {
                 AntNotification.showNotification("Xóa thất bại", res.message, "error");
@@ -49,6 +51,7 @@ export const Roles = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setLoading(true);
                 const res = await RolesService.callRoles({
                     page: currentPage,
                     per_page: pageSize,
@@ -58,12 +61,13 @@ export const Roles = () => {
                 if (res) {
                     setRoles(res.data);
                     setTotalItems(res.total || 0);
-                    console.log(res);
                 } else {
                     AntNotification.showNotification("Lỗi", "Không thể tải dữ liệu", "error");
                 }
             } catch (error) {
                 AntNotification.handleError(error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchData();
@@ -81,7 +85,6 @@ export const Roles = () => {
     }, [inputValue]);
 
     const handlePageChange = async (page, size) => {
-        console.log(page);
         setCurrentPage(page);
         setPageSize(size);
     }
@@ -97,12 +100,12 @@ export const Roles = () => {
                     <nav className="rounded-md w-full">
                         <ol className="list-reset flex">
                             <li>
-                            <Link
-                            to="/admin"
-                            className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
-                        >
-                            Quản Trị
-                        </Link>
+                                <Link
+                                    to="/admin"
+                                    className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
+                                >
+                                    Quản Trị
+                                </Link>
                             </li>
                             <li>
                                 <span className="mx-2 text-neutral-500 dark:text-neutral-400">
@@ -128,7 +131,7 @@ export const Roles = () => {
 
                     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                         <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
-                        <div>
+                            <div>
                                 <select
                                     className="cursor-pointer items-center text-black bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 font-medium rounded-lg text-sm px-3 py-1.5 "
                                     onChange={handleFilterChange}
@@ -223,54 +226,61 @@ export const Roles = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {roles.map((role) => (
-                                    <tr
-                                        key={role.id}
-                                        className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
-                                    >
-                                        <td className="w-4 p-4">
-                                            <div className="flex items-center">
-                                                <input
-                                                    id="checkbox-table-search-1"
-                                                    onChange={(e) => checkRoles(e, role.id)}
-                                                    checked={selectedRoles.includes(role.id)}
-                                                    type="checkbox"
-                                                    className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                                />
-                                                <label
-                                                    htmlFor="checkbox-table-search-1"
-                                                    className="sr-only"
-                                                >
-                                                    Checkbox
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">{role.id}</td>
-                                        <th
-                                            scope="row"
-                                            className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
+                                {
+                                    roles.length === 0 ? (
+                                        <tr className="">
+                                            <td colSpan={6} className="text-center py-4 text-gray-500">
+                                                Không có vai trò nào
+                                            </td>
+                                        </tr>
+                                    ) : roles.map((role) => (
+                                        <tr
+                                            key={role.id}
+                                            className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                                         >
-                                            <div className="">
-                                                <div className="text-base font-semibold lineclap w-60 text-limit">
-                                                    {role.name}
+                                            <td className="w-4 p-4">
+                                                <div className="flex items-center">
+                                                    <input
+                                                        id="checkbox-table-search-1"
+                                                        onChange={(e) => checkRoles(e, role.id)}
+                                                        checked={selectedRoles.includes(role.id)}
+                                                        type="checkbox"
+                                                        className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                    />
+                                                    <label
+                                                        htmlFor="checkbox-table-search-1"
+                                                        className="sr-only"
+                                                    >
+                                                        Checkbox
+                                                    </label>
                                                 </div>
-                                            </div>
-                                        </th>
-                                        <td className="px-6 py-4 text-gray-700">{role.guard_name}</td>
-                                        <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(role.updated_at).toLocaleDateString('vi-VN')}</td>
-                                        <td className="px-6 py-4">
-                                            <Link
-                                                to={`/admin/roles/update/${role.id}`}
-                                                type="button"
-                                                data-modal-target="editUserModal"
-                                                data-modal-show="editUserModal"
-                                                className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                            </td>
+                                            <td className="px-6 py-4">{role.id}</td>
+                                            <th
+                                                scope="row"
+                                                className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                             >
-                                                Edit
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))}
+                                                <div className="">
+                                                    <div className="text-base font-semibold lineclap w-60 text-limit">
+                                                        {role.name}
+                                                    </div>
+                                                </div>
+                                            </th>
+                                            <td className="px-6 py-4 text-gray-700">{role.guard_name}</td>
+                                            <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(role.updated_at).toLocaleDateString('vi-VN')}</td>
+                                            <td className="px-6 py-4">
+                                                <Link
+                                                    to={`/admin/roles/update/${role.id}`}
+                                                    type="button"
+                                                    data-modal-target="editUserModal"
+                                                    data-modal-show="editUserModal"
+                                                    className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                                >
+                                                    Edit
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    ))}
                             </tbody>
                         </table>
                         <div className="flex justify-end p-4">
@@ -284,6 +294,7 @@ export const Roles = () => {
                     </div>
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

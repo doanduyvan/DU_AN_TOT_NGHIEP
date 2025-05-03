@@ -37,7 +37,6 @@ export const Home_Admin = () => {
         };
         fetchData();
     }, []);
-    console.log(userCount, orderCount, productCount, users, orders);
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <div className="mt-2 w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 bg-white shadow rounded-lg p-6">
@@ -86,23 +85,74 @@ export const Home_Admin = () => {
                     <div className="flow-root">
                         <ul role="list" className="divide-y divide-gray-200">
                             {loading ? (
-                                <div className="animate-pulse space-x-4">
-                                    <div className="flex items-center space-x-4">
-                                        <div className="bg-gray-300 h-8 w-8 rounded-full"></div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="h-4 bg-gray-300 w-32 mb-2"></div>
-                                            <div className="h-4 bg-gray-300 w-24"></div>
-                                            <div className="h-4 bg-gray-300 w-24"></div>
+                                <div className="gap-4 flex flex-col">
+                                    <div className="animate-pulse space-x-4">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="bg-gray-300 h-8 w-8 rounded-full"></div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="h-4 bg-gray-300 w-32 mb-2"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                            </div>
+                                            <div className="h-6 bg-gray-300 w-16"></div>
                                         </div>
-                                        <div className="h-6 bg-gray-300 w-16"></div>
                                     </div>
+                                    <div className="animate-pulse space-x-4">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="bg-gray-300 h-8 w-8 rounded-full"></div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="h-4 bg-gray-300 w-32 mb-2"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                            </div>
+                                            <div className="h-6 bg-gray-300 w-16"></div>
+                                        </div>
+                                    </div>
+                                    <div className="animate-pulse space-x-4">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="bg-gray-300 h-8 w-8 rounded-full"></div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="h-4 bg-gray-300 w-32 mb-2"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                            </div>
+                                            <div className="h-6 bg-gray-300 w-16"></div>
+                                        </div>
+                                    </div>
+                                    <div className="animate-pulse space-x-4">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="bg-gray-300 h-8 w-8 rounded-full"></div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="h-4 bg-gray-300 w-32 mb-2"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                            </div>
+                                            <div className="h-6 bg-gray-300 w-16"></div>
+                                        </div>
+                                    </div>
+                                    <div className="animate-pulse space-x-4">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="bg-gray-300 h-8 w-8 rounded-full"></div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="h-4 bg-gray-300 w-32 mb-2"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                            </div>
+                                            <div className="h-6 bg-gray-300 w-16"></div>
+                                        </div>
+                                    </div>
+
                                 </div>
                             ) : (
                                 users.length > 0 ? users.map((user) => (
                                     <li key={user.id} className="py-2 sm:py-4">
                                         <div className="flex items-center space-x-4">
                                             <div className="flex-shrink-0">
-                                                <img className=" w-14 h-14 rounded-full object-cover" src={urlImg + user.avatar} alt={user.fullname} />
+                                                {
+                                                    user && user.avatar
+                                                        ? <img src={`${urlImg}${user.avatar}`} className="w-14 h-14 rounded-full object-cove" alt="Avatar" />
+                                                        : <img src="../../public/images/home/lovepik-avatar-png-image_401708318_wh1200.png" className="w-14 h-14 rounded-full object-cover" alt="Default avatar" />
+                                                }
                                             </div>
 
                                             <div className="flex-1 min-w-0">
@@ -139,15 +189,56 @@ export const Home_Admin = () => {
                     <div className="flow-root">
                         <ul role="list" className="divide-y divide-gray-200">
                             {loading ? (
-                                <div className="animate-pulse space-x-4">
-                                    <div className="flex items-center space-x-4">
-                                        <div className="bg-gray-300 h-8 w-8 rounded-full"></div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="h-4 bg-gray-300 w-32 mb-2"></div>
-                                            <div className="h-4 bg-gray-300 w-24"></div>
-                                            <div className="h-4 bg-gray-300 w-24"></div>
+                                <div className="gap-4 flex flex-col">
+                                    <div className="animate-pulse space-x-4">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="flex-1 min-w-0">
+                                                <div className="h-4 bg-gray-300 w-32 mb-2"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                            </div>
+                                            <div className="h-6 bg-gray-300 w-16"></div>
                                         </div>
-                                        <div className="h-6 bg-gray-300 w-16"></div>
+                                    </div>
+                                    <div className="animate-pulse space-x-4">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="flex-1 min-w-0">
+                                                <div className="h-4 bg-gray-300 w-32 mb-2"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                            </div>
+                                            <div className="h-6 bg-gray-300 w-16"></div>
+                                        </div>
+                                    </div>
+                                    <div className="animate-pulse space-x-4">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="flex-1 min-w-0">
+                                                <div className="h-4 bg-gray-300 w-32 mb-2"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                            </div>
+                                            <div className="h-6 bg-gray-300 w-16"></div>
+                                        </div>
+                                    </div>
+                                    <div className="animate-pulse space-x-4">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="flex-1 min-w-0">
+                                                <div className="h-4 bg-gray-300 w-32 mb-2"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                            </div>
+                                            <div className="h-6 bg-gray-300 w-16"></div>
+                                        </div>
+                                    </div>
+                                    <div className="animate-pulse space-x-4">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="flex-1 min-w-0">
+                                                <div className="h-4 bg-gray-300 w-32 mb-2"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                                <div className="h-4 bg-gray-300 w-24"></div>
+                                            </div>
+                                            <div className="h-6 bg-gray-300 w-16"></div>
+                                        </div>
                                     </div>
                                 </div>
                             ) : (

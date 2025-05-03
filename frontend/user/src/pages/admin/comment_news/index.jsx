@@ -1,14 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { fi, vi } from 'date-fns/locale';
 import { commentNewsService } from "../../../services/api-comment-news";
 import { AntNotification } from "../../../components/notification";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import { Loading } from "../../../contexts/loading";
 import { Pagination } from "antd";
 
 export const Comment_News = () => {
     const [comments, setComments] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [selectedComments, setSelectedCommnets] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -48,6 +50,7 @@ export const Comment_News = () => {
     };
     const fetchData = async () => {
         try {
+            setLoading(true);
             const res = await commentNewsService.getComments(
                 {
                     page: currentPage,
@@ -59,12 +62,13 @@ export const Comment_News = () => {
             if (res) {
                 setComments(res.data);
                 setTotalItems(res.total || 0);
-                console.log(res.data);
             } else {
                 AntNotification.showNotification("Lỗi", "Không thể lấy danh sách bình luận", "error");
             }
         } catch (error) {
             AntNotification.handleError(error);
+        } finally {
+            setLoading(false);
         }
     };
     useEffect(() => {
@@ -82,7 +86,6 @@ export const Comment_News = () => {
         }, 400);
         return () => clearTimeout(debounceTimer);
     }, [inputValue]);
-    console.log("keyword", keyword);
 
     const handlePageChange = async (page, size) => {
         console.log(page, size);
@@ -209,72 +212,66 @@ export const Comment_News = () => {
                             <th scope="col" className="px-6 py-3">
                                 Thời gian
                             </th>
-                            <th scope="col" className="px-6 py-3">
-                                Action
-                            </th>
                         </tr>
                     </thead>
                     <tbody>
-                        {comments.map((item) => (
-                            <tr
-                                key={item.id}
-                                className="bg-white border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
-                            >
-                                <td className="w-4 p-4 ">
-                                    <div className="flex items-center">
-                                        <input
-                                            id="checkbox-table-search-1"
-                                            onChange={(e) => checkComments(e, item.id)}
-                                            checked={selectedComments.includes(item.id)}
-                                            type="checkbox"
-                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                        />
-                                        <label
-                                            htmlFor="checkbox-table-search-1"
-                                            className="sr-only"
-                                        >
-                                            checkbox
-                                        </label>
-                                    </div>
-                                </td>
-                                <td
-                                    scope="row"
-                                    className="max-w-5xl flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
+                        {
+                            comments.length === 0 ? (
+                                <tr className="">
+                                    <td colSpan={5} className="text-center py-4 text-gray-500">
+                                        Không có bình luận nào
+                                    </td>
+                                </tr>
+                            ) : comments.map((item) => (
+                                <tr
+                                    key={item.id}
+                                    className="bg-white border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                                 >
-                                    <div className="truncate">
-                                        <div className="text-base font-semibold truncate">
-                                            {item.user.fullname}
+                                    <td className="w-4 p-4 ">
+                                        <div className="flex items-center">
+                                            <input
+                                                id="checkbox-table-search-1"
+                                                onChange={(e) => checkComments(e, item.id)}
+                                                checked={selectedComments.includes(item.id)}
+                                                type="checkbox"
+                                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                            />
+                                            <label
+                                                htmlFor="checkbox-table-search-1"
+                                                className="sr-only"
+                                            >
+                                                checkbox
+                                            </label>
                                         </div>
-                                        <Link to={`/news/${item.news.id}/${item.news.title}`} className="font-normal text-gray-500 truncate">
-                                            {item.content}
-                                        </Link>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="text-base font-semibold truncate">
-                                        {item.news.title}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="text-base font-semibold">
-                                        {formatDistanceToNow(new Date(item.created_at), {
-                                            addSuffix: true,
-                                            locale: vi
-                                        })}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <Link
-                                        to={`/admin/comment-news/update/${item.id}`}
-                                        type="button"
-                                        data-modal-target="editUserModal"
-                                        data-modal-show="editUserModal"
-                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                                        Edit
-                                    </Link>
-                                </td>
-                            </tr>
-                        ))}
+                                    </td>
+                                    <td
+                                        scope="row"
+                                        className="max-w-5xl flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
+                                    >
+                                        <div className="truncate">
+                                            <div className="text-base font-semibold truncate">
+                                                {item.user.fullname}
+                                            </div>
+                                            <Link to={`/news/${item.news.id}/${item.news.title}`} className="font-normal text-gray-500 truncate">
+                                                {item.content}
+                                            </Link>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="text-base font-semibold truncate">
+                                            {item.news.title}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="text-base font-semibold">
+                                            {formatDistanceToNow(new Date(item.created_at), {
+                                                addSuffix: true,
+                                                locale: vi
+                                            })}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
                     </tbody>
                 </table>
                 <div className="flex justify-end p-4">
@@ -286,6 +283,7 @@ export const Comment_News = () => {
                         onChange={handlePageChange} />
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

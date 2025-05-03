@@ -2,12 +2,12 @@ export const ShippingStatusSelect = ({ order, onChange, disabled = false }) => {
     const ShippingStatus = [
         { id: 1, name: "Đang chờ lấy hàng" },
         { id: 2, name: "Đang vận chuyển" },
-        { id: 3, name: "Đang đến" },
+        // { id: 3, name: "Đang đến" },
         { id: 4, name: "Đã giao" },
         { id: 5, name: "Không thể giao" },
-        { id: 6, name: "Trả lại" },
-        { id: 7, name: "Tạm hoãn" },
-        { id: 8, name: "Đã xử lý" },
+        // { id: 6, name: "Trả lại" },
+        // { id: 7, name: "Tạm hoãn" },
+        // { id: 8, name: "Đã xử lý" },
     ];
 
     const selectedStatus = order.shipping_status !== undefined ? order.shipping_status : 1;

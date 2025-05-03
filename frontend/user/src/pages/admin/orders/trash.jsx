@@ -8,14 +8,15 @@ import { FilterPaymentStatusSelect } from "../../../components/admin/orders/filt
 import { PaymentStatusSelect } from "../../../components/admin/orders/payment_status";
 import { FilterShippingStatusSelect } from "../../../components/admin/orders/filter_shipping_status";
 import { ShippingStatusSelect } from "../../../components/admin/orders/shipping_status";
+import { Loading } from "../../../contexts/loading";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
 import RestoreConfirmationModal from "../../../components/restore_confirm";
 import { OrderDetail } from "../../../components/admin/order_detail";
 import { Pagination } from 'antd';
 
 
-
 export const OrdersTrash = () => {
+    const [loading, setLoading] = useState(false);
     const [orders, setOrders] = useState([]);
     const [selectedOrders, setSelectedOrders] = useState([]);
     const [orderDetail, setOrderDetail] = useState(null);
@@ -33,7 +34,7 @@ export const OrdersTrash = () => {
         const res = await OrderService.getOrderTrashById(id);
         if (res) {
             setOrderDetail(res);
-        }else {
+        } else {
             AntNotification.showNotification(
                 "Có lỗi xảy ra",
                 res?.message || "Vui lòng thử lại sau",
@@ -96,6 +97,7 @@ export const OrdersTrash = () => {
     };
     const fetchData = async () => {
         try {
+            setLoading(true);
             const res = await OrderService.orderTrash({
                 page: currentPage,
                 per_page: pageSize,
@@ -117,6 +119,8 @@ export const OrdersTrash = () => {
             }
         } catch (error) {
             AntNotification.handleError(error);
+        } finally {
+            setLoading(false);
         }
     };
     useEffect(() => {
@@ -290,80 +294,87 @@ export const OrdersTrash = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {orders.map((order) => (
-                            <tr
-                                key={order.id}
-                                className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
-                            >
-                                <td className="w-4 p-4">
-                                    <div className="flex items-center">
-                                        <input
-                                            id="checkbox-table-search-1"
-                                            onChange={(e) => checkOrder(e, order.id)}
-                                            checked={selectedOrders.includes(order.id)}
-                                            type="checkbox"
-                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                        />
-                                        <label
-                                            htmlFor="checkbox-table-search-1"
-                                            className="sr-only"
-                                        >
-                                            checkbox
-                                        </label>
-                                    </div>
-                                </td>
-                                <th
-                                    scope="row"
-                                    className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
+                        {
+                            orders.length === 0 ? (
+                                <tr className="">
+                                    <td colSpan={10} className="text-center py-4 text-gray-500">
+                                        Không có đơn hàng nào
+                                    </td>
+                                </tr>
+                            ) : orders.map((order) => (
+                                <tr
+                                    key={order.id}
+                                    className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                                 >
-                                    <div className="px-6 py-4">
-                                        <div className="text-base font-semibold">
-                                            {order.fullname}
+                                    <td className="w-4 p-4">
+                                        <div className="flex items-center">
+                                            <input
+                                                id="checkbox-table-search-1"
+                                                onChange={(e) => checkOrder(e, order.id)}
+                                                checked={selectedOrders.includes(order.id)}
+                                                type="checkbox"
+                                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                            />
+                                            <label
+                                                htmlFor="checkbox-table-search-1"
+                                                className="sr-only"
+                                            >
+                                                checkbox
+                                            </label>
                                         </div>
-                                    </div>
-                                </th>
-                                <td className="px-6 py-4">
-                                    <button
-                                        className="underline cursor-pointer"
-                                        onClick={(e) => {
-                                            openModal(order.id);
-                                        }}
+                                    </td>
+                                    <th
+                                        scope="row"
+                                        className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                     >
-                                        Xem chi tiết
-                                    </button>
-                                    <OrderDetail orderDetail={orderDetail} closeModal={closeModal} />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <PaymentStatusSelect order={order} disabled={true} />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <OrderStatusSelect order={order} disabled={true} />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <ShippingStatusSelect order={order} disabled={true} />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="text-base font-semibold">
-                                        {new Date(order.created_at).toLocaleString('vi-VN')}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="text-base font-semibold">
-                                        {new Intl.NumberFormat('vi-VN', {
-                                            style: 'currency',
-                                            currency: 'VND',
-                                        }).format(order.total_amount)}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <DeleteConfirmationModal
-                                        data={`Bạn có chắc chắn muốn xóa vĩnh viễn đơn hàng: ${order.fullname} không?`}
-                                        id={order.id}
-                                        onDelete={() => handleDelete(order.id)}
-                                    />
-                                </td>
-                            </tr>
-                        ))}
+                                        <div className="px-6 py-4">
+                                            <div className="text-base font-semibold">
+                                                {order.fullname}
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <td className="px-6 py-4">
+                                        <button
+                                            className="underline cursor-pointer"
+                                            onClick={(e) => {
+                                                openModal(order.id);
+                                            }}
+                                        >
+                                            Xem chi tiết
+                                        </button>
+                                        <OrderDetail orderDetail={orderDetail} closeModal={closeModal} />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <PaymentStatusSelect order={order} disabled={true} />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <OrderStatusSelect order={order} disabled={true} />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <ShippingStatusSelect order={order} disabled={true} />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="text-base font-semibold">
+                                            {new Date(order.created_at).toLocaleString('vi-VN')}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="text-base font-semibold">
+                                            {new Intl.NumberFormat('vi-VN', {
+                                                style: 'currency',
+                                                currency: 'VND',
+                                            }).format(order.total_amount)}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <DeleteConfirmationModal
+                                            data={`Bạn có chắc chắn muốn xóa vĩnh viễn đơn hàng: ${order.fullname} không?`}
+                                            id={order.id}
+                                            onDelete={() => handleDelete(order.id)}
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
                     </tbody>
                 </table>
                 <div className="flex justify-end p-4">
@@ -375,6 +386,7 @@ export const OrdersTrash = () => {
                         onChange={handlePageChange} />
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

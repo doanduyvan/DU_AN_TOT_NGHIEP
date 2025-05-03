@@ -195,6 +195,9 @@ class ProductsController extends Controller
             }
             // Kiểm tra và xử lý biến thể sản phẩm
             $variants = $variantRequest->validated();
+            if (isset($variants['promotional_price']) && $variants['promotional_price'] === null) {
+                unset($variants['promotional_price']);
+            }
             if (!is_array($variants) || empty($variants)) {
                 throw new \Exception('Dữ liệu biến thể không hợp lệ');
             }

@@ -2,10 +2,12 @@ import { AntNotification } from '../../../components/notification';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { RolesService } from "../../../services/api-roles";
+import { Loading } from '../../../contexts/loading';
 
 export const Update_Role = () => {
     const Navigate = useNavigate();
     const { roleId } = useParams('');
+    const [loading, setLoading] = useState(false);
     const [Role, setRole] = useState({});
     const [permissions, setPermissions] = useState([]);
     const [selectPermiss, setSelectPermiss] = useState([]);
@@ -30,6 +32,7 @@ export const Update_Role = () => {
     useEffect(() => {
         (async () => {
             try {
+                setLoading(true);
                 const res = await RolesService.showRole(roleId);
                 if (res.status === 200) {
                     setRole(res.role);
@@ -41,6 +44,8 @@ export const Update_Role = () => {
             } catch (error) {
                 AntNotification.handleError(error);
                 Navigate('/admin/roles');
+            } finally {
+                setLoading(false);
             }
         })();
     }, [roleId]);
@@ -159,6 +164,7 @@ export const Update_Role = () => {
                     <button type="submit" className="mt-5 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
                 </form>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 }

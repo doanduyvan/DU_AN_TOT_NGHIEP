@@ -5,11 +5,13 @@ import { commentProductsService } from "../../../services/api-comment-products";
 import { AntNotification } from "../../../components/notification";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import { Loading } from "../../../contexts/loading";
 import { Pagination } from "antd";
 
 
 export const Comment_Products = () => {
     const [comments, setComments] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [selectedComments, setSelectedCommnets] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -34,7 +36,6 @@ export const Comment_Products = () => {
         }
         try {
             const res = await commentProductsService.destroy(selectedComments);
-            console.log(selectedComments);
             if (res?.status === 200) {
                 setComments((prevNews) => {
                     return prevNews.filter(
@@ -52,6 +53,7 @@ export const Comment_Products = () => {
     };
     const fetchData = async () => {
         try {
+            setLoading(true);
             const res = await commentProductsService.getComments({
                 page: currentPage,
                 per_page: pageSize,
@@ -61,12 +63,13 @@ export const Comment_Products = () => {
             if (res) {
                 setComments(res.data);
                 setTotalItems(res.total || 0);
-                console.log(res.data);
             } else {
                 AntNotification.showNotification("Lỗi", "Không thể lấy danh sách bình luận", "error");
             }
         } catch (error) {
             AntNotification.handleError(error);
+        } finally {
+            setLoading(false);
         }
     };
     useEffect(() => {
@@ -86,7 +89,6 @@ export const Comment_Products = () => {
     }, [inputValue]);
 
     const handlePageChange = async (page, size) => {
-        console.log(page, size);
         setCurrentPage(page);
         setPageSize(size);
     }
@@ -95,9 +97,6 @@ export const Comment_Products = () => {
         const sortOrder = value === "asc" ? "asc" : "desc";
         setSortOrder(sortOrder);
     };
-    comments.forEach((item) => {
-        console.log(item.product);
-    });
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <nav className="rounded-md w-full">
@@ -216,86 +215,80 @@ export const Comment_Products = () => {
                             <th scope="col" className="px-6 py-3">
                                 Thời gian
                             </th>
-                            <th scope="col" className="px-6 py-3">
-                                Action
-                            </th>
                         </tr>
                     </thead>
                     <tbody>
-                        {comments.map((item) => (
-                            <tr
-                                key={item.id}
-                                className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
-                            >
-                                <td className="w-4 p-4">
-                                    <div className="flex items-center">
-                                        <input
-                                            id="checkbox-table-search-1"
-                                            onChange={(e) => checkComments(e, item.id)}
-                                            checked={selectedComments.includes(item.id)}
-                                            type="checkbox"
-                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                        />
-                                        <label
-                                            htmlFor="checkbox-table-search-1"
-                                            className="sr-only"
-                                        >
-                                            checkbox
-                                        </label>
-                                    </div>
-                                </td>
-                                <th
-                                    scope="row"
-                                    className="max-w-3xl flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
+                        {
+                            comments.length === 0 ? (
+                                <tr className="">
+                                    <td colSpan={6} className="text-center py-4 text-gray-500">
+                                        Không có bình luận nào
+                                    </td>
+                                </tr>
+                            ) : comments.map((item) => (
+                                <tr
+                                    key={item.id}
+                                    className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                                 >
-                                    <div className="truncate">
-                                        <div className="text-base font-semibold truncate">
-                                            {item.user.fullname}
-                                        </div>
-                                        <Link to={`/product/${item.product.id}/${item.product.product_name}`} className="font-normal text-gray-500 truncate">
-                                            {item.content}
-                                        </Link>
-                                    </div>
-                                </th>
-                                <td className="px-6 py-4">
-                                    <div className="text-base font-semibold truncate">
-                                        {item.product.product_name || "Sản phẩm không tồn tại"}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex">
-                                        {[...Array(5)].map((_, i) => (
-                                            <svg
-                                                key={i}
-                                                className={`w-5 h-5 ${i < item.rating ? 'text-yellow-400' : 'text-gray-300'}`}
-                                                fill="currentColor"
-                                                viewBox="0 0 20 20"
+                                    <td className="w-4 p-4">
+                                        <div className="flex items-center">
+                                            <input
+                                                id="checkbox-table-search-1"
+                                                onChange={(e) => checkComments(e, item.id)}
+                                                checked={selectedComments.includes(item.id)}
+                                                type="checkbox"
+                                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                            />
+                                            <label
+                                                htmlFor="checkbox-table-search-1"
+                                                className="sr-only"
                                             >
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                            </svg>
-                                        ))}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="text-base font-semibold">
-                                        {formatDistanceToNow(new Date(item.created_at), {
-                                            addSuffix: true,
-                                            locale: vi
-                                        })}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <Link
-                                        to={`/admin/comment-products/update/${item.id}`}
-                                        type="button"
-                                        data-modal-target="editUserModal"
-                                        data-modal-show="editUserModal"
-                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                                        Edit
-                                    </Link>
-                                </td>
-                            </tr>
-                        ))}
+                                                checkbox
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <th
+                                        scope="row"
+                                        className="max-w-3xl flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
+                                    >
+                                        <div className="truncate">
+                                            <div className="text-base font-semibold truncate">
+                                                {item.user.fullname}
+                                            </div>
+                                            <Link to={`/product/${item.product.id}/${item.product.product_name}`} className="font-normal text-gray-500 truncate">
+                                                {item.content}
+                                            </Link>
+                                        </div>
+                                    </th>
+                                    <td className="px-6 py-4">
+                                        <div className="text-base font-semibold truncate">
+                                            {item.product.product_name || "Sản phẩm không tồn tại"}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex">
+                                            {[...Array(5)].map((_, i) => (
+                                                <svg
+                                                    key={i}
+                                                    className={`w-5 h-5 ${i < item.rating ? 'text-yellow-400' : 'text-gray-300'}`}
+                                                    fill="currentColor"
+                                                    viewBox="0 0 20 20"
+                                                >
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                </svg>
+                                            ))}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="text-base font-semibold">
+                                            {formatDistanceToNow(new Date(item.created_at), {
+                                                addSuffix: true,
+                                                locale: vi
+                                            })}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
                     </tbody>
                 </table>
                 <div className="flex justify-end p-4">
@@ -307,6 +300,7 @@ export const Comment_Products = () => {
                         onChange={handlePageChange} />
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

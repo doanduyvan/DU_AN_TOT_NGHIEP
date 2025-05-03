@@ -14,6 +14,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Models\Category;
+use App\Models\OrderPayment;
 
 class OrderController extends Controller
 {
@@ -51,6 +52,14 @@ class OrderController extends Controller
         return response()->json($order);
     }
 
+    public function getOrderPayment($id)
+    {
+        $order = OrderPayment::where('order_id', $id)->get();
+        return response()->json([
+            'order' => $order,
+            'status' => 200,
+        ], 200);
+    }
     public function getProductVariant()
     {
         $filters = request()->only(['per_page', 'sortorder', 'keyword', 'filter_category']);

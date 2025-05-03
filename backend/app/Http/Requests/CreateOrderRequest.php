@@ -28,7 +28,7 @@ class CreateOrderRequest extends FormRequest
             'shipping_status' => 'required|numeric',
             'status' => 'required|numeric',
             'shipping_fee' => 'required|numeric|min:0', // Kiểm tra phí vận chuyển có giá trị dương
-            'fullname' => 'required|string|min:3|max:255',
+            'fullname' => 'required|string|min:3|max:255|regex:/^[^\d]*$/',
             'phone' => ['required', 'string', 'size:10', 'regex:/^0[3-9]{1}[0-9]{8}$/'], // Kiểm tra số điện thoại đúng định dạng (10 ký tự, bắt đầu bằng 0 và theo đúng mẫu số điện thoại ở VN)
             'shipping_address' => 'required|string|max:255',
             'payment_method' => 'required|string|max:50',
@@ -44,6 +44,11 @@ class CreateOrderRequest extends FormRequest
     public function messages()
     {
         return [
+            'fullname.required' => 'Họ tên là bắt buộc.',
+            'fullname.string' => 'Họ tên phải là một chuỗi ký tự.',
+            'fullname.min' => 'Họ tên phải có ít nhất 3 ký tự.',
+            'fullname.max' => 'Họ tên không được vượt quá 255 ký tự.',
+            'fullname.regex' => 'Họ và tên không được chứa số.',
             'payment_status.required' => 'Trạng thái thanh toán là bắt buộc.',
             'payment_status.numeric' => 'Trạng thái thanh toán phải là một số.',
             'shipping_status.required' => 'Trạng thái vận chuyển là bắt buộc.',

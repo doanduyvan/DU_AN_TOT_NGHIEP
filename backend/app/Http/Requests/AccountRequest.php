@@ -26,7 +26,7 @@ class AccountRequest extends FormRequest
         $id = $this->route('id'); 
 
         $rules = [
-            'fullname' => 'required|string',
+            'fullname' => 'required|string|min:3|max:255|regex:/^[^\d]*$/',
             'email' => 'required|email|unique:users,email,' . $id,
             'phone' => 'required|string|size:10|unique:users,phone,' . $id,
             'status' => 'required|numeric',
@@ -52,6 +52,10 @@ class AccountRequest extends FormRequest
     {
         return [
             'fullname.required' => 'Họ và tên là bắt buộc.',
+            'fullname.string' => 'Họ và tên phải là một chuỗi ký tự.',
+            'fullname.min' => 'Họ và tên phải có ít nhất 3 ký tự.',
+            'fullname.max' => 'Họ và tên không được vượt quá 255 ký tự.',
+            'fullname.regex' => 'Họ và tên không được chứa số.',
             'email.required' => 'Email là bắt buộc.',
             'email.email' => 'Email không hợp lệ.',
             'email.unique' => 'Email đã được sử dụng.',

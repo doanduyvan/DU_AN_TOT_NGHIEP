@@ -5,11 +5,13 @@ import { ImageModal } from "../../../components/admin/imgmodal";
 import { Link } from "react-router-dom";
 import RestoreConfirmationModal from "../../../components/restore_confirm";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import { Loading } from "../../../contexts/loading";
 import { Pagination } from 'antd';
 
 
 export const CategoryNewsTransh = () => {
     const [imageSrc, setImageSrc] = useState(null);
+    const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -69,7 +71,6 @@ export const CategoryNewsTransh = () => {
     };
 
     const handleDelete = async (id) => {
-        console.log(id);
         try {
             const res = await categoryNewsService.forceDelete(id);
             console.log(res);
@@ -92,9 +93,9 @@ export const CategoryNewsTransh = () => {
             AntNotification.handleError(error);
         }
     };
-    console.log(selectedCategories);
     const fetchData = async () => {
         try {
+            setLoading(true);
             const res = await categoryNewsService.categoryNewsTrash({
                 page: currentPage,
                 per_page: pageSize,
@@ -104,7 +105,6 @@ export const CategoryNewsTransh = () => {
             if (res) {
                 setCategories(Array.isArray(res.data) ? res.data : []);
                 setTotalItems(res.total || 0);
-                console.log(res);
             } else {
                 AntNotification.showNotification(
                     "Có lỗi xảy ra",
@@ -114,6 +114,8 @@ export const CategoryNewsTransh = () => {
             }
         } catch (error) {
             AntNotification.handleError(error);
+        } finally {
+            setLoading(false);
         }
     };
     useEffect(() => {
@@ -168,7 +170,7 @@ export const CategoryNewsTransh = () => {
                     </li>
                     <li className="text-neutral-500 dark:text-neutral-400">
                         Danh Mục Tin Đã Xóa
-                    </li> 
+                    </li>
                 </ol>
             </nav>
             <div className="relative overflow-x-auto shadow-md my-4 sm:rounded-lg bg-white">
@@ -268,60 +270,67 @@ export const CategoryNewsTransh = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {categories.map((category) => (
-                            <tr
-                                key={category.id}
-                                className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
-                            >
-                                <td className="w-4 p-4">
-                                    <div className="flex items-center">
-                                        <input
-                                            id="checkbox-table-search-1"
-                                            onChange={(e) => checkCategory(e, category.id)}
-                                            checked={selectedCategories.includes(category.id)}
-                                            type="checkbox"
-                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                        />
-                                        <label
-                                            htmlFor="checkbox-table-search-1"
-                                            className="sr-only"
-                                        >
-                                            checkbox
-                                        </label>
-                                    </div>
-                                </td>
-                                <th
-                                    scope="row"
-                                    className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
+                        {
+                            categories.length === 0 ? (
+                                <tr className="">
+                                    <td colSpan={5} className="text-center py-4 text-gray-500">
+                                        Không có danh mục nào
+                                    </td>
+                                </tr>
+                            ) : categories.map((category) => (
+                                <tr
+                                    key={category.id}
+                                    className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                                 >
-                                    <div className="ps-3">
-                                        <div className="text-base font-semibold">
-                                            {category.category_news_name}
+                                    <td className="w-4 p-4">
+                                        <div className="flex items-center">
+                                            <input
+                                                id="checkbox-table-search-1"
+                                                onChange={(e) => checkCategory(e, category.id)}
+                                                checked={selectedCategories.includes(category.id)}
+                                                type="checkbox"
+                                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                            />
+                                            <label
+                                                htmlFor="checkbox-table-search-1"
+                                                className="sr-only"
+                                            >
+                                                checkbox
+                                            </label>
                                         </div>
-                                    </div>
-                                </th>
-                                <td className="px-6 py-4">
-                                    <a
-                                        className="underline cursor-pointer"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            openModal(category.img);
-                                        }}
+                                    </td>
+                                    <th
+                                        scope="row"
+                                        className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                     >
-                                        Hình ảnh
-                                    </a>
-                                    <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
-                                </td>
-                                <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(category.deleted_at).toLocaleDateString('vi-VN')}</td>
-                                <td className="px-6 py-4">
-                                    <DeleteConfirmationModal
-                                        data={`Bạn có chắc chắn muốn xóa vĩnh viễn danh mục tin: ${category.category_news_name} không?`}
-                                        id={category.id}
-                                        onDelete={() => handleDelete(category.id)}
-                                    />
-                                </td>
-                            </tr>
-                        ))}
+                                        <div className="ps-3">
+                                            <div className="text-base font-semibold">
+                                                {category.category_news_name}
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <td className="px-6 py-4">
+                                        <a
+                                            className="underline cursor-pointer"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                openModal(category.img);
+                                            }}
+                                        >
+                                            Hình ảnh
+                                        </a>
+                                        <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
+                                    </td>
+                                    <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(category.deleted_at).toLocaleDateString('vi-VN')}</td>
+                                    <td className="px-6 py-4">
+                                        <DeleteConfirmationModal
+                                            data={`Bạn có chắc chắn muốn xóa vĩnh viễn danh mục tin: ${category.category_news_name} không?`}
+                                            id={category.id}
+                                            onDelete={() => handleDelete(category.id)}
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
                     </tbody>
                 </table>
                 <div className="flex justify-end p-4">
@@ -333,6 +342,7 @@ export const CategoryNewsTransh = () => {
                         onChange={handlePageChange} />
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

@@ -1,12 +1,14 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, use } from "react";
 import { RolesService } from "../../../services/api-roles";
 import { AntNotification } from "../../../components/notification";
 import { Link } from "react-router-dom";
+import { Loading } from "../../../contexts/loading";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
 import RestoreConfirmationModal from "../../../components/restore_confirm";
 
 import { Pagination } from 'antd';
 export const RolesTrash = () => {
+    const [loading, setLoading] = useState(false);
     const [roles, setRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -37,7 +39,6 @@ export const RolesTrash = () => {
         }
         try {
             const res = await RolesService.restore(selectedRoles);
-            console.log(selectedRoles);
             if (res?.status === 200) {
                 setRoles((prevRole) => {
                     return prevRole.filter(
@@ -58,7 +59,6 @@ export const RolesTrash = () => {
                 );
             }
         } catch (error) {
-            console.log(error);
             AntNotification.handleError(error);
         }
     };
@@ -81,27 +81,30 @@ export const RolesTrash = () => {
             AntNotification.handleError(error);
         }
     }
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const res = await RolesService.roleTrash({
+                page: currentPage,
+                per_page: pageSize,
+                sortorder: sortorder,
+                keyword: keyword,
+            });
+            if (res) {
+                setRoles(res.data);
+                setTotalItems(res.total || 0);
+                console.log(res);
+            } else {
+                AntNotification.showNotification("Lỗi", "Không thể tải dữ liệu", "error");
+            }
+        } catch (error) {
+            AntNotification.handleError(error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await RolesService.roleTrash({
-                    page: currentPage,
-                    per_page: pageSize,
-                    sortorder: sortorder,
-                    keyword: keyword,
-                });
-                if (res) {
-                    setRoles(res.data);
-                    setTotalItems(res.total || 0);
-                    console.log(res);
-                } else {
-                    AntNotification.showNotification("Lỗi", "Không thể tải dữ liệu", "error");
-                }
-            } catch (error) {
-                AntNotification.handleError(error);
-            }
-        };
         fetchData();
     }, [currentPage, pageSize, sortorder, keyword]);
     useEffect(() => {
@@ -259,51 +262,58 @@ export const RolesTrash = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {roles.map((role) => (
-                                    <tr
-                                        key={role.id}
-                                        className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
-                                    >
-                                        <td className="w-4 p-4">
-                                            <div className="flex items-center">
-                                                <input
-                                                    id="checkbox-table-search-1"
-                                                    onChange={(e) => checkRoles(e, role.id)}
-                                                    checked={selectedRoles.includes(role.id)}
-                                                    type="checkbox"
-                                                    className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                                />
-                                                <label
-                                                    htmlFor="checkbox-table-search-1"
-                                                    className="sr-only"
-                                                >
-                                                    Checkbox
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">{role.id}</td>
-                                        <th
-                                            scope="row"
-                                            className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
+                                {
+                                    roles.length === 0 ? (
+                                        <tr className="">
+                                            <td colSpan={6} className="text-center py-4 text-gray-500">
+                                                Không có vai trò nào
+                                            </td>
+                                        </tr>
+                                    ) : roles.map((role) => (
+                                        <tr
+                                            key={role.id}
+                                            className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                                         >
-                                            <div className="">
-                                                <div className="text-base font-semibold lineclap w-60 text-limit">
-                                                    {role.name}
+                                            <td className="w-4 p-4">
+                                                <div className="flex items-center">
+                                                    <input
+                                                        id="checkbox-table-search-1"
+                                                        onChange={(e) => checkRoles(e, role.id)}
+                                                        checked={selectedRoles.includes(role.id)}
+                                                        type="checkbox"
+                                                        className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                    />
+                                                    <label
+                                                        htmlFor="checkbox-table-search-1"
+                                                        className="sr-only"
+                                                    >
+                                                        Checkbox
+                                                    </label>
                                                 </div>
-                                            </div>
-                                        </th>
-                                        <td className="px-6 py-4 text-gray-700">{role.guard_name}</td>
-                                        <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(role.deleted_at).toLocaleDateString('vi-VN')}</td>
+                                            </td>
+                                            <td className="px-6 py-4">{role.id}</td>
+                                            <th
+                                                scope="row"
+                                                className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
+                                            >
+                                                <div className="">
+                                                    <div className="text-base font-semibold lineclap w-60 text-limit">
+                                                        {role.name}
+                                                    </div>
+                                                </div>
+                                            </th>
+                                            <td className="px-6 py-4 text-gray-700">{role.guard_name}</td>
+                                            <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(role.deleted_at).toLocaleDateString('vi-VN')}</td>
 
-                                        <td className="px-6 py-4">
-                                            <DeleteConfirmationModal
-                                                data={`Bạn có chắc chắn muốn xóa vĩnh viễn vai trò ${role.name} không?`}
-                                                id={role.id}
-                                                onDelete={() => hanDleDelete(role.id)}
-                                            />
-                                        </td>
-                                    </tr>
-                                ))}
+                                            <td className="px-6 py-4">
+                                                <DeleteConfirmationModal
+                                                    data={`Bạn có chắc chắn muốn xóa vĩnh viễn vai trò ${role.name} không?`}
+                                                    id={role.id}
+                                                    onDelete={() => hanDleDelete(role.id)}
+                                                />
+                                            </td>
+                                        </tr>
+                                    ))}
                             </tbody>
                         </table>
                         <div className="flex justify-end p-4">
@@ -317,6 +327,7 @@ export const RolesTrash = () => {
                     </div>
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

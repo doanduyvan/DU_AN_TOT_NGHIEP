@@ -2,9 +2,11 @@ import { useNavigate, Link, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { BannerService } from "../../../services/api-banners";
 import { AntNotification } from "../../../components/notification";
+import { Loading } from "../../../contexts/loading";
 
 export const Update_Banner = () => {
     const urlSRC = import.meta.env.VITE_URL_IMG;
+    const [loading, setLoading] = useState(false);
     const { bannerId } = useParams();
     const navigate = useNavigate();
     const [img, setImg] = useState(null);
@@ -13,19 +15,20 @@ export const Update_Banner = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setLoading(true);
                 const res = await BannerService.getBannerById(bannerId);
                 if (res) {
                     setBaner(res);
                 }
-                console.log(res);
             } catch (error) {
-                console.error('Có lỗi xảy ra:', error);
+                AntNotification.showNotification('Thất bại', error.message || 'Lấy thông tin thất bại', 'error');
+            } finally {
+                setLoading(false);
             }
         };
-    
         fetchData();
     }, []);
-    
+
     const handleImgChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -52,7 +55,7 @@ export const Update_Banner = () => {
             AntNotification.showNotification('Thất bại', 'Vui lòng chọn hình ảnh', 'warning');
             return;
         }
-        if(!formData.get('link')) {
+        if (!formData.get('link')) {
             AntNotification.showNotification('Thất bại', 'Vui lòng nhập link', 'warning');
             return;
         }
@@ -147,11 +150,12 @@ export const Update_Banner = () => {
                                 />
                             </div>
                         )}
-                        
+
                     </div>
                     <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
                 </form>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 }

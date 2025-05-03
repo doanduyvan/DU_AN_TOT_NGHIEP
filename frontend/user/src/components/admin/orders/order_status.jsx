@@ -2,14 +2,14 @@ export const OrderStatusSelect = ({ order, onChange, disabled = false }) => {
   const OrderStatus = [
     { id: 1, name: "Đơn hàng mới" },
     { id: 2, name: "Đã xác nhận" },
-    { id: 3, name: "Đang xử lý" },
+    // { id: 3, name: "Đang xử lý" },
     { id: 4, name: "Đang đóng gói" },
     { id: 5, name: "Đã giao cho vận chuyển" },
     { id: 6, name: "Hoàn thành" },
     { id: 7, name: "Đã hủy" },
-    { id: 8, name: "Đang chờ thanh toán" },
-    { id: 9, name: "Không thành công" },
-    { id: 10, name: "Trả lại" },
+    // { id: 8, name: "Đang chờ thanh toán" },
+    // { id: 9, name: "Không thành công" },
+    // { id: 10, name: "Trả lại" },
   ];
 
   const handleStatusChange = (newStatus) => {

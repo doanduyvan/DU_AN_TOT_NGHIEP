@@ -11,7 +11,6 @@ const baseUrlImg = import.meta.env.VITE_URL_IMG;
 export const AdminHeader = () => {
     const navigate = useNavigate();
     const userContext = useUserContext();
-    const { isLoggedIn, setIsLoggedIn, setUser } = userContext || {};
     const [hasNotifications, setHasNotifications] = useState(false);
     const [countOrder, setCountOrder] = useState(0);
     const [products, setProducts] = useState([]);
@@ -21,11 +20,9 @@ export const AdminHeader = () => {
         try {
             await AuthService.logout();
             setCurrentUser(null);
-            setUser(null);
-            setIsLoggedIn && setIsLoggedIn(false);
             setPermissions([]);
-            message.success("Đăng xuất thành công");
             navigate('/');
+            message.success("Đăng xuất thành công");
         } catch (error) {
             console.error("Lỗi khi đăng xuất:", error);
             message.error("Đăng xuất thất bại");
@@ -154,7 +151,7 @@ export const AdminHeader = () => {
                                     {
                                         currentUser && currentUser.avatar
                                             ? <img src={`${baseUrlImg}${currentUser.avatar}`} className="w-11 h-11 rounded-full object-cover" alt="Avatar" />
-                                            : <img src="../../src/assets/lovepik-avatar-png-image_401708318_wh1200.png" className="w-11 h-11 rounded-full object-cover" alt="Default avatar" />
+                                            : <img src="../../public/images/home/lovepik-avatar-png-image_401708318_wh1200.png" className="w-11 h-11 rounded-full object-cover" alt="Default avatar" />
                                     }
                                 </span>
                                 <Dropdown menu={menuUser} trigger={['click']} className="cursor-pointer">

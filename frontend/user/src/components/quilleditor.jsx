@@ -3,7 +3,6 @@ import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 
 export const QuillEditor = ({ dataEditor, onChange }) => {
-    console.log('dataEditor', dataEditor);
     const editorRef = useRef(null);
     const quillInstance = useRef(null);
     useEffect(() => {

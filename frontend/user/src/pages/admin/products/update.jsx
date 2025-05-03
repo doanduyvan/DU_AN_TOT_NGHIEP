@@ -2,11 +2,13 @@ import { useNavigate, Link, useParams } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { AntNotification } from "../../../components/notification";
 import { productService } from "../../../services/api-products";
+import { Loading } from "../../../contexts/loading";
 import { QuillEditor } from "../../../components/quilleditor";
 
 export const Update_Product = () => {
     const urlSRC = import.meta.env.VITE_URL_IMG;
     const { id } = useParams();
+    const [loading, setLoading] = useState(false);
     const [product, setProduct] = useState({});
     const [variants, setVariants] = useState([{ size: '', sku: '', price: '', promotional_price: '', stock_quantity: '' }]);
     const [avatar, setAvatar] = useState(null);
@@ -77,7 +79,7 @@ export const Update_Product = () => {
                     setCategories(Array.isArray(res) ? res : []);
                 }
             } catch (error) {
-                console.error(error.message)
+                AntNotification.handleError(error);
             }
         };
         fetchCategories();
@@ -86,6 +88,7 @@ export const Update_Product = () => {
     useEffect(() => {
         const fetchProductData = async () => {
             try {
+                setLoading(true);
                 const res = await productService.getProductById(id);
                 if (res) {
                     setProduct(res.product);
@@ -100,6 +103,8 @@ export const Update_Product = () => {
                 }
             } catch (error) {
                 console.error(error.message)
+            } finally {
+                setLoading(false);
             }
         };
         fetchProductData();
@@ -117,7 +122,7 @@ export const Update_Product = () => {
         const avatarFile = document.querySelector('input[name="avatar"]').files[0];
         // Chỉ yêu cầu avatar khi chưa có avatar cũ
         if (!avatarFile && !avatar) {
-            alert('Hình đại diện không được để trống.');
+            AntNotification.showNotification("Cập nhật sản phẩm thất bại", "Vui lòng chọn ảnh đại diện sản phẩm", "warning");
             return;
         }
 
@@ -132,7 +137,7 @@ export const Update_Product = () => {
         });
 
         if (imageFiles.length === 0 && existingImages.length === 0) {
-            alert('Hình ảnh sản phẩm không được để trống.');
+            AntNotification.showNotification("Cập nhật sản phẩm thất bại", "Vui lòng chọn ít nhất một hình ảnh sản phẩm", "warning");
             return;
         }
         // Thêm danh sách ID hình ảnh đã xóa
@@ -154,7 +159,9 @@ export const Update_Product = () => {
             }
             formData.append(`variants[${index}][size]`, variant.size);
             formData.append(`variants[${index}][price]`, variant.price);
-            formData.append(`variants[${index}][promotional_price]`, variant.promotional_price);
+            if (variant.promotional_price) {
+                formData.append(`variants[${index}][promotional_price]`, variant.promotional_price);
+            }
             formData.append(`variants[${index}][sku]`, variant.sku);
             formData.append(`variants[${index}][stock_quantity]`, variant.stock_quantity);
         });
@@ -273,14 +280,14 @@ export const Update_Product = () => {
                         <label htmlFor="category" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Danh mục</label>
                         <select
                             name="category_id"
-                            value={product.category_id}
+                            value={product.category_id || ''}
                             onChange={(e) => setProduct({ ...product, category_id: e.target.value })}
                             className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
                         >
                             {categories.map((category) => (
                                 <option
                                     key={category.id}
-                                    value={category.id}
+                                    value={category.id || ''}
                                 >
                                     {category.category_name}
                                 </option>
@@ -366,7 +373,7 @@ export const Update_Product = () => {
                                         type="text"
                                         name="size"
                                         placeholder="Size sản phẩm"
-                                        value={variant.size}
+                                        defaultValue={variant.size}
                                         onChange={(e) => handleVariantChange(index, e)}
                                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                     />
@@ -377,7 +384,7 @@ export const Update_Product = () => {
                                         type="text"
                                         name="sku"
                                         placeholder="Mã sản phẩm"
-                                        value={variant.sku}
+                                        defaultValue={variant.sku}
                                         onChange={(e) => handleVariantChange(index, e)}
                                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                     />
@@ -389,10 +396,9 @@ export const Update_Product = () => {
                                         name="price"
 
                                         placeholder="Giá gốc"
-                                        value={variant.price}
+                                        defaultValue={variant.price}
                                         onChange={(e) => handleVariantChange(index, e)}
                                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                        required
                                     />
                                 </div>
                                 <div>
@@ -401,7 +407,7 @@ export const Update_Product = () => {
                                         type="number"
                                         name="promotional_price"
                                         placeholder="Giá khuyến mãi"
-                                        value={variant.promotional_price}
+                                        defaultValue={variant.promotional_price}
                                         onChange={(e) => handleVariantChange(index, e)}
                                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                     />
@@ -413,10 +419,9 @@ export const Update_Product = () => {
                                         type="number"
                                         name="stock_quantity"
                                         placeholder="Số lượng"
-                                        value={variant.stock_quantity}
+                                        defaultValue={variant.stock_quantity}
                                         onChange={(e) => handleVariantChange(index, e)}
                                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                        required
                                     />
                                 </div>
 
@@ -445,6 +450,7 @@ export const Update_Product = () => {
                     <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Cập nhật</button>
                 </form>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

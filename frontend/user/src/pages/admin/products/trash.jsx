@@ -6,10 +6,11 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../../contexts/authcontext";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
 import RestoreConfirmationModal from "../../../components/restore_confirm";
+import { Loading } from "../../../contexts/loading";
 import { Pagination } from "antd";
 
 export const ProductTransh = () => {
-
+    const [loading, setLoading] = useState(false);
     const [imageSrc, setImageSrc] = useState(null);
     const [products, setProducts] = useState([]);
     const [selectedProducts, setselectedProducts] = useState([]);
@@ -74,7 +75,6 @@ export const ProductTransh = () => {
     };
 
     const handleDelete = async (id) => {
-        console.log(id);
         try {
             const res = await productService.forceDelete(id);
             if (res?.status === 200) {
@@ -98,6 +98,7 @@ export const ProductTransh = () => {
     };
     const fetchData = async () => {
         try {
+            setLoading(true);
             const res = await productService.productTrash({
                 page: currentPage,
                 per_page: pageSize,
@@ -108,12 +109,13 @@ export const ProductTransh = () => {
             if (res) {
                 setProducts(Array.isArray(res.data) ? res.data : []);
                 setTotalItems(res.total || 0);
-                console.log(res);
             } else {
                 AntNotification.showNotification("Lỗi", "Không thể lấy danh sách sản phẩm", "error");
             }
         } catch (error) {
             AntNotification.handleError(error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -146,7 +148,6 @@ export const ProductTransh = () => {
 
     const handleFilterCategoryChange = async (e) => {
         const value = e.target.value;
-        console.log(value);
         setFilterCategory(value);
     };
     return (
@@ -166,9 +167,12 @@ export const ProductTransh = () => {
                             /
                         </span>
                     </li>
-                    <li className="text-neutral-500 dark:text-neutral-400">
+                    <Link
+                        to="/admin/products"
+                        className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
+                    >
                         Quản Lý Sản Phẩm
-                    </li>
+                    </Link>
                 </ol>
             </nav>
             <div className="relative overflow-x-auto shadow-md my-4 sm:rounded-lg bg-white">
@@ -284,7 +288,13 @@ export const ProductTransh = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {products.map((product) => (
+                        {products.length === 0 ? (
+                            <tr className="">
+                                <td colSpan={7} className="text-center py-4 text-gray-500">
+                                    Không có sản phẩm nào
+                                </td>
+                            </tr>
+                        ) : products.map((product) => (
                             <tr
                                 key={product.id}
                                 className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
@@ -353,6 +363,7 @@ export const ProductTransh = () => {
                         onChange={handlePageChange} />
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

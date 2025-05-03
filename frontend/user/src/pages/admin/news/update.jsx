@@ -1,11 +1,13 @@
 import { useNavigate, Link, useParams } from "react-router-dom";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, use } from "react";
 import { AntNotification } from "../../../components/notification";
 import { newsService } from "../../../services/api-news";
+import { Loading } from "../../../contexts/loading";
 import { QuillEditor } from "../../../components/quilleditor";
 
 export const Update_News = () => {
     const urlImg = import.meta.env.VITE_URL_IMG;
+    const [loading, setLoading] = useState(false);
     const { id } = useParams();
     const [news, setNews] = useState({});
     const [avatar, setAvatar] = useState(null);
@@ -48,6 +50,7 @@ export const Update_News = () => {
     useEffect(() => {
         const fetchNewsData = async () => {
             try {
+                setLoading(true);
                 const res = await newsService.getNewsById(id);
                 if (res) {
                     setNews(res.news);
@@ -56,6 +59,8 @@ export const Update_News = () => {
                 }
             } catch (error) {
                 AntNotification.handleError(error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchNewsData();
@@ -68,11 +73,10 @@ export const Update_News = () => {
 
         const avatarFile = document.querySelector('input[name="avatar"]').files[0];
         if (!avatarFile && !avatar) {
-            alert('Hình đại diện không được để trống.');
+            AntNotification.showNotification("Cập nhật thất bại", "Vui lòng chọn ảnh đại diện", "error");
             return;
         }
 
-        // Nếu có file avatar mới, thêm vào formData
         if (avatarFile) {
             formData.append('avatar', avatarFile);
         }
@@ -196,6 +200,7 @@ export const Update_News = () => {
                     <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Cập nhật</button>
                 </form>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

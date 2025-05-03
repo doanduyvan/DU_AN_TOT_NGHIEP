@@ -1,32 +1,49 @@
-
 import { AntNotification } from '../../../components/notification';
 import { useNavigate, Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { UsersService } from '../../../services/api-users';
-import { useAuth } from '../../../contexts/authcontext';
 
 export const CreateAccount = () => {
     const Navigate = useNavigate();
-    const [user, setUser] = useState({ fullname: '', status: 0 });
+    const [user, setUser] = useState({ fullname: '', status: 0, email: '' });
+    const [emailError, setEmailError] = useState('');
+
     const toggleStatus = () => {
         setUser((prevUser) => {
             const updatedUser = {
                 ...prevUser,
                 status: prevUser.status === 1 ? 0 : 1,
             };
-            console.log('Updated user:', updatedUser);
             return updatedUser;
         });
     };
 
+    const validateEmail = (email) => {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zAZ0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailRegex.test(email);
+    };
+
+    const handleEmailChange = (e) => {
+        const email = e.target.value;
+        setUser({ ...user, email });
+
+        if (validateEmail(email)) {
+            setEmailError(''); 
+        } else {
+            setEmailError('Email không hợp lệ'); 
+        }
+    };
+
     const handSubmit = async (e) => {
         e.preventDefault();
+
+        if (!validateEmail(user.email)) {
+            setEmailError('Email không hợp lệ');
+            return;
+        }
+
         const formData = new FormData(e.target);
         formData.append('status', user.status);
-        formData.forEach((value, key) => {
-            console.log(key, value);
-        }
-        );
         try {
             const res = await UsersService.create(formData);
             if (res?.status === 200) {
@@ -39,8 +56,8 @@ export const CreateAccount = () => {
             AntNotification.handleError(error);
         }
     };
-    return (
 
+    return (
         <div className="pt-20 px-4 lg:ml-64">
             <nav className="rounded-md w-full my-2">
                 <ol className="list-reset flex">
@@ -53,9 +70,7 @@ export const CreateAccount = () => {
                         </Link>
                     </li>
                     <li>
-                        <span className="mx-2 text-neutral-500 dark:text-neutral-400">
-                            /
-                        </span>
+                        <span className="mx-2 text-neutral-500 dark:text-neutral-400">/</span>
                     </li>
                     <li>
                         <Link
@@ -66,26 +81,22 @@ export const CreateAccount = () => {
                         </Link>
                     </li>
                     <li>
-                        <span className="mx-2 text-neutral-500 dark:text-neutral-400">
-                            /
-                        </span>
+                        <span className="mx-2 text-neutral-500 dark:text-neutral-400">/</span>
                     </li>
-                    <li className="text-neutral-500 dark:text-neutral-400">
-                        Thêm tài khoản
-                    </li>
+                    <li className="text-neutral-500 dark:text-neutral-400">Thêm tài khoản</li>
                 </ol>
             </nav>
             <div className="bg-white shadow rounded-lg mb-4 p-4 sm:p-6 h-full">
                 <div className="flex justify-between items-center my-2">
-                    <h5 className="text-xl font-medium leading-tight text-primary">
-                        Thêm tài khoản
-                    </h5>
+                    <h5 className="text-xl font-medium leading-tight text-primary">Thêm tài khoản</h5>
                 </div>
                 <form className="mt-5 max-w-sm" onSubmit={handSubmit}>
                     <div className="mb-5">
                         <label htmlFor="fullname" className="block text-sm font-medium text-gray-700 mb-2">Tên tài khoản</label>
-                        <input type="text"
-                            defaultValue={user.fullname}
+                        <input
+                            type="text"
+                            value={user.fullname}
+                            onChange={(e) => setUser({ ...user, fullname: e.target.value })}
                             name="fullname"
                             style={{ borderRadius: '4px', padding: '11px' }}
                             placeholder="Nhập tên tài khoản"
@@ -94,18 +105,23 @@ export const CreateAccount = () => {
                     </div>
                     <div className="mb-5">
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input type="email"
-                            defaultValue={user.email}
+                        <input
+                            type="email"
+                            value={user.email}
+                            onChange={handleEmailChange}
                             name="email"
                             style={{ borderRadius: '4px', padding: '11px' }}
                             placeholder="Nhập email"
                             className="shadow-sm border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 w-full"
                         />
+                        {emailError && <div className="text-red-500 text-xs">{emailError}</div>}
                     </div>
                     <div className="mb-5">
                         <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">Số điện thoại</label>
-                        <input type="text"
-                            defaultValue={user.phone}
+                        <input
+                            type="text"
+                            value={user.phone}
+                            onChange={(e) => setUser({ ...user, phone: e.target.value })}
                             name="phone"
                             style={{ borderRadius: '4px', padding: '11px' }}
                             placeholder="Nhập số điện thoại"
@@ -114,15 +130,17 @@ export const CreateAccount = () => {
                     </div>
                     <div className="mb-5">
                         <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">Mật khẩu</label>
-                        <input type="password"
-                            defaultValue={user.passowrd}
+                        <input
+                            type="password"
+                            value={user.password}
+                            onChange={(e) => setUser({ ...user, password: e.target.value })}
                             name="password"
                             style={{ borderRadius: '4px', padding: '11px' }}
                             placeholder="Nhập mật khẩu"
                             className="shadow-sm border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 w-full"
                         />
                     </div>
-                    <div className=''>
+                    <div className="">
                         <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
                         <label className="relative inline-flex items-center cursor-pointer">
                             <input
@@ -139,4 +157,4 @@ export const CreateAccount = () => {
             </div>
         </div>
     );
-}
+};

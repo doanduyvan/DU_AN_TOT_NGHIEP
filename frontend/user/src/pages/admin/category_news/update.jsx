@@ -1,9 +1,11 @@
 import { categoryNewsService } from "../../../services/api-category-news";
 import { AntNotification } from "../../../components/notification";
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Loading } from "../../../contexts/loading";
 import { useState, useEffect } from 'react';
 export const Update_Category_News = () => {
     const urlImg = import.meta.env.VITE_URL_IMG;
+    const [loading, setLoading] = useState(false);
     const [Img, setImg] = useState(null);
     const Navigate = useNavigate();
     const { id } = useParams();
@@ -11,9 +13,16 @@ export const Update_Category_News = () => {
 
     useEffect(() => {
         const fetchCategory = async () => {
-            const res = await categoryNewsService.getCategoryById(id);
-            setCategoryId(res.category);
-            setImg(res.category.img);
+            try {
+                setLoading(true);
+                const res = await categoryNewsService.getCategoryById(id);
+                setCategoryId(res.category);
+                setImg(res.category.img);
+            } catch (error) {
+                AntNotification.handleError(error);
+            } finally {
+                setLoading(false);
+            }
         }
         fetchCategory();
     }, [id]);
@@ -63,7 +72,7 @@ export const Update_Category_News = () => {
                     </li>
                     <li>
                         <Link
-                            to="admin/categorynews"
+                            to="admin/category-news"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
                             Quản Lý Danh Mục Tin Tức
@@ -109,6 +118,7 @@ export const Update_Category_News = () => {
                     <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
                 </form>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 }

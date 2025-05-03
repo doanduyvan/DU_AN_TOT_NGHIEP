@@ -5,10 +5,11 @@ import { ImageModal } from "../../../components/admin/imgmodal";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../contexts/authcontext";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import { Loading } from "../../../contexts/loading";
 import { Pagination } from 'antd';
 
 export const Products = () => {
-
+    const [ loading, setLoading ] = useState(false);
     const [imageSrc, setImageSrc] = useState(null);
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -45,7 +46,6 @@ export const Products = () => {
         }
         try {
             const res = await productService.destroy(selectedProducts);
-            console.log(selectedProducts);
             if (res?.status === 200) {
                 fetchData();
                 setselectedProducts([]);
@@ -59,6 +59,7 @@ export const Products = () => {
     };
     const fetchData = async () => {
         try {
+            setLoading(true);
             const res = await productService.getAllProducts({
                 page: currentPage,
                 per_page: pageSize,
@@ -75,6 +76,8 @@ export const Products = () => {
             }
         } catch (error) {
             AntNotification.handleError(error);
+        } finally {
+            setLoading(false);
         }
     };
     useEffect(() => {
@@ -120,7 +123,6 @@ export const Products = () => {
 
     const handleFilterCategoryChange = async (e) => {
         const value = e.target.value;
-        console.log(value);
         setFilterCategory(value);
     };
     return (
@@ -217,8 +219,8 @@ export const Products = () => {
                                 type="text"
                                 id="table-search-users"
                                 className="block pt-2 ps-10 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-950 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Tìm kiếm..."
-                                value={inputValue}
+                                placeholder="Tìm kiếm tên sản phẩm"
+                                defaultValue={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                             />
                         </div>
@@ -270,7 +272,13 @@ export const Products = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {products.map((product) => (
+                        {products.length === 0 ? (
+                            <tr className="">
+                                <td colSpan={7} className="text-center py-4 text-gray-500">
+                                    Không có sản phẩm nào
+                                </td>
+                            </tr>
+                        ) : products.map((product) => (
                             <tr
                                 key={product.id}
                                 className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
@@ -343,6 +351,7 @@ export const Products = () => {
                         onChange={handlePageChange} />
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

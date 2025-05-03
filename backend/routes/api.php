@@ -93,6 +93,7 @@ Route::group(['prefix' => 'orders'], function () {
     Route::post('destroy-order-detail/{id}', [OrderController::class, 'deleteOrderDetail'])->middleware('check.permission:update-order');
     Route::post('update-quantities', [OrderController::class, 'updateQuantities'])->middleware('check.permission:update-order');
     Route::get('getbyid/{id}', [OrderController::class, 'getOrderById'])->middleware('check.permission:update-order');
+    Route::get('order-payment/{id}', [OrderController::class, 'getOrderPayment'])->middleware('check.permission:update-order');
     route::post('search-by-phone', [OrderController::class, 'searchByPhone'])->middleware('check.permission:update-order');
     route::get('trash', [TrashedOrderController::class, 'index'])->middleware('check.permission:delete-order');
     route::get('trash/{id}', [TrashedOrderController::class, 'getOrderTrashById'])->middleware('check.permission:delete-order');

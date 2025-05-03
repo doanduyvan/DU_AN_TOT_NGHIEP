@@ -1,18 +1,27 @@
 import { update, getById } from "../../../services/api-categories";
 import { AntNotification } from "../../../components/notification";
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { Loading } from "../../../contexts/loading";
+import { useState, useEffect, use } from 'react';
 export const Update_Category = () => {
     const urlImg = import.meta.env.VITE_URL_IMG;
+    const [loading, setLoading] = useState(false);
     const Navigate = useNavigate();
     const { id } = useParams();
     const [Img, setImg] = useState(null);
     const [category, setCategoryId] = useState({});
     useEffect(() => {
         const fetchCategory = async () => {
-            const res = await getById(id);
-            setCategoryId(res.category);
-            setImg(res.category.img);
+            try {
+                setLoading(true);
+                const res = await getById(id);
+                setCategoryId(res.category);
+                setImg(res.category.img);
+            } catch (error) {
+                AntNotification.handleError(error);
+            } finally {
+                setLoading(false);
+            }
         }
         fetchCategory();
     }, [id]);
@@ -96,19 +105,19 @@ export const Update_Category = () => {
                             <div className="mt-3">
                                 <img
                                     src={Img.startsWith('data:image/jpeg;base64,')
-                                        ? Img 
-                                        : `${urlImg + '/' + Img}` 
+                                        ? Img
+                                        : `${urlImg + '/' + Img}`
                                     }
                                     alt="Xem trước ảnh"
                                     className="max-w-full h-auto max-h-64 rounded-lg border border-gray-300"
                                 />
                             </div>
                         )}
-
                     </div>
                     <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
                 </form>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 }

@@ -2,6 +2,7 @@ import { OrderService } from "../../../services/api-orders";
 import { AntNotification } from "../../../components/notification";
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
+import { Loading } from "../../../contexts/loading";
 import { OrderStatusSelect } from "../../../components/admin/orders/order_status";
 import { PaymentStatusSelect } from "../../../components/admin/orders/payment_status";
 import { ShippingStatusSelect } from "../../../components/admin/orders/shipping_status";
@@ -20,10 +21,17 @@ export const Update_Order = () => {
 
     useEffect(() => {
         const fetchOrder = async () => {
-            const res = await OrderService.getOrderById(id);
-            setOrderId(res);
-            const productList = res.order_details.map((item) => item);
-            setOrderDetails(productList);
+            try {
+                setLoading(true);
+                const res = await OrderService.getOrderById(id);
+                    setOrderId(res);
+                    const productList = res.order_details.map((item) => item);
+                    setOrderDetails(productList);
+            } catch (error) {
+                AntNotification.handleError(error);
+            } finally {
+                setLoading(false);
+            }
         }
         fetchOrder();
     }, [id]);
@@ -34,7 +42,7 @@ export const Update_Order = () => {
                 setOrderId((order) =>
                     order.id === orderId ? { ...order, status: newStatus } : order
                 );
-               AntNotification.showNotification("Cập nhật trạng thái thành công!", res?.message, "success");
+                AntNotification.showNotification("Cập nhật trạng thái thành công!", res?.message, "success");
             } else {
                 AntNotification.showNotification("Có lỗi xảy ra", res?.message || "Vui lòng thử lại sau", "error");
             }
@@ -131,7 +139,6 @@ export const Update_Order = () => {
                 setOrderId(res.order);
                 const productList = res.order.order_details.map((item) => item);
                 setOrderDetails(productList);
-                console.log(productList);
                 AntNotification.showNotification("Thêm sản phẩm thành công", res?.message, "success");
             } else {
                 AntNotification.showNotification("Có lỗi xảy ra", res?.message || "Vui lòng thử lại sau", "error");
@@ -175,7 +182,7 @@ export const Update_Order = () => {
                 const quantity = tempQuantities[detail.product_variant_id];
                 if (quantity <= 0 || Number.isNaN(quantity)) {
                     AntNotification.showNotification("Có lỗi xảy ra", `Số lượng không hợp lệ cho sản phẩm ${detail.product_variant_id}`, "error");
-                    throw new Error(`Số lượng không hợp lệ cho sản phẩm ${detail.product_variant_id}`); 
+                    throw new Error(`Số lượng không hợp lệ cho sản phẩm ${detail.product_variant_id}`);
                 }
                 return {
                     product_variant_id: detail.product_variant_id,
@@ -194,16 +201,15 @@ export const Update_Order = () => {
                 AntNotification.showNotification("Có lỗi xảy ra", res?.message || "Vui lòng thử lại sau", "error");
             }
         } catch (error) {
-            console.error('Update quantities failed', error);
+            AntNotification.handleError(error);
         }
     };
-    console.log(order);
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <nav className="rounded-md w-full">
                 <ol className="list-reset flex">
                     <li>
-                    <Link
+                        <Link
                             to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
@@ -441,6 +447,7 @@ export const Update_Order = () => {
                     </div>
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 }

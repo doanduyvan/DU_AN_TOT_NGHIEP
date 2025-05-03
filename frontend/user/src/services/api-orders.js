@@ -22,6 +22,9 @@ const OrderService = {
       params: { page, per_page, sortorder, keyword, filter_status, filter_payment_status, filter_shipping_status },
     });
   },
+  getOrderPayment: async (id) => {
+    return apiGet(`/orders/order-payment/${id}`);
+  },
   getOrderById: async (id) => {
     return apiGet(`/orders/getbyid/${id}`);
   },
@@ -91,5 +94,6 @@ const OrderService = {
   forceDelete: async (id) => {
     return apiDelete(`/orders/force-delete/${id}`);
   },
+
 };
 export { OrderService };

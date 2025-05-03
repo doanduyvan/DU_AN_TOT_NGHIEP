@@ -4,8 +4,10 @@ import { VoucherService } from "../../../services/api-vouchers";
 import { AntNotification } from "../../../components/notification";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
 import { Pagination, Select } from 'antd';
+import { Loading } from "../../../contexts/loading";
 
 export const Vouchers = () => {
+    const [loading, setLoading] = useState(false);
     const [voucher, setVoucher] = useState([]);
     const [selectedVoucher, setSelectedVoucher] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -65,31 +67,33 @@ export const Vouchers = () => {
             AntNotification.handleError(error);
         }
     };
-    console.log(selectedVoucher);
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await VoucherService.getVouchers({
-                    page: currentPage,
-                    per_page: pageSize,
-                    sortorder: sortorder,
-                    keyword: keyword,
-                });
-                if (res) {
-                    setVoucher(Array.isArray(res.data) ? res.data : []);
-                    setTotalItems(res.total || 0);
-                    console.log(res);
-                } else {
-                    AntNotification.showNotification(
-                        "Có lỗi xảy ra",
-                        res?.message || "Vui lòng thử lại sau",
-                        "error"
-                    );
-                }
-            } catch (error) {
-                AntNotification.handleError(error);
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const res = await VoucherService.getVouchers({
+                page: currentPage,
+                per_page: pageSize,
+                sortorder: sortorder,
+                keyword: keyword,
+            });
+            if (res) {
+                setVoucher(Array.isArray(res.data) ? res.data : []);
+                setTotalItems(res.total || 0);
+                console.log(res);
+            } else {
+                AntNotification.showNotification(
+                    "Có lỗi xảy ra",
+                    res?.message || "Vui lòng thử lại sau",
+                    "error"
+                );
             }
-        };
+        } catch (error) {
+            AntNotification.handleError(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    useEffect(() => {
         fetchData();
     }, [currentPage, pageSize, sortorder, keyword]);
 
@@ -280,70 +284,77 @@ export const Vouchers = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {voucher.map((item) => (
-                            <tr
-                                key={item.id}
-                                className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
-                            >
-                                <td className="w-4 p-4">
-                                    <div className="flex items-center">
-                                        <input
-                                            id="checkbox-table-search-1"
-                                            onChange={(e) => checkVoucher(e, item.id)}
-                                            checked={selectedVoucher.includes(item.id)}
-                                            type="checkbox"
-                                            className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
-                                        />
-                                        <label
-                                            htmlFor="checkbox-table-search-1"
-                                            className="sr-only"
-                                        >
-                                            checkbox
-                                        </label>
-                                    </div>
-                                </td>
-                                <th
-                                    scope="row"
-                                    className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
+                        {
+                            voucher.length === 0 ? (
+                                <tr className="">
+                                    <td colSpan={9} className="text-center py-4 text-gray-500">
+                                        Không có voucher nào
+                                    </td>
+                                </tr>
+                            ) : voucher.map((item) => (
+                                <tr
+                                    key={item.id}
+                                    className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                                 >
-                                    <div className="text-base font-semibold">
-                                        {item.title}
-                                    </div>
-                                </th>
-                                <td className="px-6 py-4 text-gray-700">{item.code}</td>
-                                <td className="px-6 py-4">
-                                    <Select
-                                        value={item?.status}
-                                        className="w-full h-10"
-                                        onChange={(value) => handleStatusChange(item.id, value)}
+                                    <td className="w-4 p-4">
+                                        <div className="flex items-center">
+                                            <input
+                                                id="checkbox-table-search-1"
+                                                onChange={(e) => checkVoucher(e, item.id)}
+                                                checked={selectedVoucher.includes(item.id)}
+                                                type="checkbox"
+                                                className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
+                                            />
+                                            <label
+                                                htmlFor="checkbox-table-search-1"
+                                                className="sr-only"
+                                            >
+                                                checkbox
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <th
+                                        scope="row"
+                                        className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                     >
-                                        {VoucherStatus.map((status) => (
-                                            <Option key={status.id} value={status.id}>
-                                                {status.name}
-                                            </Option>
-                                        ))}
-                                    </Select>
-                                </td>
-                                <td className="px-6 py-4 text-gray-700">
-                                    {new Date(item.expiry_date).toLocaleString('vi-VN')}
-                                </td>
+                                        <div className="text-base font-semibold">
+                                            {item.title}
+                                        </div>
+                                    </th>
+                                    <td className="px-6 py-4 text-gray-700">{item.code}</td>
+                                    <td className="px-6 py-4">
+                                        <Select
+                                            value={item?.status}
+                                            className="w-full h-10"
+                                            onChange={(value) => handleStatusChange(item.id, value)}
+                                        >
+                                            {VoucherStatus.map((status) => (
+                                                <Option key={status.id} value={status.id}>
+                                                    {status.name}
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                    </td>
+                                    <td className="px-6 py-4 text-gray-700">
+                                        {new Date(item.expiry_date).toLocaleString('vi-VN')}
+                                    </td>
 
-                                <td className="px-6 py-4 text-gray-700">{item.quantity}</td>
-                                <td className="px-6 py-4 text-gray-700">{item.quantity_used}</td>
-                                <td className="px-6 py-4 text-gray-700">{item.user_name}</td>
+                                    <td className="px-6 py-4 text-gray-700">{item.quantity}</td>
+                                    <td className="px-6 py-4 text-gray-700">{item.quantity_used}</td>
+                                    <td className="px-6 py-4 text-gray-700">{item.user_name}</td>
 
-                                <td className="px-6 py-4 gap-4 flex">
-                                    <Link
-                                        to={`/admin/vouchers/update/${item.id}`}
-                                        type="button"
-                                        data-modal-target="editUserModal"
-                                        data-modal-show="editUserModal"
-                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                                        Edit
-                                    </Link>
-                                </td>
-                            </tr>
-                        ))}
+                                    <td className="px-6 py-4 gap-4 flex">
+                                        <Link
+                                            to={`/admin/vouchers/update/${item.id}`}
+                                            type="button"
+                                            data-modal-target="editUserModal"
+                                            data-modal-show="editUserModal"
+                                            className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                                            Edit
+                                        </Link>
+                                    </td>
+                                </tr>
+                            ))}
                     </tbody>
                 </table>
                 <div className="flex justify-end p-4">
@@ -355,6 +366,7 @@ export const Vouchers = () => {
                         onChange={handlePageChange} />
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

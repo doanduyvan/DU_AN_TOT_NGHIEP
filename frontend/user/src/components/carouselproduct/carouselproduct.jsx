@@ -78,6 +78,7 @@ const CarouselProducts = ({products,nameSection, styleName}) => {
     },
   };
 
+
   return (
     <>
       <div className="py-5 text-center">

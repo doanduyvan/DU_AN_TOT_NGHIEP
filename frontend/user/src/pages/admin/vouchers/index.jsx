@@ -79,7 +79,6 @@ export const Vouchers = () => {
             if (res) {
                 setVoucher(Array.isArray(res.data) ? res.data : []);
                 setTotalItems(res.total || 0);
-                console.log(res);
             } else {
                 AntNotification.showNotification(
                     "Có lỗi xảy ra",

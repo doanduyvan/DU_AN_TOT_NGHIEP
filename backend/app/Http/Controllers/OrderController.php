@@ -370,7 +370,7 @@ class OrderController extends Controller
     public function createUser(Request $request)
     {
         $request->validate([
-            'fullname' => 'required|string|max:255',
+            'fullname' => 'required|string|max:255|regex:/^[^\d]*$/',
             'phone' => 'required|string',
             'provinces' => 'required|string|max:255',
             'districts' => 'required|string|max:255',

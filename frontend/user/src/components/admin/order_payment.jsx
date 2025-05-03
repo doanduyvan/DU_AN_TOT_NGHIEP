@@ -1,7 +1,28 @@
-import { useEffect } from "react";
+import React from 'react';
+import { Empty } from 'antd';
 
 export const OrderPayment = ({ orderPayment, closeModalPayment }) => {
-    if (orderPayment.length === 0) return null;
+    // Nếu không có dữ liệu, hiển thị Empty
+    if (orderPayment.length === 0) {
+        return (
+            <div className="fixed inset-0 flex justify-center items-center z-50 bg-gray-500 bg-opacity-10">
+                <div className="bg-white p-6 rounded-lg shadow-lg max-w-6xl w-full transform transition-all duration-300 scale-95 hover:scale-100">
+                    <div className="flex justify-between items-center border-b pb-4 mb-4">
+                        <h2 className="text-2xl font-semibold text-gray-800">Chi tiết thanh toán đơn hàng</h2>
+                        <span
+                            className="text-4xl cursor-pointer text-gray-500 hover:text-red-500"
+                            onClick={closeModalPayment}>×
+                        </span>
+                    </div>
+
+                    <div className="mt-4 max-h-96 overflow-y-auto">
+                        {/* Hiển thị Empty khi không có dữ liệu */}
+                        <Empty description="Không có dữ liệu thanh toán" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     const statusPayment = [
         { status: 0, value: 'Thất bại' },

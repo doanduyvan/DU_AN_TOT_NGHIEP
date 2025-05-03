@@ -70,7 +70,6 @@ export const Products = () => {
             if (res) {
                 setProducts(Array.isArray(res.data) ? res.data : []);
                 setTotalItems(res.total || 0);
-                console.log(res);
             } else {
                 AntNotification.showNotification("Lỗi", "Không thể lấy danh sách sản phẩm", "error");
             }
@@ -111,7 +110,6 @@ export const Products = () => {
     }, [inputValue]);
 
     const handlePageChange = async (page, size) => {
-        console.log(page);
         setCurrentPage(page);
         setPageSize(size);
     }
@@ -219,7 +217,7 @@ export const Products = () => {
                                 type="text"
                                 id="table-search-users"
                                 className="block pt-2 ps-10 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-950 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Tìm kiếm tên sản phẩm"
+                                placeholder="Tìm kiếm tên sản phẩm, mã sản phẩm"
                                 defaultValue={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                             />

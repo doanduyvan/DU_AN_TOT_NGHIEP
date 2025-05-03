@@ -5,12 +5,20 @@ import AxiosUser from "/src/utils/axios_user";
 
 const urlLoginGoogle = "login-google";
 
-const LoginGoogle = ({onSuccess}) => {
+const LoginGoogle = ({onSuccess, setLoading}) => {
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       const access_token = tokenResponse.access_token;
-      const res = await AxiosUser.post(urlLoginGoogle, { accessToken: access_token });
-      onSuccess(res);
+      try{
+        setLoading(true);
+        const res = await AxiosUser.post(urlLoginGoogle, { accessToken: access_token });
+        onSuccess(res);
+      }catch(err){
+        console.error("Error logging in with Google:", err);
+        message.error("Đăng nhập thất bại, vui lòng thử lại sau");
+      }finally{
+        setLoading(false);
+      }
     },
     onError: () => {
         message.error("Đăng nhập thất bại, vui lòng thử lại sau");

@@ -209,7 +209,7 @@ export const Create_Order = () => {
                 0
             ),
         }));
-    }, [orderDetails, tempQuantities, order.shipping_fee]); 
+    }, [orderDetails, tempQuantities, order.shipping_fee]);
 
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
@@ -324,26 +324,26 @@ export const Create_Order = () => {
     const handleQuantityChange = (variantId, newQuantity) => {
         // Kiểm tra nếu giá trị mới không phải là số âm
         if (newQuantity < 0) return;
-    
+
         setTempQuantities(prev => ({
             ...prev,
-            [variantId]: newQuantity 
+            [variantId]: newQuantity
         }));
-    
-        setOrderDetails(prev => 
-            prev.map(item => 
+
+        setOrderDetails(prev =>
+            prev.map(item =>
                 item.product_variant_id === variantId
                     ? { ...item, quantity: newQuantity }  // Cập nhật số lượng nếu trùng với variantId
                     : item
             )
         );
     };
-    
+
 
 
     const handleOrderDataChange = (e) => {
         const { name, value } = e.target;
-    
+
         if (name === "shipping_fee" && parseFloat(value) < 0) {
             AntNotification.showNotification('Lỗi', 'Phí vận chuyển không được là số âm', 'error');
             return;
@@ -365,6 +365,25 @@ export const Create_Order = () => {
                 AntNotification.showNotification('Lỗi', 'Vui lòng nhập địa chỉ giao hàng đầy đủ', 'error');
                 return;
             }
+            const fullAddress = `${order.addresses}, ${selectedWard.label}, ${selectedDistrict.label}, ${selectedProvince.label}`;
+            const orderData = {
+                shipping_fee: order.shipping_fee,
+                fullname: order.fullname,
+                phone: order.phone,
+                shipping_address: fullAddress,
+                payment_method: order.payment_method,
+                carrier: order.carrier,
+                payment_status: order.payment_status,
+                status: order.status,
+                shipping_status: order.shipping_status,
+                order_details: orderDetails.map(item => ({
+                    ...item,
+                    quantity: tempQuantities[item.product_variant_id] || item.quantity
+                })),
+                user_id: order.user_id,
+            };
+
+            const res = await OrderService.create(orderData);
             if (!userId) {
                 try {
                     const userData = {
@@ -393,26 +412,6 @@ export const Create_Order = () => {
                     return;
                 }
             }
-
-            const fullAddress = `${order.addresses}, ${selectedWard.label}, ${selectedDistrict.label}, ${selectedProvince.label}`;
-            const orderData = {
-                shipping_fee: order.shipping_fee,
-                fullname: order.fullname,
-                phone: order.phone,
-                shipping_address: fullAddress,
-                payment_method: order.payment_method,
-                carrier: order.carrier,
-                payment_status: order.payment_status,
-                status: order.status,
-                shipping_status: order.shipping_status,
-                order_details: orderDetails.map(item => ({
-                    ...item,
-                    quantity: tempQuantities[item.product_variant_id] || item.quantity
-                })),
-                user_id: order.user_id,
-            };
-
-            const res = await OrderService.create(orderData);
             if (res) {
                 AntNotification.showNotification('Thành công', 'Tạo đơn hàng thành công', 'success');
                 Navigate('/admin/orders');
@@ -717,16 +716,16 @@ export const Create_Order = () => {
                         <div>
                             <label htmlFor="shipping_fee" className="block mb-2 text-sm font-medium text-gray-700">Phí vận chuyển</label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                    <span className="text-gray-500">₫</span>
-                                </div>
                                 <input
                                     type="number"
                                     value={order.shipping_fee}
                                     onChange={handleOrderDataChange}
                                     name="shipping_fee"
-                                    className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-8 p-2.5"
+                                    className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-4 p-2.5"
                                 />
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-8 pointer-events-none">
+                                    <span className="text-gray-500">₫</span>
+                                </div>
                             </div>
                         </div>
 

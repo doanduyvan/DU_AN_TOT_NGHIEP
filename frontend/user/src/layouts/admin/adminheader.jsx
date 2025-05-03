@@ -120,7 +120,6 @@ export const AdminHeader = () => {
         };
     };
 
-    // Sử dụng các function xây dựng menu
     const menuNotifi = buildNotificationMenu();
     const menuUser = buildUserMenu();
 
@@ -134,6 +133,23 @@ export const AdminHeader = () => {
                         </Link>
                     </div>
                     <div className="flex items-center">
+                        <div className="flex items-center justify-center lg:hidden mr-4">
+                            <span className="text-base font-normal text-gray-500 mr-1">
+                                {
+                                    currentUser && currentUser.avatar
+                                        ? <img src={`${baseUrlImg}${currentUser.avatar}`} className="w-11 h-11 rounded-full object-cover" alt="Avatar" />
+                                        : <img src="/images/home/lovepik-avatar-png-image_401708318_wh1200.png" className="w-11 h-11 rounded-full object-cover" alt="Default avatar" />
+                                }
+                            </span>
+                            <Dropdown menu={menuUser} trigger={['click']} className="cursor-pointer">
+                                <div className="flex items-center cursor-pointer">
+                                    <span className="mr-2">{currentUser ? currentUser.fullname : 'Người dùng'}</span>
+                                    <svg width="12" height="12" viewBox="0 0 16 16" className="" fill="currentColor">
+                                        <path d="M12 6l-4 4-4-4"></path>
+                                    </svg>
+                                </div>
+                            </Dropdown>
+                        </div>
                         <button
                             id="toggleSidebarMobileSearch"
                             type="button"

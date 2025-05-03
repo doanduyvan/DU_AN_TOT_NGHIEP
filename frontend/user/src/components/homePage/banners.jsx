@@ -1,4 +1,4 @@
-import { Carousel } from 'antd';
+import { Carousel, Spin } from 'antd';
 import { useState, useEffect } from 'react';
 import AxiosUser from '/src/utils/axios_user';
 
@@ -9,6 +9,7 @@ const baseUrlImg = import.meta.env.VITE_URL_IMG;
 const Banners = () => {
 
     const [banners, setBanners] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchBanners = async () => {
@@ -17,6 +18,8 @@ const Banners = () => {
                 setBanners(res.banners || []);
             } catch (error) {
                 console.error('Error fetching banners:', error);
+            }finally{
+                setLoading(false);
             }
         };
 
@@ -43,6 +46,15 @@ const Banners = () => {
         autoplaySpeed: 5000,
         infinite: true,
         arrows: true
+      }
+
+
+      if(loading) {
+        return (
+          <div className='h-[300px] flex flex-col justify-center items-center bg-gray-300'>
+            <Spin size="large" style={{ margin: 'auto', display: 'block' }} />
+          </div>
+        );
       }
 
     return (

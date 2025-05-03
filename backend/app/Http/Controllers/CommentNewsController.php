@@ -76,15 +76,4 @@ class CommentNewsController extends Controller
         ], 200);
     }
 
-    public function getAllNews(){
-        $news = News::orderBy('created_at', 'desc')->get();
-        return response()->json($news, 200);
-    }
-
-    public function searchNews(Request $request)
-    {
-        $query = $request->input('search_news');
-        $news = News::where('title', 'like', '%' . $query . '%')->get();
-        return response()->json($news);
-    }
 }

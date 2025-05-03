@@ -39,13 +39,13 @@ const Cart = () => {
       <div className="mt-2 space-y-3 max-h-72 overflow-y-auto">
         {cartItems.map((item,i) => (
           <div key={`cart1${i}`} className="flex items-center space-x-3">
-            <Link to={`product/${item.product_id}/${toSlug(item.product_name)}`} className="block">
+            <Link to={`product/${item.product_id}/${toSlug(item.product_name)}`} className="block size-16">
             <img src={baseUrlImg + item.image} className="w-16 h-16 rounded-lg object-cover" />
             </Link>
-            <div>
-              <Link to={`product/${item.product_id}/${toSlug(item.product_name)}`} className="font-medium">{item.product_name}</Link>
+            <div className="flex-1">
+              <Link to={`product/${item.product_id}/${toSlug(item.product_name)}`} className="font-medium line-clamp-2" title={item.product_name}>{item.product_name}</Link>
               <div className="flex gap-1 items-center">
-              <p className="text-gray-500 text-sm">Size: {item.size}</p>
+              <p className="text-gray-500 text-sm">Dung tích: {item.size}</p>
               <div className="w-[1px] h-3 bg-gray-500"></div>
               <p className="text-gray-500 text-sm">Số lượng: {item.qty}</p>
               </div>

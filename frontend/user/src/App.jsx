@@ -39,6 +39,7 @@ import RegisterForm from './components/auth/register';
 import CartPage from "./components/cartPage/cartPage";
 
 import { Users } from "./pages/admin/accounts";
+import { CreateAccount } from "./pages/admin/accounts/create";
 import { Set_User_Role } from "./pages/admin/accounts/rolelevel";
 import { UpdateAccount } from "./pages/admin/accounts/update";
 import { UsersTrash } from "./pages/admin/accounts/trash";
@@ -46,6 +47,7 @@ import { UsersTrash } from "./pages/admin/accounts/trash";
 import { Orders } from "./pages/admin/orders";
 import { Update_Order } from "./pages/admin/orders/update";
 import { Create_Order } from "./pages/admin/orders/create";
+import { OrdersTrash } from "./pages/admin/orders/trash";
 
 import Shop from "./pages/user/shop/shop";
 import Profile from "./pages/user/profile/profile";
@@ -75,6 +77,8 @@ import { Banners } from "./pages/admin/banners";
 import { Create_Banner } from "./pages/admin/banners/create";
 import { Update_Banner } from "./pages/admin/banners/update";
 
+import ForbiddenPage from "./components/forbiddenpage";
+
 import Checkout from "./pages/user/checkout/checkout";
 
 import ProductStatsChart from "./components/chart/product";
@@ -82,7 +86,7 @@ import ProductStatusChart from "./components/chart/status";
 import ProductPerformanceChart from "./components/chart/productper";
 import MyChart from "./components/chart/test1";
 import OrdersChart from "./components/chart/test2";
-import Revenue from "./components/chart/revenue";
+import StatisticRevenue from "./pages/admin/statistics/statistic_revenue";
 import VouchersChart from "./components/chart/voucher";
 import VnpayReturnPage from "./pages/user/vnpay/vnpayreturn";
 import VerifyEmail from "./pages/user/VerifyEmail";
@@ -104,10 +108,10 @@ function App() {
     { path: 'news', element: <News /> },
     { path: 'news/:id/:categoryname', element: <NewsDetail /> },
     { path: 'contact', element: <ContactPage /> },
-    { path: 'checkout',element: <Checkout />},
-    { path: 'vnpay-return', element: <VnpayReturnPage />},
-    { path: 'verify-email', element: <VerifyEmail />},
-    { path: 'reset-password', element: <ResetPassword />},
+    { path: 'checkout', element: <Checkout /> },
+    { path: 'vnpay-return', element: <VnpayReturnPage /> },
+    { path: 'verify-email', element: <VerifyEmail /> },
+    { path: 'reset-password', element: <ResetPassword /> },
 
   ];
 
@@ -124,6 +128,7 @@ function App() {
     { path: 'permissions/trash', element: < PermissionsTrash /> },
 
     { path: 'accounts/', element: < Users /> },
+    { path: 'accounts/create', element: < CreateAccount /> },
     { path: 'accounts/rolelevel/:userId', element: < Set_User_Role /> },
     { path: 'accounts/update/:userId', element: < UpdateAccount /> },
     { path: 'accounts/trash', element: < UsersTrash /> },
@@ -141,6 +146,7 @@ function App() {
     { path: 'orders', element: < Orders /> },
     { path: 'orders/update/:id', element: < Update_Order /> },
     { path: 'orders/create', element: < Create_Order /> },
+    { path: 'orders/trash', element: < OrdersTrash /> },
 
     { path: 'category-news', element: < CategoryNews /> },
     { path: 'category-news/trash', element: < CategoryNewsTransh /> },
@@ -155,23 +161,25 @@ function App() {
     { path: 'comment-products', element: < Comment_Products /> },
 
     { path: 'comment-news', element: < Comment_News /> },
-    
+
     { path: 'chart', element: < ProductStatsChart /> },
     { path: 'status', element: < ProductStatusChart /> },
     { path: 'statisticals/productper', element: < ProductPerformanceChart /> },
-    { path: 'statisticals/revenue', element: < Revenue/> },
+    { path: 'statisticals/revenue', element: < StatisticRevenue /> },
 
-    { path: 'vouchers', element: < Vouchers/> },
-    { path: 'vouchers/create', element: < Create_Voucher/> },
-    { path: 'vouchers/update/:voucherId', element: < Update_Voucher/> },
+    { path: 'vouchers', element: < Vouchers /> },
+    { path: 'vouchers/create', element: < Create_Voucher /> },
+    { path: 'vouchers/update/:voucherId', element: < Update_Voucher /> },
 
-    {path: 'banners', element: <Banners />},
-    {path: 'banners/create', element: <Create_Banner />},
-    {path: 'banners/update/:bannerId', element: <Update_Banner />},
+    { path: 'banners', element: <Banners /> },
+    { path: 'banners/create', element: <Create_Banner /> },
+    { path: 'banners/update/:bannerId', element: <Update_Banner /> },
 
     { path: 'test1', element: < MyChart /> },
     { path: 'test2', element: < OrdersChart /> },
     { path: 'voucher', element: < VouchersChart /> },
+
+    { path: 'forbidden', element: < ForbiddenPage /> },
   ];
 
   const router = createBrowserRouter([
@@ -187,7 +195,7 @@ function App() {
       ]
     },
     {
-      path: '/admin/',
+      path: '/admin',
       element: <CheckRoute role={'Users'}><AdminLayout /></CheckRoute>,
       children: [
         {

@@ -217,8 +217,9 @@ export const Create_Product = () => {
                         )}
                     </div>
                     <div className="mb-5">
-                        <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Danh mục</label>
+                        <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Danh mục sản phẩm</label>
                         <select name="category_id" id="" className="cursor-pointer shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-100 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
+                        <option value="">[ Chọn danh mục sản phẩm ]</option>
                             {categories.map((category) => (
                                 <option key={category.id} value={category.id}>{category.category_name}</option>
                             ))}
@@ -329,7 +330,6 @@ export const Create_Product = () => {
                                         value={variant.stock_quantity}
                                         onChange={(e) => handleVariantChange(index, e)}
                                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                        required
                                     />
                                 </div>
 

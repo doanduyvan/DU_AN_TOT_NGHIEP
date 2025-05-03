@@ -1,19 +1,15 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { notification as Notification } from "antd";
 import { VoucherService } from "../../../services/api-vouchers";
 import { DatePicker } from 'antd';
 import { AntNotification } from "../../../components/notification";
 import Select from "react-select";
 export const Create_Voucher = () => {
     const navigate = useNavigate();
+
     const handSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
-        formData.forEach((value, key) => {
-            console.log(key, value);
-        }
-    );
         try {
             const res = await VoucherService.create(formData);
             if (res?.status === 201) {
@@ -89,7 +85,7 @@ export const Create_Voucher = () => {
                     <div className="mb-5">
                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Loại giảm giá</label>
                         <Select
-                        name="discount_type"
+                            name="discount_type"
                             options={[
                                 { value: '0', label: 'Số tiền cố định' },
                                 { value: '1', label: 'Phần trăm' },
@@ -109,7 +105,7 @@ export const Create_Voucher = () => {
                     </div>
                     <div className="mb-5">
                         <label htmlFor="discount_value" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Giá trị giảm giá</label>
-                        <input type="text"
+                        <input type="number"
                             name="discount_value"
                             style={{ borderRadius: '4px', padding: '11px' }}
                             placeholder="Nhập giá trị giảm giá"
@@ -131,7 +127,7 @@ export const Create_Voucher = () => {
                         </label>
                         <DatePicker
                             name="expiry_date"
-                            showTime 
+                            showTime
                             format="YYYY-MM-DD HH:mm:ss"
                             style={{ borderRadius: '4px', padding: '11px' }}
                             placeholder="Chọn ngày và giờ hết hạn"

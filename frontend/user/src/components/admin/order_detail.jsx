@@ -1,5 +1,6 @@
 export const OrderDetail = ({ orderDetail, closeModal }) => {
     if (!orderDetail) return null;
+    console.log(orderDetail);
 
     const urlSRC = import.meta.env.VITE_URL_IMG;
     const productList = orderDetail.order_details.map((item) => item);
@@ -24,6 +25,10 @@ export const OrderDetail = ({ orderDetail, closeModal }) => {
                         <span className="font-medium text-gray-600">Địa chỉ giao hàng:</span>
                         <span className="text-gray-800">{orderDetail.shipping_address || "Chưa có thông tin"}</span>
                     </div>
+                    <div className="flex justify-between">
+                        <span className="font-medium text-gray-600">Ghi chú:</span>
+                        <span className="text-gray-800">{orderDetail.note || "Chưa có thông tin"}</span>
+                    </div>
                 </div>
 
                 <div className="space-y-4 mt-4 max-h-96 overflow-y-auto">
@@ -38,7 +43,7 @@ export const OrderDetail = ({ orderDetail, closeModal }) => {
                                 <div className="text-left">
                                     <p className="text-xl font-medium text-gray-800">{item.productvariant?.product?.product_name || 'Sản phẩm không có tên'}</p>
                                     <p className="text-sm text-gray-600">Size: {item.productvariant?.size || 'N/A'}</p>
-                                    <p className="text-sm text-gray-600">SKU: {item.productvariant?.sku || 'N/A'}</p>
+                                    <p className="text-sm text-gray-600">Mã sản phẩm: {item.productvariant?.sku || 'N/A'}</p>
                                 </div>
                             </div>
                             <div className="flex flex-col items-end">

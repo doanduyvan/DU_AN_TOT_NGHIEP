@@ -25,7 +25,7 @@ const CategorySection = () => {
   return (
     <div className="py-5 text-center">
       <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
-        Shop By Category
+        Danh mục sản phẩm
       </h2>
       <div className="flex gap-5 flex-wrap justify-center">
         {categories.map((item,i) => (

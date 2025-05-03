@@ -4,10 +4,12 @@ import { PermissionsService } from "../../../services/api-permissions";
 import { AntNotification } from "../../../components/notification";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
 import RestoreConfirmationModal from "../../../components/restore_confirm";
+import { Loading } from "../../../contexts/loading";
 import { Pagination } from 'antd';
 
 export const PermissionsTrash = () => {
     const [permissions, setPermission] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [selectedPermiss, setselectedPermiss] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -57,13 +59,11 @@ export const PermissionsTrash = () => {
                 );
             }
         } catch (error) {
-            console.log(error);
             AntNotification.handleError(error);
         }
     };
 
     const handleDelete = async (id) => {
-        console.log(id);
         try {
             const res = await PermissionsService.forceDelete(id);
             if (res?.status === 200) {
@@ -93,6 +93,7 @@ export const PermissionsTrash = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setLoading(true);
                 const res = await PermissionsService.permissionTrash({
                     page: currentPage,
                     per_page: pageSize,
@@ -102,12 +103,13 @@ export const PermissionsTrash = () => {
                 if (res) {
                     setPermission(res.data);
                     setTotalItems(res.total || 0);
-                    console.log(res);
                 } else {
                     AntNotification.showNotification("Lỗi", "Không thể lấy danh sách quyền hạn", "error");
                 }
             } catch (error) {
                 AntNotification.handleError(error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchData();
@@ -126,7 +128,6 @@ export const PermissionsTrash = () => {
     }, [inputValue]);
 
     const handlePageChange = async (page, size) => {
-        console.log(page);
         setCurrentPage(page);
         setPageSize(size);
     }
@@ -135,7 +136,6 @@ export const PermissionsTrash = () => {
         const sortOrder = value === "asc" ? "asc" : "desc";
         setSortOrder(sortOrder);
     };
-    console.log(selectedPermiss);
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <div className="bg-white shadow rounded-lg mb-4 p-4 sm:p-6 h-full">
@@ -275,7 +275,13 @@ export const PermissionsTrash = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {permissions.map((permiss) => (
+                                {permissions.length === 0 ? (
+                                    <tr className="">
+                                        <td colSpan={6} className="text-center py-4 text-gray-500">
+                                            Không có quền nào
+                                        </td>
+                                    </tr>
+                                ) : permissions.map((permiss) => (
                                     <tr
                                         key={permiss.id}
                                         className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
@@ -332,6 +338,7 @@ export const PermissionsTrash = () => {
                     </div>
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

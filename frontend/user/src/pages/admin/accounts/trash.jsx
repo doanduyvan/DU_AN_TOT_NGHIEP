@@ -5,11 +5,13 @@ import { AntNotification } from "../../../components/notification";
 import { ImageModal } from "../../../components/admin/imgmodal";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
 import RestoreConfirmationModal from "../../../components/restore_confirm";
+import { Loading } from '../../../contexts/loading';
 import { Pagination } from 'antd';
 
 export const UsersTrash = () => {
-    const [imageSrc, setImageSrc] = useState(null);
+    const urlSRC = import.meta.env.VITE_URL_IMG;
     const [users, setUser] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -17,14 +19,6 @@ export const UsersTrash = () => {
     const [sortorder, setSortOrder] = useState(null);
     const [keyword, setKeyword] = useState("");
     const [inputValue, setInputValue] = useState('');
-
-    const openModal = (src) => {
-        setImageSrc(src);
-    };
-
-    const closeModal = () => {
-        setImageSrc(null);
-    };
 
     const checkUser = (e, id) => {
         setSelectedUsers((prevselectedUsers) => {
@@ -92,6 +86,7 @@ export const UsersTrash = () => {
     console.log(selectedUsers);
     const fetchData = async () => {
         try {
+            setLoading(true);
             const res = await UsersService.userTrash({
                 page: currentPage,
                 per_page: pageSize,
@@ -110,6 +105,8 @@ export const UsersTrash = () => {
             }
         } catch (error) {
             AntNotification.handleError(error);
+        } finally {
+            setLoading(false);
         }
     };
     useEffect(() => {
@@ -266,52 +263,62 @@ export const UsersTrash = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map((user) => (
-                            <tr
-                                key={user.id}
-                                className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
-                            >
-                                <td className="w-4 p-4">
-                                    <div className="flex items-center">
-                                        <input
-                                            id="checkbox-table-search-1"
-                                            onChange={(e) => checkUser(e, user.id)}
-                                            checked={selectedUsers.includes(user.id)}
-                                            type="checkbox"
-                                            className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
-                                        />
-                                        <label
-                                            htmlFor="checkbox-table-search-1"
-                                            className="sr-only"
-                                        >
-                                            checkbox
-                                        </label>
-                                    </div>
-                                </td>
-                                <th
-                                    scope="row"
-                                    className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
-                                >
-                                    <img className="w-12 h-12 rounded-full" alt="" />
-                                    <div className="ps-3">
-                                        <div className="text-base font-semibold">
-                                            {user.fullname}
-                                        </div>
-                                        <div className="font-normal text-gray-500">
-                                            {user.email}
-                                        </div>
-                                    </div>
-                                </th>
-                                <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(user.deleted_at).toLocaleDateString('vi-VN')}</td>
-                                <td className="px-6 py-4">
-                                    <DeleteConfirmationModal
-                                        data={`Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản ${user.email} không?`}
-                                        id={user.id}
-                                        onDelete={() => hanDleDelete(user.id)}
-                                    />
+                        {users.length === 0 ? (
+                            <tr className="">
+                                <td colSpan={4} className="text-center py-4 text-gray-500">
+                                    Không có tài khoản nào
                                 </td>
                             </tr>
-                        ))}
+                        ) : users.map((user) => (
+                                <tr
+                                    key={user.id}
+                                    className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
+                                >
+                                    <td className="w-4 p-4">
+                                        <div className="flex items-center">
+                                            <input
+                                                id="checkbox-table-search-1"
+                                                onChange={(e) => checkUser(e, user.id)}
+                                                checked={selectedUsers.includes(user.id)}
+                                                type="checkbox"
+                                                className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
+                                            />
+                                            <label
+                                                htmlFor="checkbox-table-search-1"
+                                                className="sr-only"
+                                            >
+                                                checkbox
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <th
+                                        scope="row"
+                                        className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
+                                    >
+                                        {
+                                            user && user.avatar
+                                                ? <img src={`${urlSRC}${user.avatar}`} className="w-12 h-12 rounded-full object-cove" alt="Avatar" />
+                                                : <img src="../../public/images/home/lovepik-avatar-png-image_401708318_wh1200.png" className="w-12 h-12 rounded-full object-cover" alt="Default avatar" />
+                                        }
+                                        <div className="ps-3">
+                                            <div className="text-base font-semibold">
+                                                {user.fullname}
+                                            </div>
+                                            <div className="font-normal text-gray-500">
+                                                {user.email}
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(user.deleted_at).toLocaleDateString('vi-VN')}</td>
+                                    <td className="px-6 py-4">
+                                        <DeleteConfirmationModal
+                                            data={`Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản ${user.email} không?`}
+                                            id={user.id}
+                                            onDelete={() => hanDleDelete(user.id)}
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
                     </tbody>
                 </table>
                 <div className="flex justify-end p-4">
@@ -323,6 +330,7 @@ export const UsersTrash = () => {
                         onChange={handlePageChange} />
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

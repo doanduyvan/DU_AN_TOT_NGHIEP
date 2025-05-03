@@ -67,7 +67,7 @@ export const UserContext = ({ children }) => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  // Gọi server để lấy thông tin chi tiết từ variant_id
+  // Gọi server để lấy thông tin chi tiết giỏ hàng
   const getCartItems = async (cartLocal = cart) => {
     try {
       if (!Array.isArray(cartLocal) || cartLocal.length === 0) {
@@ -145,6 +145,7 @@ export const UserContext = ({ children }) => {
     return !!success;
   };
 
+  // giảm số lượng sản phẩm trong giỏ hàng
   const decreaseQty = async (variant_id) => {
     const updated = [...cart];
     const index = updated.findIndex(item => item.variant_id === variant_id);
@@ -163,7 +164,7 @@ export const UserContext = ({ children }) => {
     }
   };
   
-
+  // Xóa sản phẩm khỏi giỏ hàng
   const removeFromCart = async (variant_id) => {
     const updatedCart = cart.filter(item => item.variant_id !== variant_id);
     const updatedItems = cartItems.filter(item => item.variant_id !== variant_id);

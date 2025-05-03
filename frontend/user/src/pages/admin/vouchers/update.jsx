@@ -6,22 +6,34 @@ import { DatePicker } from 'antd';
 import { AntNotification } from "../../../components/notification";
 import dayjs from 'dayjs';
 import Select from "react-select";
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import { Loading } from '../../../contexts/loading';
+
 export const Update_Voucher = () => {
     const { voucherId } = useParams();
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const [voucher, setVoucher] = useState({});
     const [expiryDate, setExpiryDate] = useState(null);
 
+    dayjs.extend(timezone);
+    dayjs.extend(utc);
     useEffect(() => {
         const fetchVoucher = async () => {
-            const res = await VoucherService.getVoucherById(voucherId);
-            console.log(res);
-            if (res) {
-                setVoucher(res);
-                setExpiryDate(res.expiry_date);
-
-            } else {
+            try {
+                setLoading(true);
+                const res = await VoucherService.getVoucherById(voucherId);
+                if (res) {
+                    setVoucher(res);
+                    setExpiryDate(res.expiry_date);
+                } else {
+                    AntNotification.handleError(error);
+                }
+            } catch (error) {
                 AntNotification.handleError(error);
+            } finally {
+                setLoading(false);
             }
         }
         fetchVoucher();
@@ -158,7 +170,7 @@ export const Update_Voucher = () => {
                             Thời gian hết hạn
                         </label>
                         <DatePicker
-                            value={expiryDate ? dayjs(expiryDate, 'YYYY-MM-DDTHH:mm:ss') : null}
+                            value={expiryDate ? dayjs(expiryDate).isValid() ? dayjs(expiryDate) : null : null}
                             onChange={handleDateChange}
                             name="expiry_date"
                             showTime
@@ -171,6 +183,7 @@ export const Update_Voucher = () => {
                     <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
                 </form>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 }

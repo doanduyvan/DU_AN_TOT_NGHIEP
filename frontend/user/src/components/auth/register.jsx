@@ -52,9 +52,9 @@ const RegisterForm = () => {
     <>
     <div className="flex items-center justify-center min-h-screen bg-yellow-50">
       <div className="bg-white p-8 shadow-lg rounded-2xl w-96 text-center mt-[100px] mb-6">
-        <h2 className="text-2xl font-bold">Mes Skin</h2>
-        <p className="mt-2 text-gray-600">Adventure starts here 🚀</p>
-        <p className="text-sm text-gray-500">Make your app management easy and fun!</p>
+        <h2 className="text-2xl font-bold">MesSkin</h2>
+        <p className="mt-2 text-gray-600">Khám phá vẻ đẹp cùng Mes Skin 🚀</p>
+        <p className="text-sm text-gray-500">Đăng ký để quản lý đơn hàng và nhận ưu đãi dễ dàng!</p>
 
         <form className="mt-6 text-left form" onSubmit={handleSubmit}>
           <label className="block text-sm font-medium text-gray-700">Họ Tên</label>
@@ -82,15 +82,6 @@ const RegisterForm = () => {
           Bạn đã có tài khoản? <NavLink to='/login' className="text-blue-500">Đăng nhập</NavLink>
         </p>
 
-        <div className="my-4 flex items-center justify-center">
-          <span className="h-px w-full bg-gray-300"></span>
-          <span className="mx-3 text-gray-400 text-sm">or</span>
-          <span className="h-px w-full bg-gray-300"></span>
-        </div>
-
-        <div className="flex justify-center space-x-4">
-          <Button shape="circle" icon={<GoogleOutlined />} />
-        </div>
       </div>
     </div>
     <FullScreenLoader visible={loading} tip='vui lòng đợi trong giây lát...' />

@@ -8,6 +8,7 @@ import { useAuth } from "../../contexts/authcontext";
 import { FullScreenLoader } from "../../utils/helpersjsx";
 import { useUserContext } from "../../context/user/userContext";
 import AxiosUser from "../../utils/axios_user";
+import LoginGoogle from "./logingoogle/logingoogle";
 
 const urlForgotPassword = "forgot-password";
 const urlSendVerifyEmail = "resend-verify-email";
@@ -15,7 +16,7 @@ const urlSendVerifyEmail = "resend-verify-email";
 const LoginForm = () => {
   const navigate = useNavigate();
   const { setUser,setIsLoggedIn } = useUserContext();
-  const { setCurrentUser } = useAuth();
+  const { setCurrentUser, setPermissions } = useAuth();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -37,12 +38,15 @@ const LoginForm = () => {
       setLoading(true);
       const response = await AuthService.login(formData);
       if (response.status === 200) {
-        localStorage.setItem("token", response.token);
-        message.success("Đăng nhập thành công");
-        const user = response.user;
-        setCurrentUser(user);
-        setUser(user);
-        setIsLoggedIn(true);
+        // localStorage.setItem("token", response.token);
+        // message.success("Đăng nhập thành công");
+        // const user = response.user;
+        // const permissions = response.permissions || [];
+        // setCurrentUser(user);
+        // setUser(user);
+        // setIsLoggedIn(true);
+        // setPermissions(permissions);
+        Thenlogingoogle(response);
       } else if (response.status === 401) {
         console.log("401");
         Notification.warning({
@@ -72,16 +76,26 @@ const LoginForm = () => {
     }finally{
       setLoading(false);
     }
-    
   };
+
+  const Thenlogingoogle = (response) => {
+    localStorage.setItem("token", response.token);
+    message.success("Đăng nhập thành công");
+    const user = response.user;
+    const permissions = response.permissions || [];
+    setCurrentUser(user);
+    setUser(user);
+    setIsLoggedIn(true);
+    setPermissions(permissions);
+  }
 
   return (
     <>
     <div className="flex items-center justify-center min-h-screen bg-yellow-50">
       <div className="bg-white p-8 shadow-lg rounded-2xl w-96 text-center">
-        <h2 className="text-2xl font-bold">Mes Skin</h2>
-        <p className="mt-2 text-gray-600">Welcome to WeConnect! 2 👋</p>
-        <p className="text-sm text-gray-500">Please sign in to your account and start the adventure</p>
+        <h2 className="text-2xl font-bold">MesSkin</h2>
+        <p className="mt-2 text-gray-600">Chào mừng đến với MesSkin 👋</p>
+        <p className="text-sm text-gray-500">Đăng nhập để tiếp tục mua sắm và quản lý đơn hàng của bạn</p>
 
         <form className="mt-6 text-left form" onSubmit={handleSubmit}>
           <label className="block text-sm font-medium text-gray-700">Email</label>
@@ -111,7 +125,8 @@ const LoginForm = () => {
         </div>
 
         <div className="flex justify-center space-x-4">
-          <Button shape="circle" icon={<GoogleOutlined />} />
+          {/* <Button shape="circle" icon={<GoogleOutlined />} /> */}
+          <LoginGoogle onSuccess={Thenlogingoogle} setLoading={setLoading} />
         </div>
       </div>
     </div>

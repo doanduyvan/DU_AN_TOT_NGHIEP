@@ -5,10 +5,12 @@ import { AntNotification } from "../../../components/notification";
 import { ImageModal } from "../../../components/admin/imgmodal";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import { Loading } from "../../../contexts/loading";
 import { Pagination } from 'antd';
 
 
 export const Banners = () => {
+    const [loading, setLoading] = useState(false);
     const [imageSrc, setImageSrc] = useState(null);
     const [banners, setBanners] = useState([]);
     const [selectedBanners, setSelectedBanners] = useState([]);
@@ -65,9 +67,9 @@ export const Banners = () => {
             AntNotification.handleError(error);
         }
     };
-    console.log(selectedBanners);
     const fetchData = async () => {
         try {
+            setLoading(true);
             const res = await BannerService.getBanners({
                 page: currentPage,
                 per_page: pageSize,
@@ -76,7 +78,6 @@ export const Banners = () => {
             if (res) {
                 setBanners(Array.isArray(res.data) ? res.data : []);
                 setTotalItems(res.total || 0);
-                console.log(res);
             } else {
                 AntNotification.showNotification(
                     "Có lỗi xảy ra",
@@ -86,6 +87,8 @@ export const Banners = () => {
             }
         } catch (error) {
             AntNotification.handleError(error);
+        } finally {
+            setLoading(false);
         }
     };
     useEffect(() => {
@@ -197,7 +200,14 @@ export const Banners = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {banners.map((banner) => (
+
+                        {banners.length === 0 ? (
+                            <tr className="">
+                                <td colSpan={4} className="text-center py-4 text-gray-500">
+                                    Không có banner nào
+                                </td>
+                            </tr>
+                        ) : banners.map((banner) => (
                             <tr
                                 key={banner.id}
                                 className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
@@ -266,6 +276,7 @@ export const Banners = () => {
                         onChange={handlePageChange} />
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

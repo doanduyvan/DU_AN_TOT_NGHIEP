@@ -3,16 +3,18 @@ import { AntNotification } from '../../../components/notification';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { PermissionsService } from "../../../services/api-permissions";
+import { Loading } from '../../../contexts/loading';
 
 export const Update_Permission = () => {
     const Navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
     const { id } = useParams('');
     const [permission, setPermission] = useState({});
     useEffect(() => {
         (async () => {
             try {
+                setLoading(true);
                 const res = await PermissionsService.showPermission(id);
-                console.log(res);
                 if (res.status === 200) {
                     setPermission(res.permission);
                 } else {
@@ -21,6 +23,8 @@ export const Update_Permission = () => {
             } catch (error) {
                 AntNotification.handleError(error);
                 Navigate('/admin/permissions');
+            } finally {
+                setLoading(false);
             }
         })();
     }, [id]);
@@ -110,6 +114,7 @@ export const Update_Permission = () => {
                     <button type="submit" className="mt-5 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
                 </form>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 }

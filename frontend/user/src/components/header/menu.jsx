@@ -70,7 +70,7 @@ const Menu = ({isOpen, setIsOpen}) => {
 
                 <div>
                     <NavLink to='/'>
-                        <h2 className="mt-4 text-center font-bold text-2xl">Mes Skin</h2>
+                        <h2 className="mt-4 text-center font-bold text-2xl">MesSkin</h2>
                     </NavLink>
                 </div>
 

@@ -8,16 +8,20 @@ import { FilterPaymentStatusSelect } from "../../../components/admin/orders/filt
 import { PaymentStatusSelect } from "../../../components/admin/orders/payment_status";
 import { FilterShippingStatusSelect } from "../../../components/admin/orders/filter_shipping_status";
 import { ShippingStatusSelect } from "../../../components/admin/orders/shipping_status";
+import { Loading } from "../../../contexts/loading";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
 import { OrderDetail } from "../../../components/admin/order_detail";
+import { OrderPayment } from "../../../components/admin/order_payment";
 import { Pagination } from 'antd';
 
 
-
 export const Orders = () => {
+    const [isModalVisible, setIsModalVisible] = useState(false);
     const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [selectedOrders, setSelectedOrders] = useState([]);
     const [orderDetail, setOrderDetail] = useState(null);
+    const [order_payment, setOrder_Payment] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
@@ -29,13 +33,37 @@ export const Orders = () => {
     const [inputValue, setInputValue] = useState('');
 
     const openModal = async (id) => {
-        const res = await OrderService.getOrderById(id);
-        setOrderDetail(res);
+        try {
+            setLoading(true);
+            const res = await OrderService.getOrderById(id);
+            setOrderDetail(res);
+        }
+        catch (error) {
+            AntNotification.handleError(error);
+        }
+        finally {
+            setLoading(false);
+        }
     };
+    const openModalPayment = async (id) => {
+        try {
+            setLoading(true);
+            setIsModalVisible(true);
+            const res = await OrderService.getOrderPayment(id);
+            setOrder_Payment(res.order);
+        } catch (error) {
+            AntNotification.handleError(error);
+
+        } finally {
+            setLoading(false);
+        }
+    }
     const closeModal = () => {
         setOrderDetail(null);
     };
-
+    const closeModalPayment = () => {
+        setIsModalVisible(false);
+    };
 
     const handleOrderStatusChange = async (orderId, newStatus) => {
         try {
@@ -158,6 +186,7 @@ export const Orders = () => {
     };
     const fetchData = async () => {
         try {
+            setLoading(true);
             const res = await OrderService.getAllOrder({
                 page: currentPage,
                 per_page: pageSize,
@@ -179,6 +208,8 @@ export const Orders = () => {
             }
         } catch (error) {
             AntNotification.handleError(error);
+        } finally {
+            setLoading(false);
         }
     };
     useEffect(() => {
@@ -299,7 +330,7 @@ export const Orders = () => {
                                 type="text"
                                 id="table-search-users"
                                 className="block pt-2 ps-10 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-950 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Tìm kiếm..."
+                                placeholder="Tìm kiếm tên khách hàng, mã đơn hàng"
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                             />
@@ -338,6 +369,9 @@ export const Orders = () => {
                                 Chi tiết đơn hàng
                             </th>
                             <th scope="col" className="px-6 py-3">
+                                Lịch sử thanh toán
+                            </th>
+                            <th scope="col" className="px-6 py-3">
                                 Trạng thái thanh toán
                             </th>
                             <th scope="col" className="px-6 py-3">
@@ -350,6 +384,9 @@ export const Orders = () => {
                                 Ngày đặt
                             </th>
                             <th scope="col" className="px-6 py-3">
+                                Người tạo
+                            </th>
+                            <th scope="col" className="px-6 py-3">
                                 Tổng tiền
                             </th>
                             <th scope="col" className="px-6 py-3">
@@ -358,84 +395,109 @@ export const Orders = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {orders.map((order) => (
-                            <tr
-                                key={order.id}
-                                className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
-                            >
-                                <td className="w-4 p-4">
-                                    <div className="flex items-center">
-                                        <input
-                                            id="checkbox-table-search-1"
-                                            onChange={(e) => checkOrder(e, order.id)}
-                                            checked={selectedOrders.includes(order.id)}
-                                            type="checkbox"
-                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                        />
-                                        <label
-                                            htmlFor="checkbox-table-search-1"
-                                            className="sr-only"
-                                        >
-                                            checkbox
-                                        </label>
-                                    </div>
-                                </td>
-                                <th
-                                    scope="row"
-                                    className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
+                        {
+                            orders.length === 0 ? (
+                                <tr className="">
+                                    <td colSpan={10} className="text-center py-4 text-gray-500">
+                                        Không có đơn hàng nào
+                                    </td>
+                                </tr>
+                            ) : orders.map((order) => (
+                                <tr
+                                    key={order.id}
+                                    className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                                 >
-                                    <div className="px-6 py-4">
-                                        <div className="text-base font-semibold">
-                                            {order.fullname}
+                                    <td className="w-4 p-4">
+                                        <div className="flex items-center">
+                                            <input
+                                                id="checkbox-table-search-1"
+                                                onChange={(e) => checkOrder(e, order.id)}
+                                                checked={selectedOrders.includes(order.id)}
+                                                type="checkbox"
+                                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                            />
+                                            <label
+                                                htmlFor="checkbox-table-search-1"
+                                                className="sr-only"
+                                            >
+                                                checkbox
+                                            </label>
                                         </div>
-                                    </div>
-                                </th>
-                                <td className="px-6 py-4">
-                                    <button
-                                        className="underline cursor-pointer"
-                                        onClick={(e) => {
-                                            openModal(order.id);
-                                        }}
+                                    </td>
+                                    <th
+                                        scope="row"
+                                        className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                     >
-                                        Xem chi tiết
-                                    </button>
-                                    <OrderDetail orderDetail={orderDetail} closeModal={closeModal} />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <PaymentStatusSelect order={order} onChange={handlePaymentStatusChange} />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <OrderStatusSelect order={order} onChange={handleOrderStatusChange} />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <ShippingStatusSelect order={order} onChange={handleShippingStatusChange} />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="text-base font-semibold">
-                                        {new Date(order.created_at).toLocaleString('vi-VN')}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="text-base font-semibold">
-                                        {new Intl.NumberFormat('vi-VN', {
-                                            style: 'currency',
-                                            currency: 'VND',
-                                        }).format(order.total_amount)}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <Link
-                                        to={`/admin/orders/update/${order.id}`}
-                                        type="button"
-                                        data-modal-target="editUserModal"
-                                        data-modal-show="editUserModal"
-                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                    >
-                                        Edit
-                                    </Link>
-                                </td>
-                            </tr>
-                        ))}
+                                        <div className="px-6 py-4">
+                                            <div className="text-base font-semibold">
+                                                {order.fullname}
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <td className="px-6 py-4">
+                                        <button
+                                            className="text-left underline cursor-pointer min-w-[100px]"
+                                            onClick={(e) => {
+                                                openModal(order.id);
+                                            }}
+                                        >
+                                            Xem chi tiết
+                                        </button>
+                                        <OrderDetail orderDetail={orderDetail} closeModal={closeModal} />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <button
+                                            className="text-left underline cursor-pointer min-w-[100px]"
+                                            onClick={(e) => {
+                                                openModalPayment(order.id);
+                                            }}
+                                        >
+                                            Xem chi tiết
+                                        </button>
+                                        {isModalVisible && (
+                                            <OrderPayment orderPayment={order_payment} closeModalPayment={closeModalPayment} />
+                                        )}
+                                    </td>
+                                    <td className="px-6 py-4 min-w-[200px]">
+                                        <PaymentStatusSelect order={order} onChange={handlePaymentStatusChange} />
+                                    </td>
+                                    <td className="px-6 py-4 min-w-[200px]">
+                                        <OrderStatusSelect order={order} onChange={handleOrderStatusChange} />
+                                    </td>
+                                    <td className="px-6 py-4 min-w-[200px]">
+                                        <ShippingStatusSelect order={order} onChange={handleShippingStatusChange} />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="text-base font-semibold">
+                                            {new Date(order.created_at).toLocaleString('vi-VN')}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="text-base font-semibold">
+                                            {order.user.fullname}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="text-base font-semibold">
+                                            {new Intl.NumberFormat('vi-VN', {
+                                                style: 'currency',
+                                                currency: 'VND',
+                                            }).format(order.total_amount)}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <Link
+                                            to={`/admin/orders/update/${order.id}`}
+                                            type="button"
+                                            data-modal-target="editUserModal"
+                                            data-modal-show="editUserModal"
+                                            className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                        >
+                                            Edit
+                                        </Link>
+                                    </td>
+                                </tr>
+                            ))}
                     </tbody>
                 </table>
                 <div className="flex justify-end p-4">
@@ -447,6 +509,7 @@ export const Orders = () => {
                         onChange={handlePageChange} />
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

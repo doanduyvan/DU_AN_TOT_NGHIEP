@@ -24,7 +24,7 @@ const newsService = {
   },
 
   getNewsById: async (id) => {
-    return apiGet(`/news/${id}`);
+    return apiGet(`/news/getbyid/${id}`);
   },
   categoryNews: async () => {
     return apiGet("/news/get-category-news");

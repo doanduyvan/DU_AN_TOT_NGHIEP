@@ -19,6 +19,7 @@ class CreateCommentNewsTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('news_id');
             $table->unsignedBigInteger('comment_news_id')->nullable(); // tự liên kết để tạo chức năng trả lời bình luận
+            $table->boolean('is_admin')->default(false); // xác định bình luận của admin hay người dùng
             $table->timestamps();
 
             // khóa ngoại

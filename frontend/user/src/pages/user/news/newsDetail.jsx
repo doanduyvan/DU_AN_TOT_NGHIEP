@@ -5,7 +5,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import AxiosUser from "../../../utils/axios_user";
 import { FullScreenLoader } from "../../../utils/helpersjsx";
 import { notification, Empty } from "antd";
-import { toSlug } from "../../../utils/helpers";
+import { toSlug,formatTime } from "../../../utils/helpers";
 
 const urlGetNews = "/customer/newsdetail/getnewsbyid/";
 const urlGetNewsRelated = "/customer/newsdetail/getnewsrelated/";
@@ -83,12 +83,11 @@ useEffect(()=> {
           />
           <h1 className="text-2xl font-bold mb-2"> {news?.title || "..."} </h1>
           <p className="text-sm text-gray-500 mb-4">
-            {" "}
-            {news?.created_at || "..."}{" "}
+            {formatTime(news?.created_at) || "..."}
           </p>
           <div className="text-gray-700 leading-relaxed mb-6">
-            <div>
-              <div dangerouslySetInnerHTML={{ __html: news?.content }}></div>
+            <div className="image-description-center">
+              <div className="ql-editor ql-container" dangerouslySetInnerHTML={{ __html: news?.content }}></div>
             </div>
           </div>
         </div>
@@ -130,7 +129,7 @@ const NewsRelated = ({ data }) => {
                 <p className="text-sm font-medium text-gray-800 group-hover:text-blue-500 line-clamp-2">
                   {item.title}
                 </p>
-                <p className="text-xs text-gray-500">{item.created_at}</p>
+                <p className="text-xs text-gray-500">{formatTime(item.created_at)}</p>
               </div>
             </Link>
           ))

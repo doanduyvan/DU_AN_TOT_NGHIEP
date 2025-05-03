@@ -50,7 +50,10 @@ class Product extends Model
     public function scopeSearch($query, $keyword)
     {
         if (!empty($keyword)) {
-            return $query->where('product_name', 'LIKE', '%' . $keyword . '%');
+            return $query->where('product_name', 'LIKE', '%' . $keyword . '%')
+            ->orWhereHas('variants', function ($query) use ($keyword) {
+                $query->where('sku', 'LIKE', '%' . $keyword . '%');
+            });
         }
         return $query;
     }

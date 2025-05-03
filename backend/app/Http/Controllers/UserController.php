@@ -7,17 +7,32 @@ use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\QueryException;
-use App\Http\Requests\UpdateAccountRequest;
+use App\Http\Requests\AccountRequest;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     public function index()
     {
         $filters = request()->only(['per_page', 'sortorder', 'keyword']);
-        $users = User::search($filters['keyword'])->applyFilters($filters);
+        $users = User::whereNotNull('email')->search($filters['keyword'])->applyFilters($filters);
         return response()->json($users);
     }
-    public function test1(){
+    public function getUserLimit()
+    {
+        $users = User::whereNotNull('email')->orderBy('id', 'desc')->limit(5)->get();
+        return response()->json($users);
+    }
+    public function getUserCount()
+    {
+        $users = User::whereNotNull('email')->count();
+        return response()->json([
+            'count' => $users,
+            'status' => 200,
+        ]);
+    }
+    public function test1()
+    {
         $users = User::with('shippingAddresses')->get();
         return response()->json($users);
     }
@@ -31,7 +46,7 @@ class UserController extends Controller
             } catch (QueryException $e) {
                 return response()->json(['message' => 'Xóa người dùng thất bại: ' . $e->getMessage(), 'status' => 500], 500);
             }
-        }else {
+        } else {
             return response()->json(['message' => 'Xóa người dùng thất bại', 'status' => 404], 404);
         }
     }
@@ -59,6 +74,7 @@ class UserController extends Controller
                         ->where('guard_name', 'api')
                         ->get();
                     $user->syncRoles($roles);
+                    app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
                     return response()->json(['message' => 'Cập nhập thành công thành công', 'status' => 200], 200);
                 }
                 return response()->json(['message' => 'Không có vai trò để cập nhật', 'status' => 400], 400);
@@ -77,13 +93,21 @@ class UserController extends Controller
             ], 500);
         }
     }
-    public function updateUser(UpdateAccountRequest $request, $id)
+    public function updateUser(AccountRequest $request, $id)
     {
         $validatedData = $request->validated();
         try {
             $user = User::findOrFail($id);
             if ($user) {
-                $user->update($validatedData);
+                $user->update(
+                    [
+                        'fullname' => $validatedData['fullname'],
+                        'email' => $validatedData['email'],
+                        'phone' => $validatedData['phone'],
+                        'status' => $validatedData['status'],
+                        'password' => Hash::make($validatedData['password']),
+                    ]
+                );
                 return response()->json(['message' => 'Cập nhật thành công', 'status' => 200]);
             }
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
@@ -92,6 +116,30 @@ class UserController extends Controller
                 'status' => 404,
                 'error' => $e->getMessage(),
             ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Có lỗi xảy ra',
+                'status' => 500,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function create(AccountRequest $request)
+    {
+        $validatedData = $request->validated();
+        try {
+            $user = User::create([
+                'fullname' => $validatedData['fullname'],
+                'email' => $validatedData['email'],
+                'phone' => $validatedData['phone'],
+                'status' => $validatedData['status'],
+                'password' => Hash::make($validatedData['password']),
+            ]);
+            return response()->json([
+                'message' => 'Tạo tài khoản thành công',
+                'user' => $user,
+                'status' => 200
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Có lỗi xảy ra',
@@ -117,13 +165,5 @@ class UserController extends Controller
             'roles' => $roles,
             'status' => 200,
         ]);
-    }
-
-    public function searchUser(Request $request)
-    {
-        $query = $request->input('search_user');
-        $user = User::where('email', 'like', '%' . $query . '%')->get();
-
-        return response()->json($user);
     }
 }

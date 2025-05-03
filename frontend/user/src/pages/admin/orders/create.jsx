@@ -51,7 +51,6 @@ export const Create_Order = () => {
     const [isUserResultVisible, setIsUserResultVisible] = useState(false);
     const [userLoading, setUserLoading] = useState(false);
     const userSearchRef = useRef(null);
-
     const handleChange_payment_status = (orderId, newStatus) => {
         setOrderId((order) =>
             order.id === orderId ? { ...order, payment_status: newStatus } : order
@@ -198,10 +197,19 @@ export const Create_Order = () => {
     useEffect(() => {
         setOrderId((prev) => ({
             ...prev,
-            total_amount: orderDetails.reduce((total, item) => total + item.price * (tempQuantities[item.product_variant_id] || item.quantity), 0),
-            total_quantity: orderDetails.reduce((total, item) => total + (tempQuantities[item.product_variant_id] || item.quantity), 0),
+            total_amount: orderDetails.reduce(
+                (total, item) =>
+                    total +
+                    item.price * (tempQuantities[item.product_variant_id] || item.quantity),
+                0
+            ) + parseFloat(prev.shipping_fee || 0),
+            total_quantity: orderDetails.reduce(
+                (total, item) =>
+                    total + (tempQuantities[item.product_variant_id] || item.quantity),
+                0
+            ),
         }));
-    }, [orderDetails, tempQuantities]);
+    }, [orderDetails, tempQuantities, order.shipping_fee]);
 
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
@@ -302,7 +310,7 @@ export const Create_Order = () => {
                                 },
                                 size: variant.size,
                                 price: variant.price,
-                                quantity: tempQuantities[variant.id] || 0,
+                                quantity: 1,
                             },
                             quantity: 1,
                             price: variant.price,
@@ -314,14 +322,32 @@ export const Create_Order = () => {
     };
 
     const handleQuantityChange = (variantId, newQuantity) => {
+        // Kiểm tra nếu giá trị mới không phải là số âm
+        if (newQuantity < 0) return;
+
         setTempQuantities(prev => ({
             ...prev,
             [variantId]: newQuantity
         }));
+
+        setOrderDetails(prev =>
+            prev.map(item =>
+                item.product_variant_id === variantId
+                    ? { ...item, quantity: newQuantity }  // Cập nhật số lượng nếu trùng với variantId
+                    : item
+            )
+        );
     };
+
+
 
     const handleOrderDataChange = (e) => {
         const { name, value } = e.target;
+
+        if (name === "shipping_fee" && parseFloat(value) < 0) {
+            AntNotification.showNotification('Lỗi', 'Phí vận chuyển không được là số âm', 'error');
+            return;
+        }
         setOrderId(prev => ({
             ...prev,
             [name]: value
@@ -339,36 +365,6 @@ export const Create_Order = () => {
                 AntNotification.showNotification('Lỗi', 'Vui lòng nhập địa chỉ giao hàng đầy đủ', 'error');
                 return;
             }
-            if (!userId) {
-                try {
-                    const userData = {
-                        fullname: order.fullname,
-                        phone: order.phone,
-                        addresses: order.addresses,
-                        wards: selectedWard.label,
-                        districts: selectedDistrict.label,
-                        provinces: selectedProvince.label,
-                    };
-                    const newUser = await OrderService.createUser(userData);
-                    console.log(newUser);
-                    if (newUser?.status === 201) {
-                        AntNotification.showNotification('Thành công', 'Lưu tài khoản thành công', 'success');
-                        userId = newUser.id;
-                        setOrderId(prev => ({
-                            ...prev,
-                            user_id: userId
-                        }));
-                    } else {
-                        AntNotification.showNotification('Lỗi', 'Không thể tạo người dùng mới', 'error');
-                        return;
-                    }
-                } catch (error) {
-                    console.error('Lỗi khi kiểm tra/tạo người dùng:', error);
-                    AntNotification.handleError(error);
-                    return;
-                }
-            }
-
             const fullAddress = `${order.addresses}, ${selectedWard.label}, ${selectedDistrict.label}, ${selectedProvince.label}`;
             const orderData = {
                 shipping_fee: order.shipping_fee,
@@ -388,6 +384,34 @@ export const Create_Order = () => {
             };
 
             const res = await OrderService.create(orderData);
+            if (!userId) {
+                try {
+                    const userData = {
+                        fullname: order.fullname,
+                        phone: order.phone,
+                        addresses: order.addresses,
+                        wards: selectedWard.label,
+                        districts: selectedDistrict.label,
+                        provinces: selectedProvince.label,
+                    };
+                    const newUser = await OrderService.createUser(userData);
+                    console.log(newUser);
+                    if (newUser?.status === 201) {
+                        userId = newUser.id;
+                        setOrderId(prev => ({
+                            ...prev,
+                            user_id: userId
+                        }));
+                    } else {
+                        AntNotification.showNotification('Lỗi', 'Không thể tạo người dùng mới', 'error');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi kiểm tra/tạo người dùng:', error);
+                    AntNotification.handleError(error);
+                    return;
+                }
+            }
             if (res) {
                 AntNotification.showNotification('Thành công', 'Tạo đơn hàng thành công', 'success');
                 Navigate('/admin/orders');
@@ -692,17 +716,16 @@ export const Create_Order = () => {
                         <div>
                             <label htmlFor="shipping_fee" className="block mb-2 text-sm font-medium text-gray-700">Phí vận chuyển</label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                    <span className="text-gray-500">₫</span>
-                                </div>
                                 <input
                                     type="number"
                                     value={order.shipping_fee}
                                     onChange={handleOrderDataChange}
                                     name="shipping_fee"
-                                    className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-8 p-2.5"
-                                    required
+                                    className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-4 p-2.5"
                                 />
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-8 pointer-events-none">
+                                    <span className="text-gray-500">₫</span>
+                                </div>
                             </div>
                         </div>
 
@@ -822,7 +845,7 @@ export const Create_Order = () => {
                                                 <input
                                                     type="number"
                                                     min="1"
-                                                    value={tempQuantities[product.product_variant_id] || product.quantity}
+                                                    value={tempQuantities[product.product_variant_id] || product.quantity}  // Đồng bộ giá trị nhập
                                                     onChange={(e) => handleQuantityChange(product.product_variant_id, parseInt(e.target.value))}
                                                     className="w-20 border border-gray-300 rounded px-3 py-2 text-center focus:ring-blue-500 focus:border-blue-500"
                                                 />

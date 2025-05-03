@@ -4,22 +4,15 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { UsersService } from '../../../services/api-users';
 import { useAuth } from '../../../contexts/authcontext';
+import { Loading } from '../../../contexts/loading';
 
 export const Set_User_Role = () => {
     const Navigate = useNavigate();
     const { userId } = useParams('');
+    const [loading, setLoading] = useState(false);
     const [user, setUser] = useState({});
     const [roles, setRole] = useState([]);
     const [selectRole, setselectRole] = useState([]);
-    const { permissions } = useAuth();
-
-    console.log(permissions);
-    // useEffect(() => {
-    //     if (!permissions.includes("update-customer")) {
-    //         AntNotification.showNotification("Bạn không có quyền truy cập", "Vui lòng liên hệ quản trị viên", "error");
-    //         Navigate('/admin/accounts');
-    //     }
-    // }, [permissions]);
 
     useEffect(() => {
         (async () => {
@@ -29,7 +22,7 @@ export const Set_User_Role = () => {
                 setUser(res);
                 setselectRole(res.roles.map((role) => role.id));
             } catch (error) {
-                console.log(error.message);
+                AntNotification.showNotification("Có lỗi xảy ra", error.message, "error");
             }
         })();
     }, []);
@@ -37,6 +30,7 @@ export const Set_User_Role = () => {
     useEffect(() => {
         (async () => {
             try {
+                setLoading(true);
                 const res = await UsersService.showRoles();
                 if (res.status === 200) {
                     setRole(res.roles);
@@ -47,6 +41,8 @@ export const Set_User_Role = () => {
             } catch (error) {
                 AntNotification.handleError(error);
                 Navigate('/admin/accounts');
+            }finally {
+                setLoading(false);
             }
         })();
     }, [userId]);
@@ -145,6 +141,7 @@ export const Set_User_Role = () => {
                     <button type="submit" className="mt-5 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
                 </form>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 }

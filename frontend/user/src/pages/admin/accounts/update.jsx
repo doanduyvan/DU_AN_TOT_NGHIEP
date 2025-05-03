@@ -4,31 +4,50 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { UsersService } from '../../../services/api-users';
 import { useAuth } from '../../../contexts/authcontext';
+import { Loading } from '../../../contexts/loading';
 
 export const UpdateAccount = () => {
     const Navigate = useNavigate();
     const { userId } = useParams('');
+    const [loading, setLoading] = useState(false);
     const [user, setUser] = useState({ fullname: '', status: 0 });
+    const [emailError, setEmailError] = useState('');
 
     useEffect(() => {
         (async () => {
             try {
+                setLoading(true);
                 const res = await UsersService.getUserById(userId);
-                console.log(res);
                 setUser(res);
-                setselectRole(res.roles.map((role) => role.id));
             } catch (error) {
-                console.log(error.message);
+                AntNotification.showNotification("Có lỗi xảy ra", error.message, "error");
+            } finally {
+                setLoading(false);
             }
         })();
     }, []);
+
+    const validateEmail = (email) => {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zAZ0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailRegex.test(email);
+    };
+    const handleEmailChange = (e) => {
+        const email = e.target.value;
+        setUser({ ...user, email });
+
+        if (validateEmail(email)) {
+            setEmailError('');
+        } else {
+            setEmailError('Email không hợp lệ');
+        }
+    };
+
     const toggleStatus = () => {
         setUser((prevUser) => {
             const updatedUser = {
                 ...prevUser,
                 status: prevUser.status === 1 ? 0 : 1,
             };
-            console.log('Updated user:', updatedUser);
             return updatedUser;
         });
     };
@@ -36,6 +55,10 @@ export const UpdateAccount = () => {
 
     const handSubmit = async (e) => {
         e.preventDefault();
+        if (!validateEmail(user.email)) {
+            setEmailError('Email không hợp lệ');
+            return;
+        }
         const formData = new FormData(e.target);
         formData.append('status', user.status);
         formData.forEach((value, key) => {
@@ -111,10 +134,12 @@ export const UpdateAccount = () => {
                         <input type="text"
                             defaultValue={user.email}
                             name="email"
+                            onChange={handleEmailChange}
                             style={{ borderRadius: '4px', padding: '11px' }}
                             placeholder="Nhập email"
                             className="shadow-sm border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 w-full"
                         />
+                        {emailError && <div className="text-red-500 text-xs">{emailError}</div>}
                     </div>
                     <div className="mb-5">
                         <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">Số điện thoại</label>
@@ -123,6 +148,16 @@ export const UpdateAccount = () => {
                             name="phone"
                             style={{ borderRadius: '4px', padding: '11px' }}
                             placeholder="Nhập số điện thoại"
+                            className="shadow-sm border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 w-full"
+                        />
+                    </div>
+                    <div className="mb-5">
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">Mật khẩu</label>
+                        <input type="password"
+                            defaultValue={user.password}
+                            name="password"
+                            style={{ borderRadius: '4px', padding: '11px' }}
+                            placeholder="Nhập mật khẩu"
                             className="shadow-sm border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 w-full"
                         />
                     </div>
@@ -141,6 +176,7 @@ export const UpdateAccount = () => {
                     <button type="submit" className="mt-5 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
                 </form>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 }

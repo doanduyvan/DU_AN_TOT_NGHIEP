@@ -4,10 +4,13 @@ import { UsersService } from "../../../services/api-users";
 import { AntNotification } from "../../../components/notification";
 import { ImageModal } from "../../../components/admin/imgmodal";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import { Loading } from '../../../contexts/loading';
+
 import { Pagination } from 'antd';
 
 export const Users = () => {
-    const [imageSrc, setImageSrc] = useState(null);
+    const urlSRC = import.meta.env.VITE_URL_IMG;
+    const [loading, setLoading] = useState(false);
     const [users, setUser] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -16,14 +19,6 @@ export const Users = () => {
     const [sortorder, setSortOrder] = useState(null);
     const [keyword, setKeyword] = useState("");
     const [inputValue, setInputValue] = useState('');
-
-    const openModal = (src) => {
-        setImageSrc(src);
-    };
-
-    const closeModal = () => {
-        setImageSrc(null);
-    };
 
     const checkUser = (e, id) => {
         setSelectedUsers((prevselectedUsers) => {
@@ -64,9 +59,9 @@ export const Users = () => {
             AntNotification.handleError(error);
         }
     };
-    console.log(selectedUsers);
     const fetchData = async () => {
         try {
+            setLoading(true);
             const res = await UsersService.getAllUsers({
                 page: currentPage,
                 per_page: pageSize,
@@ -76,7 +71,6 @@ export const Users = () => {
             if (res) {
                 setUser(Array.isArray(res.data) ? res.data : []);
                 setTotalItems(res.total || 0);
-                console.log(res);
             } else {
                 AntNotification.showNotification(
                     "Có lỗi xảy ra",
@@ -86,6 +80,8 @@ export const Users = () => {
             }
         } catch (error) {
             AntNotification.handleError(error);
+        } finally {
+            setLoading(false);
         }
     };
     useEffect(() => {
@@ -120,7 +116,7 @@ export const Users = () => {
             AntNotification.handleError(error);
         }
     }
-    
+
     useEffect(() => {
         const debounceTimer = setTimeout(() => {
             if (inputValue !== "") {
@@ -169,6 +165,12 @@ export const Users = () => {
                     <h5 className="text-xl font-medium leading-tight text-primary">
                         Quản Lý Tài Khoản
                     </h5>
+                    <Link
+                        to="/admin/accounts/create"
+                        className="inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-indigo-600 w-auto"
+                    >
+                        Thêm Tài Khoản
+                    </Link>
                 </div>
                 <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 px-4 bg-white">
                     <div>
@@ -260,7 +262,13 @@ export const Users = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map((user) => (
+                        {users.length === 0 ? (
+                            <tr className="">
+                                <td colSpan={4} className="text-center py-4 text-gray-500">
+                                    Không có tài khoản nào
+                                </td>
+                            </tr>
+                        ) : users.map((user) => (
                             <tr
                                 key={user.id}
                                 className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
@@ -286,7 +294,11 @@ export const Users = () => {
                                     scope="row"
                                     className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                 >
-                                    <img className="w-12 h-12 rounded-full" alt="" />
+                                    {
+                                        user && user.avatar
+                                            ? <img src={`${urlSRC}${user.avatar}`} className="w-12 h-12 rounded-full object-cove" alt="Avatar" />
+                                            : <img src="/images/home/lovepik-avatar-png-image_401708318_wh1200.png" className="w-12 h-12 rounded-full object-cover" alt="Default avatar" />
+                                    }
                                     <div className="ps-3">
                                         <div className="text-base font-semibold">
                                             {user.fullname}
@@ -337,6 +349,7 @@ export const Users = () => {
                         onChange={handlePageChange} />
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

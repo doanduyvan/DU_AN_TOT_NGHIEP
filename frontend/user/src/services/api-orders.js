@@ -22,8 +22,20 @@ const OrderService = {
       params: { page, per_page, sortorder, keyword, filter_status, filter_payment_status, filter_shipping_status },
     });
   },
+  getOrderPayment: async (id) => {
+    return apiGet(`/orders/order-payment/${id}`);
+  },
   getOrderById: async (id) => {
-    return apiGet(`/orders/${id}`);
+    return apiGet(`/orders/getbyid/${id}`);
+  },
+  getOrderCount: async () => {
+    return apiGet("/orders/get-order-count");
+  },
+  getOrderLimit: async () => {
+    return apiGet("/orders/getorderlimit");
+  },
+  getOrderTrashById: async (id) => {
+    return apiGet(`/orders/trash/${id}`);
   },
   update: async (id, formData) => {
     return apiPost(`/orders/update/${id}`, formData);
@@ -71,5 +83,17 @@ const OrderService = {
   categories: async () => {
     return apiGet("/orders/category-products");
   },
+  orderTrash: async ({ page, per_page, sortorder, keyword, filter_status, filter_payment_status, filter_shipping_status }) => {
+    return apiGet("orders/trash", {
+      params: { page, per_page, sortorder, keyword, filter_status, filter_payment_status, filter_shipping_status },
+    });
+  },
+  restore: async (ids) => {
+    return apiPost("/orders/restore", { ids });
+  },
+  forceDelete: async (id) => {
+    return apiDelete(`/orders/force-delete/${id}`);
+  },
+
 };
 export { OrderService };

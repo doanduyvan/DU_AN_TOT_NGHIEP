@@ -3,11 +3,13 @@ import { categoryNewsService } from "../../../services/api-category-news";
 import { AntNotification } from "../../../components/notification";
 import { ImageModal } from "../../../components/admin/imgmodal";
 import { Link } from "react-router-dom";
+import { Loading } from "../../../contexts/loading";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
 import { Pagination } from 'antd';
 
 export const CategoryNews = () => {
     const [imageSrc, setImageSrc] = useState(null);
+    const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -45,7 +47,6 @@ export const CategoryNews = () => {
         }
         try {
             const res = await categoryNewsService.destroy(selectedCategories);
-            console.log(selectedCategories);
             if (res?.status === 200) {
                 setCategories((prevCategories) => {
                     return prevCategories.filter(
@@ -72,6 +73,7 @@ export const CategoryNews = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setLoading(true);
                 const res = await categoryNewsService.getAllCategories({
                     page: currentPage,
                     per_page: pageSize,
@@ -91,6 +93,8 @@ export const CategoryNews = () => {
                 }
             } catch (error) {
                 AntNotification.handleError(error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchData();
@@ -237,69 +241,85 @@ export const CategoryNews = () => {
                                 Hình ảnh
                             </th>
                             <th scope="col" className="px-6 py-3">
+                                Thời gian tạo
+                            </th>
+                            <th scope="col" className="px-6 py-3">
                                 Action
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        {categories.map((category) => (
-                            <tr
-                                key={category.id}
-                                className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
-                            >
-                                <td className="w-4 p-4">
-                                    <div className="flex items-center">
-                                        <input
-                                            id="checkbox-table-search-1"
-                                            onChange={(e) => checkCategory(e, category.id)}
-                                            checked={selectedCategories.includes(category.id)}
-                                            type="checkbox"
-                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                        />
-                                        <label
-                                            htmlFor="checkbox-table-search-1"
-                                            className="sr-only"
-                                        >
-                                            checkbox
-                                        </label>
-                                    </div>
-                                </td>
-                                <th
-                                    scope="row"
-                                    className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
+                        {
+                            categories.length === 0 ? (
+                                <tr className="">
+                                    <td colSpan={5} className="text-center py-4 text-gray-500">
+                                        Không có danh mục nào
+                                    </td>
+                                </tr>
+                            ) : categories.map((category) => (
+                                <tr
+                                    key={category.id}
+                                    className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                                 >
-                                    <div className="ps-3">
-                                        <div className="text-base font-semibold">
-                                            {category.category_news_name}
+                                    <td className="w-4 p-4">
+                                        <div className="flex items-center">
+                                            <input
+                                                id="checkbox-table-search-1"
+                                                onChange={(e) => checkCategory(e, category.id)}
+                                                checked={selectedCategories.includes(category.id)}
+                                                type="checkbox"
+                                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                            />
+                                            <label
+                                                htmlFor="checkbox-table-search-1"
+                                                className="sr-only"
+                                            >
+                                                checkbox
+                                            </label>
                                         </div>
-                                    </div>
-                                </th>
-                                <td className="px-6 py-4">
-                                    <a
-                                        className="underline cursor-pointer"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            openModal(category.img);
-                                        }}
+                                    </td>
+                                    <th
+                                        scope="row"
+                                        className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                     >
-                                        Hình ảnh
-                                    </a>
-                                    <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
-                                </td>
-
-                                <td className="px-6 py-4">
-                                    <Link
-                                        to={`/admin/category-news/update/${category.id}`}
-                                        type="button"
-                                        data-modal-target="editUserModal"
-                                        data-modal-show="editUserModal"
-                                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                    >
-                                        Edit
-                                    </Link>
-                                </td>
-                            </tr>
-                        ))}
+                                        <div className="ps-3">
+                                            <div className="text-base font-semibold">
+                                                {category.category_news_name}
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <td className="px-6 py-4">
+                                        <a
+                                            className="underline cursor-pointer"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                openModal(category.img);
+                                            }}
+                                        >
+                                            Hình ảnh
+                                        </a>
+                                        <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        {new Date(category.created_at).toLocaleDateString("vi-VN", {
+                                            year: "numeric",
+                                            month: "2-digit",
+                                            day: "2-digit",
+                                        })}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <Link
+                                            to={`/admin/category-news/update/${category.id}`}
+                                            type="button"
+                                            data-modal-target="editUserModal"
+                                            data-modal-show="editUserModal"
+                                            className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                        >
+                                            Edit
+                                        </Link>
+                                    </td>
+                                </tr>
+                            ))}
                     </tbody>
                 </table>
                 <div className="flex justify-end p-4">
@@ -311,6 +331,7 @@ export const CategoryNews = () => {
                         onChange={handlePageChange} />
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

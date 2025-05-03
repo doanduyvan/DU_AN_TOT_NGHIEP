@@ -22,8 +22,14 @@ const UsersService = {
       params: { page, per_page, sortorder, keyword },
     });
   },
-  login: async (credentials) => {
-    return apiPost("/login", credentials);
+  getUserLimit: async () => {
+    return apiGet("/users/getuserlimit");
+  },
+  getUserCount: async () => {
+    return apiGet("/users/get-user-count");
+  },
+  create: async (formData) => {
+    return apiPost("/users/create", formData);
   },
   upadteStatus: async (data) => {
     return apiPost("/users/updatestatus", data);
@@ -41,7 +47,7 @@ const UsersService = {
     return apiPost('/users/destroy', { ids });
   },
   getUserById: async (id) => {
-    return apiGet(`/users/${id}`);
+    return apiGet(`/users/getbyid/${id}`);
   },
   userTrash: async ({ page, per_page, sortorder, keyword }) => {
       return apiGet('users/trash', {

@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import { PermissionsService } from "../../../services/api-permissions";
 import { AntNotification } from "../../../components/notification";
 import DeleteConfirmationModal from "../../../components/delete_confirm";
+import { Loading } from "../../../contexts/loading";
 import { Pagination } from 'antd';
 
 export const Permissions = () => {
+    const [loading, setLoading] = useState(false);
     const [permissions, setPermission] = useState([]);
     const [selectedPermiss, setselectedPermiss] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -55,6 +57,7 @@ export const Permissions = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setLoading(true);
                 const res = await PermissionsService.callPermissions({
                     page: currentPage,
                     per_page: pageSize,
@@ -64,12 +67,13 @@ export const Permissions = () => {
                 if (res) {
                     setPermission(res.data);
                     setTotalItems(res.total || 0);
-                    console.log(res);
                 } else {
                     AntNotification.showNotification("Lỗi", "Không thể lấy danh sách quyền hạn", "error");
                 }
             } catch (error) {
                 AntNotification.handleError(error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchData();
@@ -231,54 +235,61 @@ export const Permissions = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {permissions.map((permiss) => (
-                                    <tr
-                                        key={permiss.id}
-                                        className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
-                                    >
-                                        <td className="w-4 p-4">
-                                            <div className="flex items-center">
-                                                <input
-                                                    id="checkbox-table-search-1"
-                                                    onChange={(e) => checkPermission(e, permiss.id)}
-                                                    checked={selectedPermiss.includes(permiss.id)}
-                                                    type="checkbox"
-                                                    className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                                />
-                                                <label
-                                                    htmlFor="checkbox-table-search-1"
-                                                    className="sr-only"
-                                                >
-                                                    Checkbox
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">{permiss.id}</td>
-                                        <th
-                                            scope="row"
-                                            className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
+                                {
+                                    permissions.length === 0 ? (
+                                        <tr className="">
+                                            <td colSpan={6} className="text-center py-4 text-gray-500">
+                                                Không có quền nào
+                                            </td>
+                                        </tr>
+                                    ) : permissions.map((permiss) => (
+                                        <tr
+                                            key={permiss.id}
+                                            className="bg-white border-b  dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
                                         >
-                                            <div className="">
-                                                <div className="text-base font-semibold lineclap w-60 text-limit">
-                                                    {permiss.name}
+                                            <td className="w-4 p-4">
+                                                <div className="flex items-center">
+                                                    <input
+                                                        id="checkbox-table-search-1"
+                                                        onChange={(e) => checkPermission(e, permiss.id)}
+                                                        checked={selectedPermiss.includes(permiss.id)}
+                                                        type="checkbox"
+                                                        className="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                    />
+                                                    <label
+                                                        htmlFor="checkbox-table-search-1"
+                                                        className="sr-only"
+                                                    >
+                                                        Checkbox
+                                                    </label>
                                                 </div>
-                                            </div>
-                                        </th>
-                                        <td className="px-6 py-4 text-gray-700">{permiss.guard_name}</td>
-                                        <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(permiss.updated_at).toLocaleDateString('vi-VN')}</td>
-                                        <td className="px-6 py-4">
-                                            <Link
-                                                to={`/admin/permissions/update/${permiss.id}`}
-                                                type="button"
-                                                data-modal-target="editUserModal"
-                                                data-modal-show="editUserModal"
-                                                className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                            </td>
+                                            <td className="px-6 py-4">{permiss.id}</td>
+                                            <th
+                                                scope="row"
+                                                className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                             >
-                                                Edit
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))}
+                                                <div className="">
+                                                    <div className="text-base font-semibold lineclap w-60 text-limit">
+                                                        {permiss.name}
+                                                    </div>
+                                                </div>
+                                            </th>
+                                            <td className="px-6 py-4 text-gray-700">{permiss.guard_name}</td>
+                                            <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(permiss.updated_at).toLocaleDateString('vi-VN')}</td>
+                                            <td className="px-6 py-4">
+                                                <Link
+                                                    to={`/admin/permissions/update/${permiss.id}`}
+                                                    type="button"
+                                                    data-modal-target="editUserModal"
+                                                    data-modal-show="editUserModal"
+                                                    className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                                >
+                                                    Edit
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    ))}
                             </tbody>
                         </table>
                         <div className="flex justify-end p-4">
@@ -292,6 +303,7 @@ export const Permissions = () => {
                     </div>
                 </div>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

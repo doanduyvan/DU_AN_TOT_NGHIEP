@@ -1,16 +1,19 @@
 import { useNavigate, Link, useParams } from "react-router-dom";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, use } from "react";
 import { AntNotification } from "../../../components/notification";
 import { newsService } from "../../../services/api-news";
+import { Loading } from "../../../contexts/loading";
 import { QuillEditor } from "../../../components/quilleditor";
 
 export const Update_News = () => {
+    const urlImg = import.meta.env.VITE_URL_IMG;
+    const [loading, setLoading] = useState(false);
     const { id } = useParams();
     const [news, setNews] = useState({});
     const [avatar, setAvatar] = useState(null);
     const [editorData, setEditorData] = useState('');
     const [categories, setCategories] = useState([]);
-    
+
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
@@ -47,6 +50,7 @@ export const Update_News = () => {
     useEffect(() => {
         const fetchNewsData = async () => {
             try {
+                setLoading(true);
                 const res = await newsService.getNewsById(id);
                 if (res) {
                     setNews(res.news);
@@ -55,6 +59,8 @@ export const Update_News = () => {
                 }
             } catch (error) {
                 AntNotification.handleError(error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchNewsData();
@@ -67,11 +73,10 @@ export const Update_News = () => {
 
         const avatarFile = document.querySelector('input[name="avatar"]').files[0];
         if (!avatarFile && !avatar) {
-            alert('Hình đại diện không được để trống.');
+            AntNotification.showNotification("Cập nhật thất bại", "Vui lòng chọn ảnh đại diện", "error");
             return;
         }
 
-        // Nếu có file avatar mới, thêm vào formData
         if (avatarFile) {
             formData.append('avatar', avatarFile);
         }
@@ -85,17 +90,17 @@ export const Update_News = () => {
                 AntNotification.showNotification("Cập nhật thất bại", res?.message, "error");
             }
         } catch (error) {
-                AntNotification.handleError(error);
+            AntNotification.handleError(error);
         }
     };
 
-    
+
     return (
         <div className="pt-20 px-4 lg:ml-64">
             <nav className="rounded-md w-full">
                 <ol className="list-reset flex">
                     <li>
-                    <Link
+                        <Link
                             to="/admin"
                             className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
                         >
@@ -156,11 +161,9 @@ export const Update_News = () => {
                         {avatar && (
                             <div className="mt-3">
                                 <img
-                                    src={avatar && (avatar.startsWith('http://') || avatar.startsWith('https://'))
+                                    src={avatar.startsWith('data:image/jpeg;base64,')
                                         ? avatar
-                                        : (avatar.startsWith('data:image/jpeg;base64,')
-                                            ? avatar
-                                            : `http://localhost:8000/storage/${avatar}`)
+                                        : `${urlImg + '/' + avatar}`
                                     }
                                     alt="Xem trước ảnh"
                                     className="max-w-full h-auto max-h-64 rounded-lg border border-gray-300"
@@ -197,6 +200,7 @@ export const Update_News = () => {
                     <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Cập nhật</button>
                 </form>
             </div>
+            <Loading isLoading={loading} />
         </div>
     );
 };

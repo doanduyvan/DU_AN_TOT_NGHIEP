@@ -15,6 +15,9 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifyEmail;
 use App\Models\EmailVerification;
+use Google\Client as GoogleClient;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -51,14 +54,13 @@ class AuthController extends Controller
             ], 500);
         }
     }
-    
+
 
     /**
      * Đăng nhập người dùng
      */
     public function login(Request $request)
     {
-
         $messages = [
             'email.required' => 'Email không được để trống.',
             'email.email' => 'Vui lòng nhập đúng định dạng email.',
@@ -66,14 +68,11 @@ class AuthController extends Controller
             'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
             'password.max' => 'Mật khẩu không được vượt quá 255 ký tự.',
         ];
-
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string|min:6|max:255',
         ], $messages);
-
         $user = User::where('email', $request->email)->first();
-
         if ($user) {
             if ($user->is_verify == 0) {
                 return response()->json([
@@ -81,7 +80,7 @@ class AuthController extends Controller
                     'status' => 403,
                     'email' => $user->email,
                     'message' => 'Tài khoản của bạn chưa được xác nhận.'
-                ],403);
+                ], 403);
             }
         }
 
@@ -90,7 +89,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 401,
                 'message' => 'Thông tin đăng nhập không chính xác.'
-            ],403);
+            ], 403);
         }
 
         if ($user->status == 0) {
@@ -100,7 +99,7 @@ class AuthController extends Controller
             ]);
         }
 
-        
+
         $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -111,6 +110,72 @@ class AuthController extends Controller
             'permissions' => $user->getAllPermissions()->pluck('name'),
             'roles' => $user->getRoleNames(),
             'token' => $token
+        ]);
+    }
+
+    public function loginGoogle(Request $request)
+    {
+        $accessToken = $request->input('accessToken');
+        $client = new GoogleClient();
+        $client->setAccessToken($accessToken);
+        // Kiểm tra token hợp lệ và lấy thông tin người dùng
+        $oauth2 = new \Google\Service\Oauth2($client);
+        try {
+            $googleUser = $oauth2->userinfo->get();
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Token không hợp lệ'], 401);
+        }
+
+        // Tìm hoặc tạo user trong database
+        $user = User::firstOrCreate([
+            'email' => $googleUser->email,
+        ], [
+            'fullname' => $googleUser->name,
+            'avatar' => null,
+            'is_verify' => 1,
+            'status' => 1,
+            'password' => Hash::make(Str::random(20)), // Tạo mật khẩu ngẫu nhiên
+        ]);
+
+        // Kiểm tra xem người dùng đã có quyền chưa, nếu chưa thì gán quyền mặc định
+        if (!$user->hasRole('Users')) {
+            $user->assignRole('Users');
+        }
+
+        if ($user->avatar == null) {
+            // Tải ảnh từ link
+            try {
+                $response = Http::get($googleUser->picture);
+                if ($response->successful()) {
+                    $extension = 'jpg';
+                    $filename = 'avatars/' . Str::uuid() . '.' . $extension;
+                    Storage::disk('public')->put($filename, $response->body());
+                } else {
+                    $filename = null;
+                }
+            } catch (\Exception $e) {
+                $filename = null;
+            }
+            $user->avatar = $filename;
+            $user->save();
+        }
+
+        if ($user->is_verify == 0) {
+            $user->is_verify = 1;
+            $user->save();
+        }
+
+
+        $user->tokens()->delete();
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Login successful',
+            'user' => $user,
+            'permissions' => $user->getAllPermissions()->pluck('name'),
+            'roles' => $user->getRoleNames(),
+            'token' => $token,
         ]);
     }
 
@@ -149,7 +214,7 @@ class AuthController extends Controller
      */
     public function me(Request $request)
     {
-        if($request->user()->status == 0){
+        if ($request->user()->status == 0) {
             return response()->json([
                 'status' => 401,
                 'message' => 'Tài khoản của bạn đã bị khóa'
@@ -217,7 +282,8 @@ class AuthController extends Controller
         return response()->json(['message' => 'Xác nhận email thành công.'], 200);
     }
 
-    public function sendResetPasswordEmail(Request $request){
+    public function sendResetPasswordEmail(Request $request)
+    {
 
         $messages = [
             'email.required' => 'Email không được để trống.',
@@ -274,25 +340,25 @@ class AuthController extends Controller
             'token' => 'required|string',
             'password' => 'required|confirmed|min:6|max:255',
         ], $message);
-    
+
         $row = DB::table('password_resets')->where('token', $request->token)->first();
-    
+
         if (!$row) {
             return response()->json(['message' => 'Token không hợp lệ hoặc đã hết hạn.'], 400);
         }
-    
+
         $user = User::where('email', $row->email)->first();
         if (!$user) {
             return response()->json(['message' => 'Không tìm thấy người dùng.'], 404);
         }
-    
+
         // cập nhật mật khẩu mới
         $user->password = Hash::make($request->password);
         $user->save();
-    
+
         // xoá token reset sau khi dùng
         DB::table('password_resets')->where('email', $row->email)->delete();
-    
+
         return response()->json(['message' => 'Đặt lại mật khẩu thành công.']);
     }
 }

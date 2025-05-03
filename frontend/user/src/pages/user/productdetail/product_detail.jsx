@@ -9,6 +9,8 @@ import CommentProduct from "./commentproduct";
 import { FullScreenLoader, FlyToCart } from "/src/utils/helpersjsx";
 import CarouselProducts from "/src/components/carouselproduct/carouselproduct";
 import { useUserContext } from "../../../context/user/userContext";
+import 'quill/dist/quill.snow.css';
+
 
 const baseUrlImg = import.meta.env.VITE_URL_IMG;
 const urlProductDetail = '/customer/productdetail/getproductbyid/';
@@ -93,10 +95,9 @@ export const ProductDetail = () => {
       <div className="h-[100px]"></div>
       <div className="swapper p-3">
         <div className="mx-auto flex flex-col md:flex-row md:gap-8 gap-4">
-
           <div className="md:w-1/2 w-full flex flex-col lg:flex-row gap-2 lg:max-h-[430px]">
-          <div className="max-w-[100px] max-h-full overflow-y-auto hidden lg:block">
-              <ProductImages images={imgs} xy={'Y'} />
+            <div className="max-w-[100px] max-h-full overflow-y-auto hidden lg:block">
+              <ProductImages images={imgs} xy={"Y"} />
             </div>
             <div className="w-full">
               <img
@@ -106,17 +107,18 @@ export const ProductDetail = () => {
               />
             </div>
             <div className="mt-3 lg:hidden">
-              <ProductImages images={imgs} xy={'X'} />
+              <ProductImages images={imgs} xy={"X"} />
             </div>
           </div>
 
           <div className="md:w-1/2 w-full bg-white p-5 flex flex-col justify-start">
-            <p className="text-3xl md:text-4xl font-semibold text-gray-800 mb-4">
+            <p className="text-2xl md:text-3xl font-semibold text-gray-800">
               {product?.product_name || "Loading..."}
             </p>
 
             <div className="flex flex-col lg:flex-row gap-4">
-              <div className="w-full lg:w-1/2 flex flex-col gap-4">
+              <div className="w-full lg:w-1/2 flex flex-col gap-2">
+                <p className="mt-2">Mã sản phẩm: {currentVariant.sku}</p>
                 <div className="flex items-center gap-3">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -128,10 +130,21 @@ export const ProductDetail = () => {
                   >
                     <path d="M12.0006 18.26L4.94715 22.2082L6.52248 14.2799L0.587891 8.7918L8.61493 7.84006L12.0006 0.5L15.3862 7.84006L23.4132 8.7918L17.4787 14.2799L19.054 22.2082L12.0006 18.26Z"></path>
                   </svg>
-                  <p className="font-medium text-lg">
-                    ({product.rating_avg}) {product.total_reviews} Đánh giá
+                  <p className="font-medium text-base">
+                    ({product?.rating_avg?.toFixed(1)}) {product.total_reviews}{" "}
+                    Đánh giá
                   </p>
                 </div>
+
+                {currentVariant.stock_quantity == 0 ? (
+                  <p className="text-base text-red-500">
+                    Sản phẩm đã hết hàng
+                  </p>
+                ) : (
+                  <p className="text-base">
+                    Còn {currentVariant.stock_quantity} Sản phẩm
+                  </p>
+                )}
 
                 <div className="flex flex-col gap-2">
                   <p className="text-base font-normal">Phân loại:</p>
@@ -194,7 +207,7 @@ export const ProductDetail = () => {
                       strokeLinejoin="round"
                     />
                   </svg>
-                  <p className="font-medium text-lg">Compare</p>
+                  <p className="font-medium text-lg">So sánh</p>
                 </div>
 
                 <div className="flex gap-3">
@@ -209,9 +222,9 @@ export const ProductDetail = () => {
                     <path d="M4.00488 16V4H2.00488V2H5.00488C5.55717 2 6.00488 2.44772 6.00488 3V15H18.4433L20.4433 7H8.00488V5H21.7241C22.2764 5 22.7241 5.44772 22.7241 6C22.7241 6.08176 22.7141 6.16322 22.6942 6.24254L20.1942 16.2425C20.083 16.6877 19.683 17 19.2241 17H5.00488C4.4526 17 4.00488 16.5523 4.00488 16ZM6.00488 23C4.90031 23 4.00488 22.1046 4.00488 21C4.00488 19.8954 4.90031 19 6.00488 19C7.10945 19 8.00488 19.8954 8.00488 21C8.00488 22.1046 7.10945 23 6.00488 23ZM18.0049 23C16.9003 23 16.0049 22.1046 16.0049 21C16.0049 19.8954 16.9003 19 18.0049 19C19.1095 19 20.0049 19.8954 20.0049 21C20.0049 22.1046 19.1095 23 18.0049 23Z"></path>
                   </svg>
                   <div className="flex flex-col gap-1">
-                    <p className="font-medium text-lg">Delivery</p>
+                    <p className="font-medium text-lg">Giao hàng</p>
                     <p className="font-normal text-sm md:text-base">
-                      From $6 for 1-3 days
+                    Nhận hàng trong 1–3 ngày
                     </p>
                   </div>
                 </div>
@@ -227,9 +240,9 @@ export const ProductDetail = () => {
                     <path d="M12.0002 2C15.8662 2 19.0002 5.13401 19.0002 9H20.0742C20.5967 9 21.0311 9.40231 21.0712 9.9233L21.9174 20.9233C21.9597 21.474 21.5477 21.9547 20.997 21.9971L20.9203 22H3.08008C2.52779 22 2.08008 21.5523 2.08008 21L2.08302 20.9233L2.92918 9.9233C2.96925 9.40231 3.4037 9 3.92623 9H5.0002C5.0002 5.13401 8.13421 2 12.0002 2ZM19.1472 11H4.8522L4.1592 20H19.8402L19.1472 11ZM14.0002 13V15H10.0002V13H14.0002ZM12.0002 4C9.31145 4 7.11838 6.12231 7.00482 8.78311L7.0002 9H17.0002C17.0002 6.31124 14.8779 4.11818 12.2171 4.00462L12.0002 4Z"></path>
                   </svg>
                   <div className="flex flex-col gap-1">
-                    <p className="font-medium text-lg">Delivery</p>
+                    <p className="font-medium text-lg">Giao hàng</p>
                     <p className="font-normal text-sm md:text-base">
-                      From $6 for 1-3 days
+                      Miễn phí giao hàng toàn quốc
                     </p>
                   </div>
                 </div>
@@ -244,21 +257,20 @@ export const ProductDetail = () => {
                   </p>
                   <p className="text-lg font-medium text-gray-400 line-through">
                     {" "}
-                    {formatCurrency(price_delete)}{" "}
+                    {price_delete != 0 && formatCurrency(price_delete)}{" "}
                   </p>
                 </div>
                 <Button
-                className="bg-yellow-300 p-2 rounded-lg hover:!bg-yellow-400 transition-colors"
-                type="text"
-                ref={buttonRef}
-                onClick={handleAddToCart}
-                loading={addProductLoading}
+                  className="bg-yellow-300 p-2 rounded-lg hover:!bg-yellow-400 transition-colors"
+                  type="text"
+                  ref={buttonRef}
+                  onClick={handleAddToCart}
+                  loading={addProductLoading}
                 >
                   Thêm giỏ hàng
                 </Button>
               </div>
             </div>
-
           </div>
         </div>
         <div className="p-2 lg:p-6 bg-[#fdf8f2]">
@@ -280,9 +292,10 @@ export const ProductDetail = () => {
 
           <div className="mt-3">
             {activeTab === 0 && (
-              <div className="bg-white p-4 rounded-lg shadow-md">
+              <div className="bg-white p-4 rounded-lg shadow-md image-description-center">
                 {product.description ? (
                   <div
+                    className="ql-editor ql-container"
                     dangerouslySetInnerHTML={{ __html: product.description }}
                   />
                 ) : (
@@ -301,7 +314,10 @@ export const ProductDetail = () => {
 
         <div>
           <div>
-            <CarouselProducts products={relatedProducts} nameSection="Các Sản phẩm liên quan" />
+            <CarouselProducts
+              products={relatedProducts}
+              nameSection="Các Sản phẩm liên quan"
+            />
           </div>
         </div>
       </div>
@@ -313,7 +329,6 @@ export const ProductDetail = () => {
         startRef={buttonRef}
         endId="cart-icon"
       />
-
     </>
   );
 };

@@ -17,13 +17,6 @@ const apiDelete = async (url, data) => {
 };
 
 const commentNewsService = {
-  searchUsers: async (query) => {
-    return apiPost("/users/search-users", query);
-  },
-
-  searchNews: async (query) => {
-    return apiPost("/comment-news/search-news", query);
-  },
 
   getComments: async ({ page, per_page, sortorder, keyword }) => {
     return apiGet("/comment-news", {
@@ -32,7 +25,7 @@ const commentNewsService = {
   },
 
   getCommentById: async (id) => {
-    return apiGet(`/comment-news/${id}`);
+    return apiGet(`/comment-news/getbyid/${id}`);
   },
 
   create: async (data) => {

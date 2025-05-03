@@ -25,7 +25,10 @@ const productService = {
   },
 
   getProductById: async (id) => {
-    return apiGet(`/products/${id}`);
+    return apiGet(`/products/getbyid/${id}`);
+  },
+  getProductCount: async (id) => {
+    return apiGet("/products/get-product-count");
   },
   categories: async () => {
     return apiGet("/products/getcategories");

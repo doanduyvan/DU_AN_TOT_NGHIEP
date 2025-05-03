@@ -32,6 +32,13 @@ class ProductsController extends Controller
         return response()->json($products);
     }
     
+    public function getProductCount(){
+        $productCount = Product::count();
+        return response()->json([
+            'count' => $productCount,
+            'status' => 200
+        ]);
+    }
 
     public function getProductById($id)
     {
@@ -188,6 +195,8 @@ class ProductsController extends Controller
             }
             // Kiểm tra và xử lý biến thể sản phẩm
             $variants = $variantRequest->validated();
+    
+
             if (!is_array($variants) || empty($variants)) {
                 throw new \Exception('Dữ liệu biến thể không hợp lệ');
             }
@@ -218,6 +227,10 @@ class ProductsController extends Controller
                         ->where('size', $variant['size'])
                         ->where('id', '!=', $variant['id'] ?? null)  // Bỏ qua id của biến thể đang cập nhật
                         ->first();
+
+                        if($variant['promotional_price'] === 'null'){
+                            $variant['promotional_price'] = null;
+                        }
 
                     $existingVariantSku = ProductVariant::where('sku', $variant['sku'])
                         ->where('id', '!=', $variant['id'] ?? null)
@@ -276,13 +289,6 @@ class ProductsController extends Controller
             $queryBuilder->where('sku', 'like', '%' . $query . '%');
         })->get();
         $products->load('variants');
-        return response()->json($products);
-    }
-    public function searchProduct(Request $request)
-    {
-        $query = $request->input('search_product');
-        $products = Product::where('product_name', 'like', '%' . $query . '%')->get();
-
         return response()->json($products);
     }
 }

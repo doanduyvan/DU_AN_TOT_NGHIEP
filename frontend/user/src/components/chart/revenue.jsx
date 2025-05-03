@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Link } from 'react-router-dom';
 import { ChartService } from '../../services/api-chart';
-import { AntNotification } from "../../components/notification";
+import { AntNotification } from "../notification";
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 
 // Register Chart.js components
@@ -11,8 +11,6 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 ChartJS.defaults.font.family = "'Roboto', sans-serif";
 ChartJS.defaults.font.size = 14;
 const Revenue = () => {
-  // Dữ liệu mẫu cho các năm (2023 và 2024)
-
 
   // Trạng thái cho năm được chọn
   const [revenue, setRevenue] = useState([]);
@@ -54,7 +52,7 @@ const Revenue = () => {
     datasets: [
       {
         label: 'Số lượng đơn hàng',
-        data: revenue.map(item => item.total_orders),
+        data: revenue.map(item => item.total_order),
         borderColor: 'rgba(75, 192, 192, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         fill: true,
@@ -115,59 +113,44 @@ const Revenue = () => {
 
 
   return (
-    <div className="pt-20 px-4 lg:ml-64">
-      <nav className="rounded-md w-full">
-        <ol className="list-reset flex items-center">
-          <li>
-            <Link to="/admin" className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600">
-              Quản Trị
-            </Link>
-          </li>
-          <li className="mx-2 text-neutral-500 dark:text-neutral-400">/</li>
-          <li className="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600">
-            Thống kê doanh thu
-          </li>
-        </ol>
-      </nav>
-      <div className="bg-white shadow-md my-4 sm:rounded-lg p-4">
-        <div className="mb-5">
-          <label htmlFor="year" className="block text-lg font-medium text-gray-700 mb-2">
-            Năm
-          </label>
-          <select
-            name="year"
-            onChange={handleYearChange}
-            className="block p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500 focus:border-blue-500"
-          >
-            {year.map((item) => (
-              <option key={item.year} value={item.year}>
-                {item.year}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="rounded-lg overflow-hidden">
-          <div>
-            {revenue ? (
-              <div style={{ height: '550px', minWidth: '600px'}}>
-                <Line data={chartData} options={options} />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <p className="text-gray-500">Dữ liệu thời điểm này chưa có.</p>
-              </div>
-            )}
-            <p className="text-center text-gray-600 p-4 italic">
-              Dữ liệu cập nhật mới nhất: {new Date().toLocaleDateString('vi-VN', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-              })}
-            </p>
-          </div>
+    <>
+      <div className="mb-5">
+        <label htmlFor="year" className="block text-lg font-medium text-gray-700 mb-2">
+          Năm
+        </label>
+        <select
+          name="year"
+          onChange={handleYearChange}
+          className="block p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500 focus:border-blue-500"
+        >
+          {year.map((item) => (
+            <option key={item.year} value={item.year}>
+              {item.year}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="rounded-lg overflow-hidden">
+        <div>
+          {revenue ? (
+            <div style={{ height: '550px', minWidth: '600px' }}>
+              <Line data={chartData} options={options} />
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-gray-500">Dữ liệu thời điểm này chưa có.</p>
+            </div>
+          )}
+          <p className="text-center text-gray-600 p-4 italic">
+            Dữ liệu cập nhật mới nhất: {new Date().toLocaleDateString('vi-VN', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric'
+            })}
+          </p>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 export default Revenue;

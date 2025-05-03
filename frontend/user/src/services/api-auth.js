@@ -2,8 +2,8 @@ import axios from "../utils/axios-customize.js";
 import { useAuth } from "../contexts/authcontext";
 import AxiosUser from "../utils/axios_user.js";
 
-const apiPost = async (url, data) => {
-  const response = await AxiosUser.post(url, data);
+const apiPost = async (url, data, useToken = false) => {
+  const response = await AxiosUser.post(url, data, {useToken});
   return response;
 };
 
@@ -20,7 +20,7 @@ const AuthService = {
   },
   logout: async () => {
     try {
-      const response = await apiPost("/logout");
+      const response = await apiPost("/logout", {}, true);
       localStorage.removeItem("token");
       return response;
     } catch (error) {

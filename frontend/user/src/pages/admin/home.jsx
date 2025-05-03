@@ -151,7 +151,7 @@ export const Home_Admin = () => {
                                                 {
                                                     user && user.avatar
                                                         ? <img src={`${urlImg}${user.avatar}`} className="w-14 h-14 rounded-full object-cove" alt="Avatar" />
-                                                        : <img src="../../public/images/home/lovepik-avatar-png-image_401708318_wh1200.png" className="w-14 h-14 rounded-full object-cover" alt="Default avatar" />
+                                                        : <img src="/images/home/lovepik-avatar-png-image_401708318_wh1200.png" className="w-14 h-14 rounded-full object-cover" alt="Default avatar" />
                                                 }
                                             </div>
 

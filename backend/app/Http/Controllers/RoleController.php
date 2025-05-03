@@ -11,19 +11,21 @@ use Illuminate\Database\QueryException;
 class RoleController extends Controller
 {
     protected $super_admin;
+    protected $user_role;
     public function __construct()
     {
         $this->super_admin = ['Admin'];
+        $this->user_role = ['Users'];
     }
 
     public function index()
     {
         $filters = request()->only(['per_page', 'sortorder', 'keyword']);
         $roles = Role::search($filters['keyword'] ?? null)
-        ->applyFilters($filters);
+            ->applyFilters($filters);
         return response()->json($roles);
     }
-    public function create(RoleRequest $request)
+    public function create(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255|unique:roles',
@@ -40,7 +42,7 @@ class RoleController extends Controller
             $permissions = Permission::whereIn('id', $request->permissions)->get();
             $role->syncPermissions($permissions);
         }
-
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
         return response()->json([
             'role' => $role,
             'assigned_permissions' => $permissions ?? [],
@@ -73,13 +75,15 @@ class RoleController extends Controller
             'permissions' => 'nullable|array',
             'permissions.*' => 'exists:permissions,id',
         ]);
-    
-        $superAdminRole = Role::where('name', $this->super_admin)->first();
-        
-        if ($superAdminRole && $id == $superAdminRole->id) {
+        $specialRoles = Role::where('name', $this->super_admin)
+            ->orWhere('name', $this->user_role)
+            ->pluck('id')
+            ->toArray();
+        if (in_array($id, $specialRoles)) {
             return response()->json(['message' => 'Thất bại: Không thể cập nhật các vai trò đặc biệt']);
         }
-    
+
+
         try {
             $role = Role::findOrFail($id);
             $role->update([
@@ -94,6 +98,7 @@ class RoleController extends Controller
             } else {
                 $role->syncPermissions([]);
             }
+            app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
             return response()->json([
                 'status' => 200,
                 'role' => $role,
@@ -111,12 +116,14 @@ class RoleController extends Controller
     {
         $ids = $request->ids;
         $roles = Role::whereIn('id', $ids)->pluck('name')->toArray();
-        if (array_intersect($this->super_admin, $roles)) {
+
+        if (array_intersect($this->user_role, $roles) || array_intersect($this->super_admin, $roles)) {
             return response()->json(['message' => 'Xóa thất bại: Không thể xóa các vai trò đặc biệt']);
         }
         if (is_array($ids) && !empty($ids)) {
             try {
                 Role::whereIn('id', $ids)->delete();
+                app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
                 return response()->json(['message' => 'Xóa vai trò thành công', 'status' => 200]);
             } catch (QueryException $e) {
                 return response()->json(['message' => 'Xóa thất bại: ' . $e->getMessage(), 'status' => 'error'], 500);

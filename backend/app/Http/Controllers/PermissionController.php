@@ -12,17 +12,19 @@ class PermissionController extends Controller
 {
     //
     protected $super_admin;
-    public function __construct(){
+    public function __construct()
+    {
         $this->super_admin = ['Admin'];
     }
     public function index()
     {
         $filters = request()->only(['per_page', 'sortorder', 'keyword']);
         $permissions = Permission::search($filters['keyword'] ?? null)
-        ->applyFilters($filters);
+            ->applyFilters($filters);
         return response()->json($permissions);
     }
-    public function update(PermissionRequest $request, $id){
+    public function update(PermissionRequest $request, $id)
+    {
         $request->validate([
             'name' => 'required|string|max:255',
             'guard_name' => 'required|string|max:255',
@@ -31,6 +33,7 @@ class PermissionController extends Controller
         $permission->name = $request->name;
         $permission->guard_name = $request->guard_name;
         $permission->save();
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
         return response()->json([
             'permission' => $permission,
             'status' => 200,
@@ -51,6 +54,7 @@ class PermissionController extends Controller
         if ($superAdminRole) {
             $superAdminRole->permissions()->attach($permission);
         }
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
         return response()->json([
             'permission' => $permission,
             'status' => 200,
@@ -73,6 +77,7 @@ class PermissionController extends Controller
         if (is_array($ids) && !empty($ids)) {
             try {
                 Permission::whereIn('id', $ids)->delete();
+                app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
                 return response()->json(['message' => 'Xóa quyền thành công', 'status' => 200]);
             } catch (QueryException $e) {
                 return response()->json(['message' => 'Xóa thất bại: ' . $e->getMessage(), 'status' => 'error'], 500);
@@ -81,5 +86,4 @@ class PermissionController extends Controller
             return response()->json(['message' => 'Xóa thất bại', 'status' => 'error'], 400);
         }
     }
-
 }

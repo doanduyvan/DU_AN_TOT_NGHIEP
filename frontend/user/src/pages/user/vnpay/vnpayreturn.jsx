@@ -97,7 +97,7 @@ const VnpayReturnPage = () => {
           <Button type="primary" key="back-register" onClick={() => navigate('/')}>
             Trang chủ
           </Button>,
-          <Button key="back-cart" onClick={() => navigate('/profile')}>
+          <Button key="back-cart" onClick={() => navigate('/profile?tab=4')}>
             Xem đơn hàng
           </Button>
         ]}

@@ -177,77 +177,83 @@ const handleAddToCart = async () => {
 
     return (
       <>
-      <div className="p-2">
-        <div className="max-w-full bg-stone-50 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-          <Link to={changeLink} className="flex justify-center">
-            <img
-              src={`${baseUrlImg}${item.avatar}`}
-              alt="Soy pH-Balanced Hydrating Face Wash Jumbo"
-              className="w-full aspect-square object-cover"
-            />
-          </Link>
-          <div className="p-3">
-
-            <div className="flex justify-between items-center">
-            <p className="text-[#ff6600] text-base font-medium"> { formatCurrency(price)} </p>
-            {price_delete && (
-              <p className="text-gray-400 text-base font-medium line-through">
-                { formatCurrency(price_delete) }
-              </p>
-            )}
-            </div>
-
-            <Link to={changeLink} className="text-gray-800 text-sm md:text-base font-serif font-medium block">
-              {item.product_name}
+        <div className="p-2">
+          <div className="max-w-full bg-stone-50 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+            <Link to={changeLink} className="flex justify-center">
+              <img
+                src={`${baseUrlImg}${item.avatar}`}
+                alt="Soy pH-Balanced Hydrating Face Wash Jumbo"
+                className="w-full aspect-square object-cover"
+              />
             </Link>
+            <div className="p-3">
+              <div className="flex justify-between items-center">
+                <p className="text-[#ff6600] text-base font-medium">
+                  {" "}
+                  {formatCurrency(price)}{" "}
+                </p>
+                {price_delete && (
+                  <p className="text-gray-400 text-base font-medium line-through">
+                    {formatCurrency(price_delete)}
+                  </p>
+                )}
+              </div>
 
-            <div className="flex items-center mb-1">
-              <div className="flex">
-                {[...Array(5)].map((_, i) => (
-                  <svg
-                    key={i}
-                    className={`w-4 h-4 fill-current ${
-                      i < ratingStars ? "text-yellow-500" : "text-gray-300"
+              <Link
+                title={item.product_name}
+                to={changeLink}
+                className="text-gray-800 text-sm md:text-base font-medium block line-clamp-2"
+              >
+                {item.product_name}
+              </Link>
+
+              <div className="flex items-center mb-1">
+                <div className="flex">
+                  {[...Array(5)].map((_, i) => (
+                    <svg
+                      key={i}
+                      className={`w-4 h-4 fill-current ${
+                        i < ratingStars ? "text-yellow-500" : "text-gray-300"
+                      }`}
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                    </svg>
+                  ))}
+                </div>
+                <span className="text-gray-600 text-sm ml-2">
+                  ({totalSold})
+                </span>
+              </div>
+
+              <div className="text-xs md:text-sm grid grid-cols-2 md:grid-cols-3 gap-2">
+                {variants.map((variant, i) => (
+                  <button
+                    className={`block p-1 border hover:bg-gray-300 ${
+                      currentVariant.id === variant.id ? "bg-gray-300" : ""
                     }`}
-                    viewBox="0 0 24 24"
+                    key={`shopitemvariant${i}`}
+                    onClick={() => setCurrentVariant(variant)}
                   >
-                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                  </svg>
+                    {variant.size}
+                  </button>
                 ))}
               </div>
-              <span className="text-gray-600 text-sm ml-2">({totalSold})</span>
-            </div>
 
-            <div className="text-xs md:text-sm grid grid-cols-2 md:grid-cols-3 gap-2">
-              {variants.map((variant, i) => (
-                <button
-                  className={`block p-1 border hover:bg-gray-300 ${
-                    currentVariant.id === variant.id ? "bg-gray-300" : ""
-                  }`}
-                  key={`shopitemvariant${i}`}
-                  onClick={() => setCurrentVariant(variant)}
-                >
-                  {variant.size}
-                </button>
-              ))}
+              <Button
+                className="mt-3 flex bg-black !text-white hover:!bg-yellow-500 w-full justify-center py-2"
+                type="text"
+                ref={buttonRef}
+                loading={loadingItem}
+                onClick={handleAddToCart}
+              >
+                <span className="font-normal md:font-medium inline-block text-sm md:text-base">
+                  Thêm Giỏ hàng
+                </span>
+              </Button>
             </div>
-
-            <Button
-            className="mt-3 flex bg-black !text-white hover:!bg-yellow-500 w-full justify-center py-2"
-            type="text"
-            ref={buttonRef}
-            loading={loadingItem}
-            onClick={handleAddToCart}
-            >
-            <span className="font-normal md:font-medium inline-block text-sm md:text-base">
-                Thêm Giỏ hàng
-              </span>
-            </Button>
           </div>
         </div>
-      </div>
-
-
       </>
     );
   };

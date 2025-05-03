@@ -275,6 +275,7 @@ Route::group(['prefix' => 'customer'], function () {
     Route::get('cart/checkqtyproductvariant/{id}',[CartController::class, 'checkQtyProductVariant']);
     Route::get('checkout/get-voucher',[CheckoutController::class, 'getVoucher'])->middleware('auth:sanctum');
     Route::get('checkout/check-voucher',[CheckoutController::class, 'checkVoucher'])->middleware('auth:sanctum');
+    Route::get('shop/searchsuggest',[ShopController::class, 'searchSuggest']);
 
 });
 

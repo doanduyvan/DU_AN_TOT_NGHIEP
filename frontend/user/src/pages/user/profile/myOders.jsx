@@ -4,6 +4,7 @@ import AxiosUser from "/src/utils/axios_user";
 import { FullScreenLoader } from "/src/utils/helpersjsx";
 import { Link } from "react-router-dom";
 import { toSlug } from "/src/utils/helpers";
+import { Empty } from "antd";
 
 
 const { Option } = Select;
@@ -15,25 +16,25 @@ const urlpaymentagain = "customer/profile/payment-again";
 const OrderStatus = [
   { key: 1, label: "Đơn hàng mới" },
   { key: 2, label: "Đã xác nhận" },
-  { key: 3, label: "Đang xử lý" },
+  // { key: 3, label: "Đang xử lý" },
   { key: 4, label: "Đang đóng gói" },
   { key: 5, label: "Đã giao cho vận chuyển" },
   { key: 6, label: "Hoàn thành" },
   { key: 7, label: "Đã hủy" },
-  { key: 8, label: "Đang chờ thanh toán" },
-  { key: 9, label: "Không thành công" },
-  { key: 10, label: "Trả lại" },
+  // { key: 8, label: "Đang chờ thanh toán" },
+  // { key: 9, label: "Không thành công" },
+  // { key: 10, label: "Trả lại" },
 ];
 
 const ShippingStatus = {
   1: "Đang chờ lấy hàng",
   2: "Đang vận chuyển",
-  3: "Đang đến",
+  // 3: "Đang đến",
   4: "Đã giao",
   5: "Không thể giao",
-  6: "Trả lại",
-  7: "Tạm hoãn",
-  8: "Đã xử lý",
+  // 6: "Trả lại",
+  // 7: "Tạm hoãn",
+  // 8: "Đã xử lý",
 };
 
 const PaymentStatus = {
@@ -143,9 +144,13 @@ const MyOrders = () => {
             </Link>
 
             <div className="flex-1">
-            <Link to={`/product/${product.id}/${toSlug(product.product_name)}`}>
-              <p className="font-medium text-base">{product.product_name}</p>
-            </Link>
+              <Link
+                to={`/product/${product.id}/${toSlug(product.product_name)}`}
+              >
+                <p className="font-medium text-base line-clamp-2">
+                  {product.product_name}
+                </p>
+              </Link>
               <p className="text-sm text-gray-500">
                 Size: {item.productvariant?.size}
               </p>
@@ -174,10 +179,12 @@ const MyOrders = () => {
               {PaymentStatus[order.payment_status]}
             </Tag>
           </p>
-          <p className="text-sm">
-            Trạng thái giao hàng:{" "}
-            <Tag>{ShippingStatus[order.shipping_status] || "Chưa rõ"}</Tag>
-          </p>
+          {[4, 5, 6, 7].includes(order.status) && (
+            <p className="text-sm">
+              Trạng thái giao hàng:{" "}
+              <Tag>{ShippingStatus[order.shipping_status] || "Chưa rõ"}</Tag>
+            </p>
+          )}
         </div>
         <div className="text-right font-semibold text-lg">
           Thành tiền:{" "}
@@ -187,17 +194,30 @@ const MyOrders = () => {
         </div>
       </div>
       <div className="p-3 border rounded mt-2">
-        <p className="text-xs text-gray-500"><span className="font-medium">Địa chỉ giao hàng:</span> {order.shipping_address}</p>
-        <p className="text-xs text-gray-500"><span className="font-medium">Người đặt:</span> {order.fullname}</p>
-        <p className="text-xs text-gray-500"><span className="font-medium">Số điện thoại:</span> {order.phone}</p>
-        <p className="text-xs text-gray-500"><span className="font-medium">Ghi chú:</span> {order.note || "Không có"} </p>
         <p className="text-xs text-gray-500">
-          <span className="font-medium">Thời gian đặt hàng:</span> {new Date(order.created_at).toLocaleString()}
+          <span className="font-medium">Địa chỉ giao hàng:</span>{" "}
+          {order.shipping_address}
+        </p>
+        <p className="text-xs text-gray-500">
+          <span className="font-medium">Người đặt:</span> {order.fullname}
+        </p>
+        <p className="text-xs text-gray-500">
+          <span className="font-medium">Số điện thoại:</span> {order.phone}
+        </p>
+        <p className="text-xs text-gray-500">
+          <span className="font-medium">Ghi chú:</span>{" "}
+          {order.note || "Không có"}{" "}
+        </p>
+        <p className="text-xs text-gray-500">
+          <span className="font-medium">Thời gian đặt hàng:</span>{" "}
+          {new Date(order.created_at).toLocaleString()}
         </p>
       </div>
       <div className="text-right mt-3 space-x-2">
         {order.payment_status === 1 && order.status === 1 && (
-          <Button type="primary" onClick={()=> handlePaymentAgain(order.id)}>Thanh toán ngay</Button>
+          <Button type="primary" onClick={() => handlePaymentAgain(order.id)}>
+            Thanh toán ngay
+          </Button>
         )}
         {[1, 2, 3, 4].includes(order.status) && (
           <Button danger onClick={() => handleCancelOrder(order.id)}>
@@ -256,7 +276,12 @@ const MyOrders = () => {
               </div>
             </>
           ) : (
-            <p className="text-gray-500">Không có đơn hàng nào.</p>
+            <div>
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={<span>Không có đơn hàng nào</span>}
+              />
+            </div>
           ),
         }))}
       />

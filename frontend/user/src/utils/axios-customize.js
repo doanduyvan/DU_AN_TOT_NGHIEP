@@ -44,14 +44,14 @@ instance.interceptors.response.use(
       localStorage.removeItem("token");
       window.location.replace = "/login";
     }
-    // if (error.response && error.response.status === 403) {
-    //   window.location.replace("/admin/forbidden");
-    //   AntNotification.showNotification(
-    //     "Không có quyền truy cập",
-    //     "Bạn không có quyền thực hiện hành động này.",
-    //     "warning"
-    //   );
-    // }
+    if (error.response && error.response.status === 403) {
+      window.location.replace("/admin/forbidden");
+      AntNotification.showNotification(
+        "Không có quyền truy cập",
+        "Bạn không có quyền thực hiện hành động này.",
+        "warning"
+      );
+    }
     if (error.response && error.response.status === 500) {
       message.error("Đã có lỗi xảy ra, vui lòng thử lại.");
     } else if (error.response && error.response.status === 404) {

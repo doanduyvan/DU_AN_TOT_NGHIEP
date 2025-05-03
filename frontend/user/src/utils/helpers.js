@@ -22,6 +22,7 @@ export function formatCurrency(value) {
   }
 
   export const formatTime = (isoTime) => {
+    if (!isoTime) return null; 
     const commentDate = new Date(isoTime);
     const now = new Date();
     const diff = (now - commentDate) / 1000; // chênh lệch giây

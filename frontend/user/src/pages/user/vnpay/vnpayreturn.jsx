@@ -16,19 +16,26 @@ const VnpayReturnPage = () => {
   const [vnpData, setVnpData] = useState({});
 
   const getVnpayData = () => {
-    const result = {
-      vnp_Amount: searchParams.get("vnp_Amount"),
-      vnp_BankCode: searchParams.get("vnp_BankCode"),
-      vnp_BankTranNo: searchParams.get("vnp_BankTranNo"),
-      vnp_CardType: searchParams.get("vnp_CardType"),
-      vnp_OrderInfo: searchParams.get("vnp_OrderInfo"),
-      vnp_PayDate: searchParams.get("vnp_PayDate"),
-      vnp_ResponseCode: searchParams.get("vnp_ResponseCode"),
-      vnp_TmnCode: searchParams.get("vnp_TmnCode"),
-      vnp_TransactionNo: searchParams.get("vnp_TransactionNo"),
-      vnp_TransactionStatus: searchParams.get("vnp_TransactionStatus"),
-      vnp_TxnRef: searchParams.get("vnp_TxnRef"),
-    };
+    // const result = {
+    //   vnp_Amount: searchParams.get("vnp_Amount"),
+    //   vnp_BankCode: searchParams.get("vnp_BankCode"),
+    //   vnp_BankTranNo: searchParams.get("vnp_BankTranNo"),
+    //   vnp_CardType: searchParams.get("vnp_CardType"),
+    //   vnp_OrderInfo: searchParams.get("vnp_OrderInfo"),
+    //   vnp_PayDate: searchParams.get("vnp_PayDate"),
+    //   vnp_ResponseCode: searchParams.get("vnp_ResponseCode"),
+    //   vnp_TmnCode: searchParams.get("vnp_TmnCode"),
+    //   vnp_TransactionNo: searchParams.get("vnp_TransactionNo"),
+    //   vnp_TransactionStatus: searchParams.get("vnp_TransactionStatus"),
+    //   vnp_TxnRef: searchParams.get("vnp_TxnRef"),
+    // };
+
+    const result = {};
+    for (const [key, value] of searchParams.entries()) {
+      if (key.startsWith("vnp_")) {
+        result[key] = value;
+      }
+    }
     return result;
   }
 

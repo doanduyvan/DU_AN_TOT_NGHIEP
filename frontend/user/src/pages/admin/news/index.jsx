@@ -11,7 +11,7 @@ import { Pagination } from "antd";
 export const NewsAdmin = () => {
 
     const [imageSrc, setImageSrc] = useState(null);
-    const [ loading, setLoading ] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState([]);
     const [news, setNews] = useState([]);
     const [selectedNews, setselectedNews] = useState([]);
@@ -260,6 +260,12 @@ export const NewsAdmin = () => {
                                 Hình ảnh
                             </th>
                             <th scope="col" className="px-6 py-3">
+                                Ngày tạo
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Ngày update
+                            </th>
+                            <th scope="col" className="px-6 py-3">
                                 Người tạo
                             </th>
                             <th scope="col" className="px-6 py-3">
@@ -302,7 +308,7 @@ export const NewsAdmin = () => {
                                         className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
                                     >
                                         <div className="ps-3">
-                                            <div className="text-base font-semibold truncate">
+                                            <div className="text-base font-semibold truncate max-w-[400px]">
                                                 {item.title}
                                             </div>
                                         </div>
@@ -323,6 +329,8 @@ export const NewsAdmin = () => {
                                         </a>
                                         <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
                                     </td>
+                                    <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(item.created_at).toLocaleDateString('vi-VN')}</td>
+                                    <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(item.updated_at).toLocaleDateString('vi-VN')}</td>
                                     <td className="px-6 py-4 text-gray-700 tracking-wide">
                                         {item.user?.fullname || 'Không có người tạo'}
                                     </td>

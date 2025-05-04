@@ -105,7 +105,7 @@ export const Update_Category_News = () => {
                         {Img && (
                             <div className="mt-3">
                                 <img
-                                    src={Img.startsWith('data:image/jpeg;base64,')
+                                    src={Img.startsWith('data:image/')
                                         ? Img 
                                         : `${urlImg + '/' + Img}` 
                                     }

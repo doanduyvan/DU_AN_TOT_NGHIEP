@@ -262,6 +262,9 @@ export const Products = () => {
                                 Thời gian tạo
                             </th>
                             <th scope="col" className="px-6 py-3">
+                                Thời gian update
+                            </th>
+                            <th scope="col" className="px-6 py-3">
                                 Người tạo
                             </th>
                             <th scope="col" className="px-6 py-3">
@@ -300,10 +303,10 @@ export const Products = () => {
                                 </td>
                                 <th
                                     scope="row"
-                                    className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950"
+                                    className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-slate-950 "
                                 >
                                     <div className="ps-3">
-                                        <div className="text-base font-semibold truncate">
+                                        <div className="text-base font-semibold truncate max-w-[300px]">
                                             {product.product_name}
                                         </div>
                                     </div>
@@ -325,6 +328,7 @@ export const Products = () => {
                                     <ImageModal imageSrc={imageSrc} closeModal={closeModal} />
                                 </td>
                                 <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(product.created_at).toLocaleDateString('vi-VN')}</td>
+                                <td className="px-6 py-4 text-gray-700 tracking-wide">{new Date(product.updated_at).toLocaleDateString('vi-VN')}</td>
                                 <td className="px-6 py-4 text-gray-700 tracking-wide">{product.user.fullname}</td>
                                 <td className="px-6 py-4">
                                     <Link

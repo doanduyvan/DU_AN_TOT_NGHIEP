@@ -161,7 +161,7 @@ export const Update_News = () => {
                         {avatar && (
                             <div className="mt-3">
                                 <img
-                                    src={avatar.startsWith('data:image/jpeg;base64,')
+                                    src={avatar.startsWith('data:image/')
                                         ? avatar
                                         : `${urlImg + '/' + avatar}`
                                     }

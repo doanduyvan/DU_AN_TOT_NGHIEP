@@ -184,7 +184,7 @@ const Checkout = () => {
     <>
       <div className="pt-[90px]"></div>
       <div className="px-3 pb-8">
-        <div className="grid grid-cols-12 gap-2">
+        <div className="swapper grid grid-cols-12 gap-2">
           {/* LEFT CONTENT */}
           <div className="col-span-12 md:col-span-7 lg:col-span-8 bg-white p-4 rounded-md shadow">
             <h2 className="text-2xl font-semibold mb-4">Thanh toán</h2>

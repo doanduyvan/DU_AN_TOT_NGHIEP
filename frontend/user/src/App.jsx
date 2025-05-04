@@ -132,7 +132,7 @@ function App() {
     { path: 'accounts/create', element: < CreateAccount /> },
     { path: 'accounts/rolelevel/:userId', element: < Set_User_Role /> },
     { path: 'accounts/update/:userId', element: < UpdateAccount /> },
-    { path: 'accounts/trash', element: < UsersTrash /> },
+    // { path: 'accounts/trash', element: < UsersTrash /> },
 
     { path: 'categories', element: < Categories /> },
     { path: 'categories/create', element: < Create_category /> },

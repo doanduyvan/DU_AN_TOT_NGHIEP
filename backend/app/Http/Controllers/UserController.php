@@ -36,20 +36,20 @@ class UserController extends Controller
         $users = User::with('shippingAddresses')->get();
         return response()->json($users);
     }
-    public function destroy(Request $request)
-    {
-        $ids = $request->ids;
-        if (is_array($ids) && !empty($ids)) {
-            try {
-                User::whereIn('id', $ids)->delete();
-                return response()->json(['message' => 'Xóa người dùng thành công', 'status' => 200], 200);
-            } catch (QueryException $e) {
-                return response()->json(['message' => 'Xóa người dùng thất bại: ' . $e->getMessage(), 'status' => 500], 500);
-            }
-        } else {
-            return response()->json(['message' => 'Xóa người dùng thất bại', 'status' => 404], 404);
-        }
-    }
+    // public function destroy(Request $request)
+    // {
+    //     $ids = $request->ids;
+    //     if (is_array($ids) && !empty($ids)) {
+    //         try {
+    //             User::whereIn('id', $ids)->delete();
+    //             return response()->json(['message' => 'Xóa người dùng thành công', 'status' => 200], 200);
+    //         } catch (QueryException $e) {
+    //             return response()->json(['message' => 'Xóa người dùng thất bại: ' . $e->getMessage(), 'status' => 500], 500);
+    //         }
+    //     } else {
+    //         return response()->json(['message' => 'Xóa người dùng thất bại', 'status' => 404], 404);
+    //     }
+    // }
     public function updateStatus(request $request)
     {
         $validatedData = $request->validate([

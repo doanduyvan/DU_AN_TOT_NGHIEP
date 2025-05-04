@@ -37,8 +37,8 @@ class ProductVariantRequest extends FormRequest
                     $index = explode('.', $attribute)[1];
                     $price = $this->input("variants.$index.price");
             
-                    if ($value > $price) {
-                        $fail("Giá khuyến mãi không thể lớn hơn hoặc bằng giá gốc. $price, $value");
+                    if ($value >= $price) {
+                        $fail("Giá khuyến mãi không thể lớn hơn hoặc bằng giá gốc");
                     }
                 }
             ],

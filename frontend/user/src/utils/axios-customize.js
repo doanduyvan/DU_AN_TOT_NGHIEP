@@ -41,6 +41,11 @@ instance.interceptors.response.use(
   async function (error) {
     const originalRequest = error.config;
     if (error.response && error.response.status === 401) {
+      AntNotification.showNotification(
+        "Không có quyền truy cập",
+        "Tài khoản của bạn đã bị khóa.",
+        "error"
+      );
       localStorage.removeItem("token");
       window.location.replace = "/login";
     }

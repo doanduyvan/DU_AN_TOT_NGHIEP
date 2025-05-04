@@ -91,6 +91,7 @@ import VouchersChart from "./components/chart/voucher";
 import VnpayReturnPage from "./pages/user/vnpay/vnpayreturn";
 import VerifyEmail from "./pages/user/VerifyEmail";
 import ResetPassword from "./pages/user/ResetPassword";
+import NotFound from "./pages/user/notfound";
 
 
 function App() {
@@ -186,6 +187,7 @@ function App() {
     {
       path: '/',
       element: <UserLayout />,
+      errorElement: <NotFound />,
       children: [
         {
           index: true, element:

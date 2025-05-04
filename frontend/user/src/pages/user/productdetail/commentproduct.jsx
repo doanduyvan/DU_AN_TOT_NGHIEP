@@ -256,7 +256,7 @@ const CommentItem = ({ comment, activeReplyId, setActiveReplyId, isLoggedIn, set
     <div className="border-b pb-4 mb-4 last:border-b-0 last:mb-0">
       <div className="flex items-start space-x-3">
         <div>
-          {comment.user.avatar ? (
+          {comment.user?.avatar ? (
             <img
               src={baseUrlImg + comment.user.avatar}
               alt="avatar"
@@ -264,14 +264,14 @@ const CommentItem = ({ comment, activeReplyId, setActiveReplyId, isLoggedIn, set
             />
           ) : (
             <div className="w-10 h-10 rounded-full bg-gray-500 flex justify-center items-center text-white text-2xl">
-              {comment.user.fullname.trim().charAt(0).toUpperCase()}
+              {comment.user?.fullname.trim().charAt(0).toUpperCase()}
             </div>
           )}
         </div>
         <div className="flex-1">
           <div className="flex items-start flex-wrap">
             <div className="pr-2">
-              <p className="font-semibold text-sm">{comment.user.fullname}</p>
+              <p className="font-semibold text-sm">{comment.user?.fullname}</p>
               <Rate
                 allowClear={false}
                 value={comment.rating}
@@ -330,7 +330,7 @@ const CommentItem = ({ comment, activeReplyId, setActiveReplyId, isLoggedIn, set
                   className="flex items-start space-x-3 py-2 last:border-b-0 last:pb-0"
                 >
                   <div>
-                    {reply.user.avatar ? (
+                    {reply.user?.avatar ? (
                       <img
                         src={baseUrlImg + reply.user.avatar}
                         alt="avatar"
@@ -338,7 +338,7 @@ const CommentItem = ({ comment, activeReplyId, setActiveReplyId, isLoggedIn, set
                       />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-gray-500 flex justify-center items-center text-white text-2xl">
-                        {reply.user.fullname.trim().charAt(0).toUpperCase()}
+                        {reply.user?.fullname.trim().charAt(0).toUpperCase()}
                       </div>
                     )}
                   </div>
@@ -346,7 +346,7 @@ const CommentItem = ({ comment, activeReplyId, setActiveReplyId, isLoggedIn, set
                     <div className="flex items-start flex-wrap">
                       <div className="pr-2">
                         <p className="font-semibold text-sm">
-                          {reply.user.fullname}
+                          {reply.user?.fullname}
                         </p>
                       </div>
                       <div>

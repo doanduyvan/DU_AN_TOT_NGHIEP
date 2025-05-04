@@ -187,12 +187,12 @@ export const Users = () => {
                         </select>
                     </div>
                     <div className="py-1 flex flex-wrap-reverse">
-                        {(selectedUsers.length > 0) ?
+                        {/* {(selectedUsers.length > 0) ?
                             <DeleteConfirmationModal
                                 data={`Bạn có chắc chắn muốn xóa ${selectedUsers.length} người dùng này không?`}
                                 onDelete={hanDleDelete}
                             /> : null
-                        }
+                        } */}
                         <label htmlFor="table-search" className="sr-only">
                             Tìm kiếm
                         </label>

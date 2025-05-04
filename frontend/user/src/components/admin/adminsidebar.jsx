@@ -181,11 +181,11 @@ export const AdminSidebar = () => {
                     name: "Danh sách",
                     link: "/admin/accounts",
                 },
-                {
-                    id: "9.3",
-                    name: "Danh sách đã xóa",
-                    link: "/admin/accounts/trash",
-                },
+                // {
+                //     id: "9.3",
+                //     name: "Danh sách đã xóa",
+                //     link: "/admin/accounts/trash",
+                // },
             ]
         },
         {

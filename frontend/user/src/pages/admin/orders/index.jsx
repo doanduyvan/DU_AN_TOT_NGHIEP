@@ -431,7 +431,7 @@ export const Orders = () => {
                                     >
                                         <div className="px-6 py-4">
                                             <div className="text-base font-semibold">
-                                                {order.fullname}
+                                                {order?.fullname || 'Không xác định'}
                                             </div>
                                         </div>
                                     </th>
@@ -475,7 +475,7 @@ export const Orders = () => {
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="text-base font-semibold">
-                                            {order.user.fullname}
+                                            {order.user?.fullname || 'Không xác định'}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">

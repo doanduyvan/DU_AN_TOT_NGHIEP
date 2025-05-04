@@ -131,12 +131,14 @@ class OrderController extends Controller
                 $orders = Order::whereIn('id', $ids)
                     ->where('created_by_admin', 1)
                     ->get();
-                if ($orders->isEmpty()) {
+                if ($orders->isEmpty() || $orders->count() != count($ids)) {
+                    DB::rollBack();
                     return response()->json([
                         'message' => 'Không thể xóa. Chỉ các đơn hàng được tạo bởi admin mới có thể bị xóa.',
                         'status' => 'error'
                     ], 400);
                 }
+
                 foreach ($orders as $order) {
                     $order->orderDetails()->delete();
                 }

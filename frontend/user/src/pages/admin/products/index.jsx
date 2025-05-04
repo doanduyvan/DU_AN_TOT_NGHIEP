@@ -262,7 +262,7 @@ export const Products = () => {
                                 Thời gian tạo
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Thời gian cập nhật
+                                Thời gian update
                             </th>
                             <th scope="col" className="px-6 py-3">
                                 Người tạo

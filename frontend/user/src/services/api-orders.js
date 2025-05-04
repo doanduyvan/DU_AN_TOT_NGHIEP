@@ -50,7 +50,7 @@ const OrderService = {
     return apiPost(`/orders/update-shipping-status/${id}`, { shipping_status });
   },
   searchProduct: async (query) => {
-    return apiPost("/products/search-variant-product",  query);
+    return apiPost("/orders/search-variant-product",  query);
   },
   updateOrderDetail: async (data) => {
     return apiPost(`/orders/update-order-detail`,  data);

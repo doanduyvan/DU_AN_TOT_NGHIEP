@@ -82,7 +82,7 @@ Route::group(['prefix' => 'orders'], function () {
     Route::get('get-order-count', [OrderController::class, 'getOrderCount']);
     Route::get('category-products', [OrderController::class, 'getCategoryProducts']);
     Route::post('update/{id}', [OrderController::class, 'update'])->middleware('check.permission:update-order');
-    route::post('search-variant-product', [ProductsController::class, 'searchVariantProduct'])->middleware('check.permission:update-order,create-order');
+    route::post('search-variant-product', [ProductsController::class, 'searchVariantProduct']);
     Route::post('destroy', [OrderController::class, 'destroy'])->middleware('check.permission:delete-order');
     Route::post('create', [OrderController::class, 'create'])->middleware('check.permission:create-order');
     Route::post('create-user', [OrderController::class, 'createUser'])->middleware('check.permission:create-order');

@@ -22,8 +22,8 @@ class ProductsController extends Controller
     {
         $filters = request()->only(['per_page', 'sortorder', 'keyword', 'filter_category']);
         $products = Product::search($filters['keyword'] ?? null)
-        ->filterCategory($filters['filter_category'] ?? null)
-        ->applyFilters($filters);
+            ->filterCategory($filters['filter_category'] ?? null)
+            ->applyFilters($filters);
         $products->load('user');
         $products->getCollection()->transform(function ($product) {
             $product->user_name = $product->user ? $product->user->fullname : null;
@@ -31,8 +31,9 @@ class ProductsController extends Controller
         });
         return response()->json($products);
     }
-    
-    public function getProductCount(){
+
+    public function getProductCount()
+    {
         $productCount = Product::count();
         return response()->json([
             'count' => $productCount,
@@ -129,27 +130,57 @@ class ProductsController extends Controller
 
         if (is_array($ids) && !empty($ids)) {
             try {
-                foreach ($ids as $id) {
-                    $product = Product::find($id);
+                // Eager load các quan hệ cần kiểm tra
+                $products = Product::with(['variants.orderDetails', 'comment'])->whereIn('id', $ids)->get();
 
-                    if ($product && $product->comment()->count() > 0) {
-                        return response()->json(['message' => 'Không thể xóa sản phẩm vì có bình luận liên quan', 'status' => 'error'], 400);
+                foreach ($products as $product) {
+                    // Kiểm tra nếu có bình luận
+                    if ($product->comment->count() > 0) {
+                        return response()->json([
+                            'message' => 'Không thể xóa sản phẩm vì có bình luận liên quan',
+                            'status' => 'error'
+                        ], 400);
+                    }
+
+                    // Kiểm tra nếu có order liên quan tới bất kỳ variant nào
+                    foreach ($product->variants as $variant) {
+                        if ($variant->orderDetails->count() > 0) {
+                            return response()->json([
+                                'message' => 'Không thể xóa sản phẩm vì có dữ liệu liên quan',
+                                'status' => 'error'
+                            ], 400);
+                        }
                     }
                 }
 
-                // Nếu không có biến thể liên quan, tiến hành xóa sản phẩm
+                // Nếu không có liên kết, tiến hành xóa
                 Product::whereIn('id', $ids)->delete();
-                return response()->json(['message' => 'Xóa sản phẩm thành công', 'status' => 200], 200);
+
+                return response()->json([
+                    'message' => 'Xóa sản phẩm thành công',
+                    'status' => 200
+                ], 200);
             } catch (QueryException $e) {
                 if ($e->getCode() == '23000') {
-                    return response()->json(['message' => 'Không thể xóa sản phẩm vì có dữ liệu liên quan', 'status' => 'error'], 400);
+                    return response()->json([
+                        'message' => 'Không thể xóa sản phẩm vì có dữ liệu liên quan',
+                        'status' => 'error'
+                    ], 400);
                 }
-                return response()->json(['message' => 'Xóa sản phẩm thất bại: ' . $e->getMessage(), 'status' => 'error'], 500);
+
+                return response()->json([
+                    'message' => 'Xóa sản phẩm thất bại: ' . $e->getMessage(),
+                    'status' => 'error'
+                ], 500);
             }
         } else {
-            return response()->json(['message' => 'Xóa sản phẩm thất bại', 'status' => 'error'], 400);
+            return response()->json([
+                'message' => 'Xóa sản phẩm thất bại',
+                'status' => 'error'
+            ], 400);
         }
     }
+
 
 
     public function update(ProductRequest $productRequest, ProductImageRequest $imageRequest, ProductVariantRequest $variantRequest, $id)
@@ -195,7 +226,7 @@ class ProductsController extends Controller
             }
             // Kiểm tra và xử lý biến thể sản phẩm
             $variants = $variantRequest->validated();
-    
+
 
             if (!is_array($variants) || empty($variants)) {
                 throw new \Exception('Dữ liệu biến thể không hợp lệ');
@@ -228,9 +259,9 @@ class ProductsController extends Controller
                         ->where('id', '!=', $variant['id'] ?? null)  // Bỏ qua id của biến thể đang cập nhật
                         ->first();
 
-                        if($variant['promotional_price'] === 'null'){
-                            $variant['promotional_price'] = null;
-                        }
+                    if ($variant['promotional_price'] === 'null') {
+                        $variant['promotional_price'] = null;
+                    }
 
                     $existingVariantSku = ProductVariant::where('sku', $variant['sku'])
                         ->where('id', '!=', $variant['id'] ?? null)

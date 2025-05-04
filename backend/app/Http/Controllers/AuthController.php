@@ -72,7 +72,14 @@ class AuthController extends Controller
             'email' => 'required|string|email',
             'password' => 'required|string|min:6|max:255',
         ], $messages);
+
         $user = User::where('email', $request->email)->first();
+        if ($user->status === 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Tài khoản của bạn đã bị khóa'
+            ], 401);
+        }
         if ($user) {
             if ($user->is_verify == 0) {
                 return response()->json([
@@ -136,6 +143,13 @@ class AuthController extends Controller
             'status' => 1,
             'password' => Hash::make(Str::random(20)), // Tạo mật khẩu ngẫu nhiên
         ]);
+
+        if ($user->status === 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Tài khoản của bạn đã bị khóa'
+            ], 401);
+        }
 
         // Kiểm tra xem người dùng đã có quyền chưa, nếu chưa thì gán quyền mặc định
         if (!$user->hasRole('Users')) {
@@ -214,11 +228,11 @@ class AuthController extends Controller
      */
     public function me(Request $request)
     {
-        if ($request->user()->status == 0) {
+        if ($request->user()->status === 0) {
             return response()->json([
-                'status' => 401,
+                'status' => 'error',
                 'message' => 'Tài khoản của bạn đã bị khóa'
-            ]);
+            ], 401);
         }
         return response()->json([
             'status' => true,

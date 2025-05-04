@@ -62,7 +62,7 @@ const LoggedIn = () => {
     };
 
     // const avatar = user.avatar ? baseUrlImg + user.avatar : null;
-    const avatar = urlAvatar(user.avatar);
+    const avatar = urlAvatar(user?.avatar);
 
     return (
       <Dropdown

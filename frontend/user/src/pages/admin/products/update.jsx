@@ -162,7 +162,7 @@ export const Update_Product = () => {
 
             if (!variant.promotional_price) {
                 formData.append(`variants[${index}][promotional_price]`, null);
-            }else{
+            } else {
                 formData.append(`variants[${index}][promotional_price]`, variant.promotional_price);
             }
             formData.append(`variants[${index}][sku]`, variant.sku);
@@ -267,12 +267,12 @@ export const Update_Product = () => {
                         {avatar && (
                             <div className="mt-3">
                                 <img
-                                    src={avatar && (avatar.startsWith('http://') || avatar.startsWith('https://'))
-                                        ? avatar
-                                        : (avatar.startsWith('data:image/jpeg;base64,')
+                                    src={
+                                        avatar.startsWith('data:image/')
                                             ? avatar
-                                            : urlSRC + avatar
-                                        )}
+                                            : `${urlSRC + '/' + avatar}`
+
+                                    }
                                     alt="Xem trước ảnh"
                                     className="max-w-full h-auto max-h-64 rounded-lg border border-gray-300"
                                 />

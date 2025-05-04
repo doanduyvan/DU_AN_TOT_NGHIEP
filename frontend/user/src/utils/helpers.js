@@ -9,6 +9,7 @@ export function formatCurrency(value) {
   }
   
   export function toSlug(str) {
+    if (!str) return null;
     return str
       .normalize('NFD')                   // tách dấu ra khỏi chữ
       .replace(/[\u0300-\u036f]/g, '')    // xóa các dấu

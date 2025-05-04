@@ -168,6 +168,7 @@ export const Orders = () => {
                         (order) => !selectedOrders.includes(order.id)
                     );
                 });
+                fetchData();
                 AntNotification.showNotification(
                     "Xóa đơn hàng thành công",
                     res?.message,

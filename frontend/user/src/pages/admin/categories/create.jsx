@@ -20,7 +20,7 @@ export const Create_category = () => {
         const formData = new FormData(e.target);
         const fileInput = document.querySelector('input[type="file"]');
         if (fileInput.files.length === 0) {
-            alert('Vui lòng chọn một tệp để tải lên.');
+            AntNotification.showNotification("Thêm danh mục thất bại", "Vui lòng chọn hình ảnh", "warning");
             return;
         }
         try {

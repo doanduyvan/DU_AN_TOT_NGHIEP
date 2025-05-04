@@ -90,7 +90,7 @@ export const Create_Product = () => {
         const avatarFile = document.querySelector('input[name="avatar"]').files[0];
 
         if (!avatarFile || imageFiles.length === 0) {
-            alert('Vui lòng chọn ảnh đại diện và ít nhất một hình ảnh sản phẩm.');
+            AntNotification.showNotification("Lỗi", "Vui lòng chọn ảnh đại diện và ít nhất một ảnh sản phẩm", "error");
             return;
         }
 
@@ -305,7 +305,6 @@ export const Create_Product = () => {
                                         value={variant.price}
                                         onChange={(e) => handleVariantChange(index, e)}
                                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                        required
                                     />
                                 </div>
 

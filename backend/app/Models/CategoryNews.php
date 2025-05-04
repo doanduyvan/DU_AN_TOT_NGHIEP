@@ -15,7 +15,7 @@ class CategoryNews extends Model
     protected $fillable = ['category_news_name', 'img'];
     public function news()
     {
-        return $this->hasMany(Product::class, 'category_news_id', 'id');
+        return $this->hasMany(News::class);
     }
     public function scopePaginate($query, $perPage)
     {

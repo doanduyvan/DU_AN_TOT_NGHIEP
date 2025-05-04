@@ -15,7 +15,7 @@ class CategoryNewsController extends Controller
     {
         $filters = request()->only(['per_page', 'sortorder', 'keyword']);
         $categories = CategoryNews::search($filters['keyword'] ?? null)
-        ->applyFilters($filters);
+            ->applyFilters($filters);
         return response()->json($categories);
     }
     public function getCategoyById($id)
@@ -51,6 +51,16 @@ class CategoryNewsController extends Controller
         $ids = $request->ids;
         if (is_array($ids) && !empty($ids)) {
             try {
+                $category = CategoryNews::with('news')->whereIn('id', $ids)->get();
+                foreach ($category as $item) {
+                    // Kiểm tra nếu có bình luận
+                    if ($item->news->count() > 0) {
+                        return response()->json([
+                            'message' => 'Không thể xóa sản danh mục vì có dữ liệu liên quan',
+                            'status' => 'error'
+                        ], 400);
+                    }
+                }
                 // $categories = CategoryNews::whereIn('id', $ids)->get();
                 // foreach ($categories as $category) {
                 //     if ($category->img) {
@@ -69,7 +79,7 @@ class CategoryNewsController extends Controller
             return response()->json(['message' => 'Xóa danh mục thất bại', 'status' => 'error'], 400);
         }
     }
-    
+
     public function update(CategoryNewsRequest $request, $id)
     {
         $validateData = $request->validated();

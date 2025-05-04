@@ -56,6 +56,7 @@ const Checkout = () => {
   useEffect(() => {
     const fetchAddresses = async () => {
       try {
+        setLoadingCheckout(true);
         const res = await AxiosUser.get(urlAddAddress, { useToken: true });
         const data = res.addresses;
         const dataFormatted = data.map((item) => handleFomatAddress(item));
@@ -67,6 +68,8 @@ const Checkout = () => {
       } catch (error) {
         const message2 = error.response?.data?.message || "Có lỗi xảy ra khi tải địa chỉ.";
         message.error(message2);
+      }finally{
+        setLoadingCheckout(false);
       }
     };
     if(isLoggedIn) fetchAddresses();

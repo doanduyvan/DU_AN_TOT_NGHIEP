@@ -179,7 +179,7 @@ const MyOrders = () => {
               {PaymentStatus[order.payment_status]}
             </Tag>
           </p>
-          {[4, 5, 6, 7].includes(order.status) && (
+          {[4, 5].includes(order.status) && (
             <p className="text-sm">
               Trạng thái giao hàng:{" "}
               <Tag>{ShippingStatus[order.shipping_status] || "Chưa rõ"}</Tag>

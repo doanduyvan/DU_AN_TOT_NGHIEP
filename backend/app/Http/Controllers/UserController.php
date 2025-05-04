@@ -133,6 +133,7 @@ class UserController extends Controller
                 'email' => $validatedData['email'],
                 'phone' => $validatedData['phone'],
                 'status' => $validatedData['status'],
+                'is_verify' => 1,
                 'password' => Hash::make($validatedData['password']),
             ]);
             return response()->json([

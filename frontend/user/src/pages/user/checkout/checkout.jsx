@@ -56,6 +56,7 @@ const Checkout = () => {
   useEffect(() => {
     const fetchAddresses = async () => {
       try {
+        setLoadingCheckout(true);
         const res = await AxiosUser.get(urlAddAddress, { useToken: true });
         const data = res.addresses;
         const dataFormatted = data.map((item) => handleFomatAddress(item));
@@ -67,6 +68,8 @@ const Checkout = () => {
       } catch (error) {
         const message2 = error.response?.data?.message || "Có lỗi xảy ra khi tải địa chỉ.";
         message.error(message2);
+      }finally{
+        setLoadingCheckout(false);
       }
     };
     if(isLoggedIn) fetchAddresses();
@@ -181,7 +184,7 @@ const Checkout = () => {
     <>
       <div className="pt-[90px]"></div>
       <div className="px-3 pb-8">
-        <div className="grid grid-cols-12 gap-2">
+        <div className="swapper grid grid-cols-12 gap-2">
           {/* LEFT CONTENT */}
           <div className="col-span-12 md:col-span-7 lg:col-span-8 bg-white p-4 rounded-md shadow">
             <h2 className="text-2xl font-semibold mb-4">Thanh toán</h2>

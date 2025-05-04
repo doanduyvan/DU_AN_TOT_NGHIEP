@@ -136,6 +136,7 @@ class UserController extends Controller
                 'is_verify' => 1,
                 'password' => Hash::make($validatedData['password']),
             ]);
+            $user->assignRole('Users');
             return response()->json([
                 'message' => 'Tạo tài khoản thành công',
                 'user' => $user,

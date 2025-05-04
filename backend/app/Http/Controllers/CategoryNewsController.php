@@ -56,7 +56,7 @@ class CategoryNewsController extends Controller
                     // Kiểm tra nếu có bình luận
                     if ($item->news->count() > 0) {
                         return response()->json([
-                            'message' => 'Không thể xóa sản danh mục vì có dữ liệu liên quan',
+                            'message' => 'Không thể xóa danh mục vì có dữ liệu liên quan',
                             'status' => 'error'
                         ], 400);
                     }

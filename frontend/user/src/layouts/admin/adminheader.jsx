@@ -110,7 +110,7 @@ export const AdminHeader = () => {
             items: [
                 {
                     key: "profile",
-                    label: <span>{currentUser ? currentUser.fullname : 'Người dùng'}</span>,
+                    label: <Link to="/profile?tab=1" >{currentUser ? currentUser.fullname : 'Người dùng'}</Link>,
                 },
                 {
                     key: "logout",

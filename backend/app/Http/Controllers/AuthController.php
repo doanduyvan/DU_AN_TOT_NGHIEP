@@ -146,7 +146,7 @@ class AuthController extends Controller
 
         if ($user->status === 0) {
             return response()->json([
-                'status' => 'error',
+                'status' => 401,
                 'message' => 'Tài khoản của bạn đã bị khóa'
             ], 401);
         }
@@ -230,7 +230,7 @@ class AuthController extends Controller
     {
         if ($request->user()->status === 0) {
             return response()->json([
-                'status' => 'error',
+                'status' => 401,
                 'message' => 'Tài khoản của bạn đã bị khóa'
             ], 401);
         }
